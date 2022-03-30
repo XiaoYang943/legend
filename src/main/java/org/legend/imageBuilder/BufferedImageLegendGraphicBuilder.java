@@ -1,0 +1,405 @@
+package org.legend.imageBuilder;
+
+/* (c) 2014 - 2016 Open Source Geospatial Foundation - all rights reserved
+ * (c) 2001 - 2013 OpenPlans
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
+ */
+
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.RenderingHints;
+import java.awt.image.BufferedImage;
+import java.awt.image.RenderedImage;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.imageio.ImageIO;
+
+import org.apache.commons.lang3.StringUtils;
+import org.geotools.geometry.jts.LiteShape2;
+import org.geotools.map.FeatureLayer;
+import org.geotools.renderer.lite.MetaBufferEstimator;
+import org.geotools.renderer.lite.StyledShapePainter;
+import org.geotools.renderer.style.SLDStyleFactory;
+import org.geotools.renderer.style.Style2D;
+import org.geotools.styling.*;
+import org.geotools.styling.visitor.RescaleStyleVisitor;
+import org.geotools.util.NumberRange;
+import org.legend.legendGraphicDetails.*;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.opengis.feature.Feature;
+import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.feature.type.FeatureType;
+import org.opengis.filter.expression.Expression;
+import org.opengis.filter.expression.Literal;
+import org.opengis.style.GraphicLegend;
+
+/**
+ * Template {@linkPlain org.vfny.geoserver.responses.wms.GetLegendGraphicProducer} based on <a
+ * href="http://svn.geotools.org/geotools/trunk/gt/module/main/src/org/geotools/renderer/lite/StyledShapePainter.java">
+ * GeoTools StyledShapePainter</a> that produces a BufferedImage with the appropriate legend graphic
+ * for a given GetLegendGraphic WMS request.
+ *
+ * <p>It should be enough for a subclass to implement {@linkPlain
+ * org.vfny.geoserver.responses.wms.GetLegendGraphicProducer#writeTo(OutputStream)} and <code>
+ * getContentType()</code> in order to encode the BufferedImage produced by this class to the
+ * appropriate output format.
+ *
+ * <p>This class takes literally the fact that the arguments <code>WIDTH</code> and <code>HEIGHT
+ * </code> are just <i>hints</i> about the desired dimensions of the produced graphic, and the need
+ * to produce a legend graphic representative enough of the SLD style for which it is being
+ * generated. Thus, if no <code>RULE</code> parameter was passed and the style has more than one
+ * applicable Rule for the actual scale factor, there will be generated a legend graphic of the
+ * specified width, but with as many stacked graphics as applicable rules were found, providing by
+ * this way a representative enough legend.
+ *
+ * @author Gabriel Roldan
+ * @author Simone Giannecchini, GeoSolutions SAS
+ * @version $Id$
+ */
+public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
+    Logger LOGGER = Logger.getLogger("org.geoserver.wms.legendgraphic");
+
+    /** Tolerance used to compare doubles for equality */
+    public static final double TOLERANCE = 1e-6;
+
+    /**
+     * Singleton shape painter to serve all legend requests. We can use a single shape painter
+     * instance as long as it remains thread safe.
+     */
+    private static final StyledShapePainter shapePainter = new StyledShapePainter();
+
+    /** used to create sample point shapes with LiteShape (not lines nor polygons) */
+    private static final GeometryFactory geomFac = new GeometryFactory();
+
+    /**
+     * Just a holder to avoid creating many point shapes from inside <code>getSampleShape()</code>
+     */
+    private LiteShape2 samplePoint;
+
+    /**
+     * Default minimum size for symbols rendering. Can be overridden using LEGEND_OPTIONS
+     * (minSymbolSize).
+     */
+    private final double MINIMUM_SYMBOL_SIZE = 3.0;
+
+    /**
+     * Default constructor. Subclasses may provide its own with a String parameter to establish its
+     * desired output format, if they support more than one (e.g. a JAI based one)
+     */
+    public BufferedImageLegendGraphicBuilder() {
+        super();
+    }
+
+    /**
+     * Takes a GetLegendGraphicRequest and produces a BufferedImage that then can be used by a
+     * subclass to encode it to the appropriate output format.
+     *
+     * @throws Exception if there are problems creating a "sample" feature instance for the
+     *     FeatureType <code>request</code> returns as the required layer (which should not occur).
+     */
+    public BufferedImage buildLegendGraphic(FeatureLayer featureLayer, Map<String, Object> legendOptions) throws Exception {
+        // list of images to be rendered for the layers (more than one if
+        // a layer group is given)
+        setup(featureLayer, legendOptions);
+
+        SimpleFeatureType schema2 = (SimpleFeatureType)featureLayer.getFeatureSource().getSchema();
+
+        List<RenderedImage> layersImages = new ArrayList<>();
+
+        FeatureType layer = (SimpleFeatureType)featureLayer.getFeatureSource().getSchema();
+        // style and rule to use for the current layer
+        Style gt2Style = featureLayer.getStyle();
+        if (gt2Style == null) {
+            throw new NullPointerException("There is no style in featureLayer");
+        }
+
+        RenderedImage titleImage = null;
+
+        Feature sampleFeature = createSampleFeature(layer);
+
+        final FeatureTypeStyle[] ftStyles = gt2Style.featureTypeStyles().toArray(new FeatureTypeStyle[0]);
+
+        final double scaleDenominator = -1.0;
+        Rule[] applicableRules = LegendUtils.getApplicableRules(ftStyles, scaleDenominator);
+
+        /**
+         * A legend graphic is produced for each applicable rule. They're being held here
+         * until the process is done and then painted on a "stack" like legend.
+         */
+        final SLDStyleFactory styleFactory = new SLDStyleFactory();
+
+        double minimumSymbolSize = MINIMUM_SYMBOL_SIZE;
+
+        // calculate the symbols rescaling factor necessary for them to be
+        // drawn inside the icon box
+        int defaultSize = Math.min(w, h);
+
+        double[] minMax =
+                calcSymbolSize(
+                        defaultSize,
+                        minimumSymbolSize,
+                        layer,
+                        sampleFeature,
+                        applicableRules);
+        double actualMin = minMax[0];
+        double actualMax = minMax[1];
+        boolean rescalingRequired =
+                actualMin < minimumSymbolSize || actualMax > defaultSize;
+        java.util.function.Function<Double, Double> rescaler = null;
+        if (actualMax == actualMin
+                || ((actualMin / actualMax) * defaultSize) > minimumSymbolSize) {
+            rescaler = size -> (size / actualMax) * defaultSize;
+        } else {
+            double finalMinimumSymbolSize = minimumSymbolSize;
+            rescaler =
+                    size ->
+                            (size - actualMin)
+                                    / (actualMax - actualMin)
+                                    * (defaultSize - finalMinimumSymbolSize)
+                                    + finalMinimumSymbolSize;
+        }
+        boolean transparent = false;
+        final NumberRange<Double> scaleRange = NumberRange.create(scaleDenominator, scaleDenominator);
+        final int ruleCount = applicableRules.length;
+        final List<RenderedImage> legendsStack = new ArrayList<>(ruleCount);
+        renderRules(
+                legendOptions,
+                layersImages,
+                forceLabelsOn,
+                forceLabelsOff,
+                forceTitlesOff,
+                layer,
+                transparent,
+                titleImage,
+                sampleFeature,
+                scaleDenominator,
+                applicableRules,
+                scaleRange,
+                ruleCount,
+                legendsStack,
+                styleFactory,
+                minimumSymbolSize,
+                rescalingRequired,
+                rescaler);
+
+        // all legend graphics are merged if we have a layer group
+        BufferedImage finalLegend =
+                mergeGroups(
+                        layersImages, null, legendOptions, forceLabelsOn, forceLabelsOff, forceTitlesOff);
+        if (finalLegend == null) {
+            throw new IllegalArgumentException("no legend passed");
+        }
+        return finalLegend;
+    }
+
+    /** */
+    private void renderRules(
+            Map<String, Object> legendOptions,
+            List<RenderedImage> layersImages,
+            boolean forceLabelsOn,
+            boolean forceLabelsOff,
+            boolean forceTitlesOff,
+            FeatureType layer,
+            final boolean transparent,
+            RenderedImage titleImage,
+            final Feature sampleFeature,
+            final double scaleDenominator,
+            Rule[] applicableRules,
+            final NumberRange<Double> scaleRange,
+            final int ruleCount,
+            final List<RenderedImage> legendsStack,
+            final SLDStyleFactory styleFactory,
+            double minimumSymbolSize,
+            boolean rescalingRequired,
+            java.util.function.Function<Double, Double> rescaler) throws Exception {
+        MetaBufferEstimator estimator = new MetaBufferEstimator(sampleFeature);
+        for (int i = 0; i < ruleCount; i++) {
+
+            final RenderedImage image = ImageUtils.createImage(w, h, null, transparent);
+            final Map<RenderingHints.Key, Object> hintsMap = new HashMap<>();
+            final Graphics2D graphics =
+                    ImageUtils.prepareTransparency(
+                            transparent, LegendUtils.getBackgroundColor(legendOptions), image, hintsMap);
+            graphics.setRenderingHint(
+                    RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+            Feature sample = getSampleFeatureForRule(layer, sampleFeature, applicableRules[i]);
+
+            final List<Symbolizer> symbolizers = applicableRules[i].symbolizers();
+            final GraphicLegend graphic = applicableRules[i].getLegend();
+
+            // If this rule has a legend graphic defined in the SLD, use it
+            if (graphic != null) {
+                if (this.samplePoint == null) {
+                    Coordinate coord = new Coordinate(w / 2, h / 2);
+
+                    try {
+                        this.samplePoint =
+                                new LiteShape2(geomFac.createPoint(coord), null, null, false);
+                    } catch (Exception e) {
+                        this.samplePoint = null;
+                    }
+                }
+                shapePainter.paint(graphics, this.samplePoint, graphic, scaleDenominator, false);
+
+            } else {
+                for (Symbolizer symbolizer : symbolizers) {
+                    // skip raster symbolizers
+                    if (!(symbolizer instanceof RasterSymbolizer)) {
+                        // rescale symbols if needed
+                        LiteShape2 shape = getSampleShape(symbolizer, w, h, w, h);
+                        if (rescalingRequired
+                                && (symbolizer instanceof PointSymbolizer
+                                || symbolizer instanceof LineSymbolizer)) {
+                            double size =
+                                    getSymbolizerSize(estimator, symbolizer, Math.min(w, h) - 4);
+                            double newSize = rescaler.apply(size);
+                            symbolizer = rescaleSymbolizer(symbolizer, size, newSize);
+                        } else if (symbolizer instanceof PolygonSymbolizer) {
+                            // need to make room for the stroke in the symbol, thus, a
+                            // smaller rect
+                            double symbolizerSize = getSymbolizerSize(estimator, symbolizer, 0);
+                            int rescaledWidth = integerSize(minimumSymbolSize, w - symbolizerSize);
+                            int rescaledHeight = integerSize(minimumSymbolSize, h - symbolizerSize);
+                            shape = getSampleShape(symbolizer, rescaledWidth, rescaledHeight, w, h);
+
+                            symbolizer = rescaleSymbolizer(symbolizer, w, rescaledWidth);
+                        }
+
+                        Style2D style2d = styleFactory.createStyle(sample, symbolizer, scaleRange);
+                        if (style2d != null) {
+                            shapePainter.paint(graphics, shape, style2d, scaleDenominator);
+                        }
+                    }
+                }
+            }
+            if (image != null && titleImage != null) {
+                layersImages.add(titleImage);
+                titleImage = null;
+            }
+            legendsStack.add(image);
+            graphics.dispose();
+        }
+        int labelMargin = 3;
+        if (!StringUtils.isEmpty((CharSequence) legendOptions.get("labelMargin"))) {
+            labelMargin =
+                    Integer.parseInt(legendOptions.get("labelMargin").toString());
+        }
+        LegendMerger.MergeOptions options =
+                LegendMerger.MergeOptions.createFromRequest(
+                        legendsStack,
+                        0,
+                        0,
+                        0,
+                        labelMargin,
+                        legendOptions,
+                        forceLabelsOn,
+                        forceLabelsOff,
+                        forceTitlesOff);
+        if (ruleCount > 0) {
+            BufferedImage image = LegendMerger.mergeLegends(applicableRules, legendOptions, options, (int) legendOptions.get("width"));
+
+            if (image != null) {
+                layersImages.add(image);
+            }
+        }
+    }
+
+    private int integerSize(double minimumSymbolSize, double size) {
+        return (int) Math.ceil(Math.max(minimumSymbolSize, size));
+    }
+
+    @Override
+    public Symbolizer rescaleSymbolizer(Symbolizer symbolizer, double size, double newSize) {
+        // perform a unit-less rescale
+        double scaleFactor = newSize / size;
+        RescaleStyleVisitor rescaleVisitor =
+                new RescaleStyleVisitor(scaleFactor) {
+                    @Override
+                    protected Expression rescale(Expression expr) {
+                        if (expr == null) {
+                            return null;
+                        } else if (expr instanceof Literal) {
+                            Double value = expr.evaluate(null, Double.class);
+                            return ff.literal(value * scaleFactor);
+                        } else {
+                            return ff.multiply(expr, ff.literal(scaleFactor));
+                        }
+                    }
+                };
+        symbolizer.accept(rescaleVisitor);
+        symbolizer = (Symbolizer) rescaleVisitor.getCopy();
+        return symbolizer;
+    }
+
+    /**
+     * Receives a list of <code>BufferedImages</code> and produces a new one which holds all the
+     * images in <code>imageStack</code> one above the other, handling labels.
+     *
+     * @param imageStack the list of BufferedImages, one for each applicable Rule
+     * @param rules The applicable rules, one for each image in the stack (if not null it's used to
+     *     compute labels)
+     * @param legendOptions The request.
+     * @param forceLabelsOn true for force labels on also with a single image.
+     * @param forceLabelsOff true for force labels off also with more than one rule.
+     * @return the stack image with all the images on the argument list.
+     * @throws IllegalArgumentException if the list is empty
+     */
+    private BufferedImage mergeGroups(
+            List<RenderedImage> imageStack,
+            Rule[] rules,
+            Map<String, Object> legendOptions,
+            boolean forceLabelsOn,
+            boolean forceLabelsOff,
+            boolean forceTitlesOff) throws Exception {
+        LegendMerger.MergeOptions options =
+                LegendMerger.MergeOptions.createFromRequest(
+                        imageStack, 0, 0, 0, 0, legendOptions, forceLabelsOn, forceLabelsOff, forceTitlesOff);
+        //options.setLayout(LegendUtils.getGroupLayout(req));
+        return LegendMerger.mergeGroups(rules, options);
+    }
+
+    protected BufferedImage rescaleBufferedImage(BufferedImage image, RenderedImage titleImage) {
+        int titleHeight = titleImage != null ? titleImage.getHeight() : 0;
+        int originalHeight = image.getHeight();
+        int originalWidth = image.getWidth();
+        double scaleFactor = getScale(originalHeight, h);
+        double scaleFactorW = getScale(originalWidth, w);
+        int scaleWidth = originalWidth >= w ? w : (int) Math.round(originalWidth * scaleFactorW);
+        int scaleHeight = (int) Math.round(originalHeight * scaleFactor);
+        scaleHeight -= titleHeight;
+        int delta = (scaleHeight + titleHeight) - h;
+        boolean stillTooBig = Math.signum(delta) >= 0;
+        if (stillTooBig) {
+            delta += titleHeight / 2;
+            scaleHeight -= delta;
+        }
+        Image result = image.getScaledInstance(scaleWidth, scaleHeight, Image.SCALE_DEFAULT);
+        if (result instanceof BufferedImage) return (BufferedImage) result;
+        else {
+            BufferedImage bufResult =
+                    new BufferedImage(
+                            image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB);
+            Graphics g = bufResult.getGraphics();
+            g.drawImage(result, 0, 0, null);
+            g.dispose();
+            return bufResult;
+        }
+    }
+
+    private double getScale(int original, int target) {
+        return (double) target / (double) original;
+    }
+}
+
