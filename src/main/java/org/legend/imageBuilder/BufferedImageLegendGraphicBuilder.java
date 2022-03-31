@@ -6,23 +6,16 @@ package org.legend.imageBuilder;
  * application directory.
  */
 
-import java.awt.Color;
-import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.imageio.ImageIO;
+import java.util.function.Function;
 
 import org.apache.commons.lang3.StringUtils;
 import org.geotools.geometry.jts.LiteShape2;
@@ -38,20 +31,18 @@ import org.legend.legendGraphicDetails.*;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.opengis.feature.Feature;
-import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.FeatureType;
 import org.opengis.filter.expression.Expression;
 import org.opengis.filter.expression.Literal;
 import org.opengis.style.GraphicLegend;
 
 /**
- * Template {@linkPlain org.vfny.geoserver.responses.wms.GetLegendGraphicProducer} based on <a
+ * Template based on <a
  * href="http://svn.geotools.org/geotools/trunk/gt/module/main/src/org/geotools/renderer/lite/StyledShapePainter.java">
  * GeoTools StyledShapePainter</a> that produces a BufferedImage with the appropriate legend graphic
  * for a given GetLegendGraphic WMS request.
  *
- * <p>It should be enough for a subclass to implement {@linkPlain
- * org.vfny.geoserver.responses.wms.GetLegendGraphicProducer#writeTo(OutputStream)} and <code>
+ * <p>It should be enough for a subclass to implement and <code>
  * getContentType()</code> in order to encode the BufferedImage produced by this class to the
  * appropriate output format.
  *
@@ -68,10 +59,6 @@ import org.opengis.style.GraphicLegend;
  * @version $Id$
  */
 public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
-    Logger LOGGER = Logger.getLogger("org.geoserver.wms.legendgraphic");
-
-    /** Tolerance used to compare doubles for equality */
-    public static final double TOLERANCE = 1e-6;
 
     /**
      * Singleton shape painter to serve all legend requests. We can use a single shape painter
@@ -86,12 +73,6 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
      * Just a holder to avoid creating many point shapes from inside <code>getSampleShape()</code>
      */
     private LiteShape2 samplePoint;
-
-    /**
-     * Default minimum size for symbols rendering. Can be overridden using LEGEND_OPTIONS
-     * (minSymbolSize).
-     */
-    private final double MINIMUM_SYMBOL_SIZE = 3.0;
 
     /**
      * Default constructor. Subclasses may provide its own with a String parameter to establish its
@@ -111,13 +92,11 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
     public BufferedImage buildLegendGraphic(FeatureLayer featureLayer, Map<String, Object> legendOptions) throws Exception {
         // list of images to be rendered for the layers (more than one if
         // a layer group is given)
-        setup(featureLayer, legendOptions);
-
-        SimpleFeatureType schema2 = (SimpleFeatureType)featureLayer.getFeatureSource().getSchema();
+        setup(legendOptions);
 
         List<RenderedImage> layersImages = new ArrayList<>();
 
-        FeatureType layer = (SimpleFeatureType)featureLayer.getFeatureSource().getSchema();
+        FeatureType layer = featureLayer.getFeatureSource().getSchema();
         // style and rule to use for the current layer
         Style gt2Style = featureLayer.getStyle();
         if (gt2Style == null) {
@@ -129,17 +108,16 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
         Feature sampleFeature = createSampleFeature(layer);
 
         final FeatureTypeStyle[] ftStyles = gt2Style.featureTypeStyles().toArray(new FeatureTypeStyle[0]);
-
         final double scaleDenominator = -1.0;
         Rule[] applicableRules = LegendUtils.getApplicableRules(ftStyles, scaleDenominator);
 
-        /**
-         * A legend graphic is produced for each applicable rule. They're being held here
-         * until the process is done and then painted on a "stack" like legend.
-         */
         final SLDStyleFactory styleFactory = new SLDStyleFactory();
 
-        double minimumSymbolSize = MINIMUM_SYMBOL_SIZE;
+        /*
+         * Default minimum size for symbols rendering. Can be overridden using LEGEND_OPTIONS
+         * (minSymbolSize).
+         */
+        double minimumSymbolSize = 3.0;
 
         // calculate the symbols rescaling factor necessary for them to be
         // drawn inside the icon box
@@ -156,18 +134,17 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
         double actualMax = minMax[1];
         boolean rescalingRequired =
                 actualMin < minimumSymbolSize || actualMax > defaultSize;
-        java.util.function.Function<Double, Double> rescaler = null;
+        java.util.function.Function<Double, Double> rescaler;
         if (actualMax == actualMin
                 || ((actualMin / actualMax) * defaultSize) > minimumSymbolSize) {
             rescaler = size -> (size / actualMax) * defaultSize;
         } else {
-            double finalMinimumSymbolSize = minimumSymbolSize;
             rescaler =
                     size ->
                             (size - actualMin)
                                     / (actualMax - actualMin)
-                                    * (defaultSize - finalMinimumSymbolSize)
-                                    + finalMinimumSymbolSize;
+                                    * (defaultSize - minimumSymbolSize)
+                                    + minimumSymbolSize;
         }
         boolean transparent = false;
         final NumberRange<Double> scaleRange = NumberRange.create(scaleDenominator, scaleDenominator);
@@ -183,7 +160,6 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
                 transparent,
                 titleImage,
                 sampleFeature,
-                scaleDenominator,
                 applicableRules,
                 scaleRange,
                 ruleCount,
@@ -196,7 +172,7 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
         // all legend graphics are merged if we have a layer group
         BufferedImage finalLegend =
                 mergeGroups(
-                        layersImages, null, legendOptions, forceLabelsOn, forceLabelsOff, forceTitlesOff);
+                        layersImages, legendOptions, forceLabelsOn, forceLabelsOff, forceTitlesOff);
         if (finalLegend == null) {
             throw new IllegalArgumentException("no legend passed");
         }
@@ -214,7 +190,6 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
             final boolean transparent,
             RenderedImage titleImage,
             final Feature sampleFeature,
-            final double scaleDenominator,
             Rule[] applicableRules,
             final NumberRange<Double> scaleRange,
             final int ruleCount,
@@ -222,7 +197,7 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
             final SLDStyleFactory styleFactory,
             double minimumSymbolSize,
             boolean rescalingRequired,
-            java.util.function.Function<Double, Double> rescaler) throws Exception {
+            Function<Double, Double> rescaler) throws Exception {
         MetaBufferEstimator estimator = new MetaBufferEstimator(sampleFeature);
         for (int i = 0; i < ruleCount; i++) {
 
@@ -242,7 +217,7 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
             // If this rule has a legend graphic defined in the SLD, use it
             if (graphic != null) {
                 if (this.samplePoint == null) {
-                    Coordinate coord = new Coordinate(w / 2, h / 2);
+                    Coordinate coord = new Coordinate(w / 2.0, h / 2.0);
 
                     try {
                         this.samplePoint =
@@ -251,7 +226,7 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
                         this.samplePoint = null;
                     }
                 }
-                shapePainter.paint(graphics, this.samplePoint, graphic, scaleDenominator, false);
+                shapePainter.paint(graphics, this.samplePoint, graphic, -1.0, false);
 
             } else {
                 for (Symbolizer symbolizer : symbolizers) {
@@ -279,12 +254,12 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
 
                         Style2D style2d = styleFactory.createStyle(sample, symbolizer, scaleRange);
                         if (style2d != null) {
-                            shapePainter.paint(graphics, shape, style2d, scaleDenominator);
+                            shapePainter.paint(graphics, shape, style2d, -1.0);
                         }
                     }
                 }
             }
-            if (image != null && titleImage != null) {
+            if (titleImage != null) {
                 layersImages.add(titleImage);
                 titleImage = null;
             }
@@ -348,8 +323,6 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
      * images in <code>imageStack</code> one above the other, handling labels.
      *
      * @param imageStack the list of BufferedImages, one for each applicable Rule
-     * @param rules The applicable rules, one for each image in the stack (if not null it's used to
-     *     compute labels)
      * @param legendOptions The request.
      * @param forceLabelsOn true for force labels on also with a single image.
      * @param forceLabelsOff true for force labels off also with more than one rule.
@@ -358,7 +331,6 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
      */
     private BufferedImage mergeGroups(
             List<RenderedImage> imageStack,
-            Rule[] rules,
             Map<String, Object> legendOptions,
             boolean forceLabelsOn,
             boolean forceLabelsOff,
@@ -366,40 +338,8 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
         LegendMerger.MergeOptions options =
                 LegendMerger.MergeOptions.createFromRequest(
                         imageStack, 0, 0, 0, 0, legendOptions, forceLabelsOn, forceLabelsOff, forceTitlesOff);
-        //options.setLayout(LegendUtils.getGroupLayout(req));
-        return LegendMerger.mergeGroups(rules, options);
+        return LegendMerger.mergeGroups(null, options);
     }
 
-    protected BufferedImage rescaleBufferedImage(BufferedImage image, RenderedImage titleImage) {
-        int titleHeight = titleImage != null ? titleImage.getHeight() : 0;
-        int originalHeight = image.getHeight();
-        int originalWidth = image.getWidth();
-        double scaleFactor = getScale(originalHeight, h);
-        double scaleFactorW = getScale(originalWidth, w);
-        int scaleWidth = originalWidth >= w ? w : (int) Math.round(originalWidth * scaleFactorW);
-        int scaleHeight = (int) Math.round(originalHeight * scaleFactor);
-        scaleHeight -= titleHeight;
-        int delta = (scaleHeight + titleHeight) - h;
-        boolean stillTooBig = Math.signum(delta) >= 0;
-        if (stillTooBig) {
-            delta += titleHeight / 2;
-            scaleHeight -= delta;
-        }
-        Image result = image.getScaledInstance(scaleWidth, scaleHeight, Image.SCALE_DEFAULT);
-        if (result instanceof BufferedImage) return (BufferedImage) result;
-        else {
-            BufferedImage bufResult =
-                    new BufferedImage(
-                            image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB);
-            Graphics g = bufResult.getGraphics();
-            g.drawImage(result, 0, 0, null);
-            g.dispose();
-            return bufResult;
-        }
-    }
-
-    private double getScale(int original, int target) {
-        return (double) target / (double) original;
-    }
 }
 

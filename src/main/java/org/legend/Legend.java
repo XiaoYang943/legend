@@ -20,14 +20,12 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
 public class Legend {
 
-    private static String geometryAttributeName;
     float point_OPACITY = 0.1f;
 
     public static void main(String[] args) throws Exception {
@@ -58,7 +56,9 @@ public class Legend {
         Geometries geomType2 = Geometries.getForBinding(clazz2);
         // Create a basic Style to render the features
         Color fillColor2 = Color.darkGray;
-        Rule rule2 = createRule(Color.green, fillColor2, geomType2);
+        Rule rule2 = createRule(fillColor2, geomType2);
+        rule2.setName("A beautiful rule");
+
         StyleFactory styleFactory2 = CommonFactoryFinder.getStyleFactory();
         FeatureTypeStyle featureTypeStyle2 = styleFactory2.createFeatureTypeStyle();
         featureTypeStyle2.rules().add(rule2);
@@ -66,32 +66,33 @@ public class Legend {
         style2.featureTypeStyles().add(featureTypeStyle2);
         FeatureLayer layer2 = new FeatureLayer(featureSource2, style2);
         map.addLayer(layer2);
-/*
+
+        /*
         File inFile = new File("/home/ian/Data/states/states.geojson");
         Map<String, Object> params = new HashMap<>();
         params.put(GeoJSONDataStoreFactory.URLP.key, URLs.fileToUrl(inFile));
-        DataStore newDataStore = DataStoreFinder.getDataStore(params);*/
+        DataStore newDataStore = DataStoreFinder.getDataStore(params);
+        */
 
-        // Initialize request for producing legend
-        final String outputFormat = "image/png";
-
+        // Initialize options for producing legend
         Map legendOptions =new HashMap<>();
         legendOptions.put("width",100);
         legendOptions.put("height",100);
+        legendOptions.put("forceLabels","on");
 
         LegendItem legendElement = new LegendItem(layer2,legendOptions);
         BufferedImage bufferedImage = legendElement.produceBufferedImage();
         System.out.println(bufferedImage);
-        ImageIO.write(bufferedImage,"png",new FileOutputStream(new File("/tmp/legendes/fichier3.png")));
+        ImageIO.write(bufferedImage,"png",new FileOutputStream(new File("/tmp/legendes/fichier5.png")));
     }
 
     /**
      * Helper for createXXXStyle methods. Creates a new Rule containing a Symbolizer tailored to the
      * geometry type of the features that we are displaying.
      */
-    private Rule createRule(Color outlineColor, Color fillColor, Geometries geomType) throws FileNotFoundException {
+    private Rule createRule(Color fillColor, Geometries geomType) {
         Symbolizer symbolizer = null;
-        Fill fill = null;
+        Fill fill;
 
         // Factories that we use to create style and filter objects
         StyleFactory styleFactory = CommonFactoryFinder.getStyleFactory();
@@ -102,17 +103,16 @@ public class Legend {
         FilterFactory2 filterFactory2 = CommonFactoryFinder.getFilterFactory2();
 
         float LINE_WIDTH = 1.0f;
-        Stroke stroke = styleFactory.createStroke(filterFactory2.literal(outlineColor), filterFactory2.literal(LINE_WIDTH));
-        //GeometryDescriptor desc = schema.getGeometryDescriptor();
+        Stroke stroke = styleFactory.createStroke(filterFactory2.literal(Color.green), filterFactory2.literal(LINE_WIDTH));
         switch (geomType) {
             case MULTIPOLYGON:
                 float OPACITY = 1.0f;
                 fill = styleFactory.createFill(filterFactory2.literal(fillColor), filterFactory2.literal(OPACITY));
-                symbolizer = styleFactory.createPolygonSymbolizer(stroke, fill, geometryAttributeName);
+                symbolizer = styleFactory.createPolygonSymbolizer(stroke, fill, null);
                 break;
 
             case MULTILINESTRING:
-                symbolizer = styleFactory.createLineSymbolizer(stroke, geometryAttributeName);
+                symbolizer = styleFactory.createLineSymbolizer(stroke, null);
                 break;
 
             case POINT:
@@ -128,7 +128,7 @@ public class Legend {
                 float POINT_SIZE = 10.0f;
                 graphic.setSize(filterFactory2.literal(POINT_SIZE));
 
-                symbolizer = styleFactory.createPointSymbolizer(graphic, geometryAttributeName);
+                symbolizer = styleFactory.createPointSymbolizer(graphic, null);
         }
 
         Rule rule = styleFactory.createRule();

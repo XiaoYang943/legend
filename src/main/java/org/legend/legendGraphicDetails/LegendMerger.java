@@ -155,136 +155,68 @@ public class LegendMerger {
             return imageStack;
         }
 
-        public void setImageStack(List<RenderedImage> imageStack) {
-            this.imageStack = imageStack;
-        }
-
         public int getDx() {
             return dx;
-        }
-
-        public void setDx(int dx) {
-            this.dx = dx;
         }
 
         public int getDy() {
             return dy;
         }
 
-        public void setDy(int dy) {
-            this.dy = dy;
-        }
-
         public int getMargin() {
             return margin;
-        }
-
-        public void setMargin(int margin) {
-            this.margin = margin;
         }
 
         public Color getBackgroundColor() {
             return backgroundColor;
         }
 
-        public void setBackgroundColor(Color backgroundColor) {
-            this.backgroundColor = backgroundColor;
-        }
-
         public boolean isTransparent() {
             return transparent;
-        }
-
-        public void setTransparent(boolean transparent) {
-            this.transparent = transparent;
         }
 
         public boolean isAntialias() {
             return antialias;
         }
 
-        public void setAntialias(boolean antialias) {
-            this.antialias = antialias;
-        }
-
         public LegendUtils.LegendLayout getLayout() {
             return layout;
-        }
-
-        public void setLayout(LegendUtils.LegendLayout layout) {
-            this.layout = layout;
         }
 
         public int getRowWidth() {
             return rowWidth;
         }
 
-        public void setRowWidth(int rowWidth) {
-            this.rowWidth = rowWidth;
-        }
-
         public int getRows() {
             return rows;
-        }
-
-        public void setRows(int rows) {
-            this.rows = rows;
         }
 
         public int getColumnHeight() {
             return columnHeight;
         }
 
-        public void setColumnHeight(int columnHeight) {
-            this.columnHeight = columnHeight;
-        }
-
         public int getColumns() {
             return columns;
-        }
-
-        public void setColumns(int columns) {
-            this.columns = columns;
         }
 
         public Font getLabelFont() {
             return labelFont;
         }
 
-        public void setLabelFont(Font labelFont) {
-            this.labelFont = labelFont;
-        }
-
         public boolean isForceLabelsOn() {
             return forceLabelsOn;
-        }
-
-        public void setForceLabelsOn(boolean forceLabelsOn) {
-            this.forceLabelsOn = forceLabelsOn;
         }
 
         public boolean isForceLabelsOff() {
             return forceLabelsOff;
         }
 
-        public void setForceLabelsOff(boolean forceLabelsOff) {
-            this.forceLabelsOff = forceLabelsOff;
-        }
-
         public boolean isForceTitlesOff() {
             return forceTitlesOff;
         }
 
-        public void setForceTitlesOff(boolean forceTitlesOff) {
-            this.forceTitlesOff = forceTitlesOff;
-        }
-
         public int getLabelMargin() {
             return labelMargin;
-        }
-
-        public void setLabelMargin(int labelMargin) {
-            this.labelMargin = labelMargin;
         }
 
         public static MergeOptions createFromRequest(
@@ -308,42 +240,6 @@ public class LegendMerger {
                     forceLabelsOff,
                     forceTitlesOff);
         }
-    }
-
-    /**
-     * Receives a list of <code>BufferedImages</code>, embedded in the mergeOptions object, and
-     * produces a new one which holds all the images in <code>imageStack</code> one above the other.
-     *
-     * @param mergeOptions options to be used for merging
-     * @return the legend image with all the images on the argument list.
-     */
-    public static BufferedImage mergeRasterLegends(MergeOptions mergeOptions) throws Exception {
-        List<RenderedImage> imageStack = mergeOptions.getImageStack();
-        LegendUtils.LegendLayout layout = mergeOptions.getLayout();
-
-        List<BufferedImage> nodes = new ArrayList<>();
-        for (RenderedImage renderedImage : imageStack) {
-            nodes.add((BufferedImage) renderedImage);
-        }
-
-        BufferedImage finalLegend = null;
-        if (layout == LegendUtils.LegendLayout.HORIZONTAL) {
-            Row[] rows = createRows(nodes, mergeOptions.getRowWidth(), mergeOptions.getRows());
-            finalLegend = buildFinalHLegend(rows, mergeOptions);
-        }
-
-        if (layout == LegendUtils.LegendLayout.VERTICAL) {
-            Column[] columns =
-                    createColumns(
-                            nodes,
-                            mergeOptions.getColumnHeight(),
-                            mergeOptions.getColumns(),
-                            null,
-                            false);
-            finalLegend = buildFinalVLegend(columns, mergeOptions);
-        }
-
-        return finalLegend;
     }
 
     /**
@@ -475,7 +371,7 @@ public class LegendMerger {
 
         private int height;
 
-        private List<BufferedImage> nodes = new ArrayList<>();
+        private final List<BufferedImage> nodes = new ArrayList<>();
 
         public void addNode(BufferedImage img) {
             nodes.add(img);
@@ -502,7 +398,7 @@ public class LegendMerger {
 
         private int height;
 
-        private List<BufferedImage> nodes = new ArrayList<>();
+        private final List<BufferedImage> nodes = new ArrayList<>();
 
         public void addNode(BufferedImage img) {
             nodes.add(img);
@@ -542,7 +438,7 @@ public class LegendMerger {
 
         // call new method
 
-        Column[] legendMatrix = new Column[0];
+        Column[] legendMatrix;
         /*
          * Limit max height
          */
@@ -585,7 +481,7 @@ public class LegendMerger {
             int rowNumber = (int) Math.ceil((float) nodes.size() / colNumber);
             int cn = 0;
             int rc = 0;
-            boolean colourPresent = false;
+            boolean colourPresent;
             for (int i = 0; i < nodes.size(); i++) {
                 if (rc < rowNumber) {
                     if (checkColor) {
@@ -640,7 +536,7 @@ public class LegendMerger {
      * @param maxRows maximum number of rows
      */
     private static Row[] createRows(List<BufferedImage> nodes, int maxWidth, int maxRows) {
-        Row[] legendMatrix = new Row[0];
+        Row[] legendMatrix;
         /*
          * Limit max height
          */
@@ -796,7 +692,6 @@ public class LegendMerger {
                         options.getBackgroundColor(),
                         finalLegend,
                         hintsMap);
-        // finalGraphics.setFont(labelFont);
         if (options.isAntialias()) {
             finalGraphics.setRenderingHint(
                     RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
@@ -924,9 +819,7 @@ public class LegendMerger {
         if (!options.isForceLabelsOff() && rule != null) {
             String label = LegendUtils.getRuleLabel(rule);
             if (label != null && label.length() > 0) {
-                final BufferedImage renderedLabel =
-                        getRenderedLabel((BufferedImage) img, label, legendOptionsParam, widthParam);
-                labelImg = renderedLabel;
+                labelImg = getRenderedLabel((BufferedImage) img, label, legendOptionsParam, widthParam);
             }
         }
         return labelImg;

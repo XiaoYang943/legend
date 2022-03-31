@@ -5,32 +5,22 @@ package org.legend.imageBuilder;
  * application directory.
  */
 
-import java.awt.image.BufferedImage;
-import java.util.Collections;
-
-import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
 
 import org.geotools.data.DataUtilities;
-import org.geotools.feature.SchemaException;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.feature.type.GeometryDescriptorImpl;
 import org.geotools.feature.type.GeometryTypeImpl;
 import org.geotools.geometry.jts.LiteShape2;
 
-import org.geotools.map.FeatureLayer;
 import org.geotools.renderer.lite.MetaBufferEstimator;
-import org.geotools.renderer.lite.RendererUtilities;
 import org.geotools.styling.*;
 import org.geotools.styling.visitor.RescaleStyleVisitor;
-import org.legend.legendGraphicDetails.LegendRequest;
 import org.legend.legendGraphicDetails.LegendUtils;
 import org.locationtech.jts.geom.*;
 import org.opengis.feature.Feature;
 import org.opengis.feature.IllegalAttributeException;
-import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.FeatureType;
@@ -42,7 +32,6 @@ import org.opengis.filter.expression.Literal;
 /** @author ian */
 public abstract class LegendGraphicBuilder {
 
-    Logger LOGGER = Logger.getLogger("org.geoserver.wms.legendgraphic");
     /** Tolerance used to compare doubles for equality */
     public static final double TOLERANCE = 1e-6;
     /** used to create sample point shapes with LiteShape (not lines nor polygons) */
@@ -55,37 +44,21 @@ public abstract class LegendGraphicBuilder {
      * Just a holder to avoid creating many point shapes from inside <code>getSampleShape()</code>
      */
     protected LiteShape2 samplePoint;
-    /**
-     * Default minimum size for symbols rendering. Can be overridden using LEGEND_OPTIONS
-     * (minSymbolSize).
-     */
-    protected final double MINIMUM_SYMBOL_SIZE = 3.0;
 
-    double dpiScaleFactor;
     protected int w;
     protected int h;
     boolean forceLabelsOn = false;
     boolean forceLabelsOff = false;
     boolean forceTitlesOff = false;
-    List<LegendRequest> layers;
-    boolean hasVectorTransformation = false;
-    boolean hasRasterTransformation = false;
+
     /** */
     public LegendGraphicBuilder() {
         super();
     }
 
-    public void setup(FeatureLayer featureLayer, Map<String, Object> legendOptions) {
-        // width and height, we might have to rescale those in case of DPI usage
+    public void setup(Map<String, Object> legendOptions) {
         w = (int) legendOptions.get("width");
         h = (int) legendOptions.get("height");
-        double dpi = RendererUtilities.getDpi(legendOptions);
-        double standardDpi = RendererUtilities.getDpi(Collections.emptyMap());
-        dpiScaleFactor = dpi / standardDpi;
-        if (dpiScaleFactor != 1.0) {
-            w = ((int) Math.round((int) legendOptions.get("width") * dpiScaleFactor));
-            h = ((int) Math.round((int) legendOptions.get("height") * dpiScaleFactor));
-        }
 
         if (legendOptions.get("forceLabels") instanceof String) {
             String forceLabelsOpt = (String) legendOptions.get("forceLabels");
@@ -244,8 +217,7 @@ public abstract class LegendGraphicBuilder {
 
     /** Checks if the given AttributeDescriptor describes a generic Geometry. */
     private boolean isMixedGeometry(AttributeDescriptor attDesc) {
-        if (attDesc instanceof GeometryDescriptor
-                && attDesc.getType().getBinding() == Geometry.class) {
+        if (attDesc instanceof GeometryDescriptor && attDesc.getType().getBinding() == Geometry.class) {
             return true;
         }
         return false;
@@ -352,7 +324,6 @@ public abstract class LegendGraphicBuilder {
         if (schema instanceof SimpleFeatureType) {
             schema = cloneWithDimensionality(schema, dimensionality);
         }
-
         return createSampleFeature(schema);
     }
 

@@ -6,20 +6,13 @@
 package org.legend.legendGraphicDetails;
 
 import org.apache.commons.text.WordUtils;
-import org.geotools.coverage.grid.GridCoverage2D;
-import org.geotools.coverage.grid.io.GridCoverage2DReader;
 import org.geotools.renderer.i18n.ErrorKeys;
 import org.geotools.renderer.i18n.Errors;
 import org.geotools.renderer.lite.RendererUtilities;
-import org.geotools.renderer.lite.StreamingRenderer;
 import org.geotools.renderer.style.ExpressionExtractor;
 import org.geotools.styling.*;
 import org.geotools.util.SuppressFBWarnings;
 import org.legend.imageBuilder.LegendGraphicBuilder;
-import org.opengis.feature.simple.SimpleFeatureType;
-import org.opengis.feature.type.FeatureType;
-import org.opengis.feature.type.PropertyDescriptor;
-import org.opengis.feature.type.PropertyType;
 import org.opengis.filter.expression.Expression;
 import org.opengis.filter.expression.Literal;
 import org.opengis.style.ChannelSelection;
@@ -89,9 +82,6 @@ public class LegendUtils {
     /** Default {@link Font} name for legends. */
     public static final String DEFAULT_FONT_NAME = "Sans-Serif";
 
-    /** Default channel name for {@link ChannelSelection} elements. */
-    public static final String DEFAULT_CHANNEL_NAME = "1";
-
     /** Default {@link Font} for legends. */
     public static final int DEFAULT_FONT_TYPE = Font.PLAIN;
 
@@ -110,14 +100,6 @@ public class LegendUtils {
     public static final float hpaddingFactor = 0.15f;
     /** top & bottom padding percentage factor for the legend */
     public static final float vpaddingFactor = 0.15f;
-
-    /** padding percentage factor at both sides of the legend. */
-    public static final float rowPaddingFactor = 0.15f;
-    /** top & bottom padding percentage factor for the legend */
-    public static final float columnPaddingFactor = 0.15f;
-
-    /** padding percentage factor at both sides of the legend. */
-    public static final float marginFactor = 0.015f;
 
     /** default legend graphic layout is vertical */
     private static final LegendLayout DEFAULT_LAYOUT = LegendLayout.VERTICAL;
@@ -138,47 +120,6 @@ public class LegendUtils {
     private static final Logger LOGGER =
             org.geotools.util.logging.Logging.getLogger(LegendUtils.class.getPackage().getName());
 
-    public static final Color DEFAULT_BORDER_COLOR = Color.black;
-
-    /**
-     * Extracts the opacity from the provided {@link ColorMapEntry}.
-     *
-     * <p>1.0 is returned in case the provided {@link ColorMapEntry} is null or invalid.
-     *
-     * @return the opacity from the provided {@link ColorMapEntry} or 1.0 if something bad happens.
-     */
-    public static double getOpacity(final ColorMapEntry entry)
-            throws IllegalArgumentException, MissingResourceException {
-
-        ensureNotNull(entry, "ColorMapEntry");
-        // //
-        //
-        // As stated in <a
-        // href="https://portal.opengeospatial.org/files/?artifact_id=1188">
-        // OGC Styled-Layer Descriptor Report (OGC 02-070) version
-        // 1.0.0.</a>:
-        // "Not all systems can support opacity in colormaps. The default
-        // opacity is 1.0 (fully opaque)."
-        //
-        // //
-        Expression opacity = entry.getOpacity();
-        Double opacityValue;
-        if (opacity != null) opacityValue = opacity.evaluate(null, Double.class);
-        else return 1.0;
-        if (opacityValue == null && opacity instanceof Literal) {
-            String opacityExp = opacity.evaluate(null, String.class);
-            opacity = ExpressionExtractor.extractCqlExpressions(opacityExp);
-            opacityValue = opacity.evaluate(null, Double.class);
-        }
-        if (opacityValue == null
-                || (opacityValue.doubleValue() - 1) > 0
-                || opacityValue.doubleValue() < 0) {
-            throw new IllegalArgumentException(
-                    Errors.format(ErrorKeys.ILLEGAL_ARGUMENT_$2, "Opacity", opacityValue));
-        }
-        return opacityValue.doubleValue();
-    }
-
     /**
      * Tries to decode the provided {@link String} into an HEX color definition in RRGGBB, 0xRRGGBB
      * or #RRGGBB format
@@ -198,68 +139,6 @@ public class LegendUtils {
             hex = "#" + hex;
         }
         return Color.decode(hex);
-    }
-
-    /**
-     * Get the {@link Color} out of this {@link ColorMapEntry}.
-     *
-     * @param entry the {@link ColorMapEntry} from which to extract the {@link Color} component.
-     * @return the {@link Color} out of this {@link ColorMapEntry}.
-     * @throws NumberFormatException in case the color string is badly formatted.
-     */
-    @SuppressFBWarnings({
-        "NP_NULL_ON_SOME_PATH",
-        "NP_NULL_PARAM_DEREF"
-    }) // SP does not recognize the check in ensureNotNull
-    public static Color color(final ColorMapEntry entry) {
-        ensureNotNull(entry, "entry");
-        Expression color = entry.getColor();
-        ensureNotNull(color, "color");
-        String colorString = color.evaluate(null, String.class);
-        if (colorString != null && colorString.startsWith("${")) {
-            color = ExpressionExtractor.extractCqlExpressions(colorString);
-            colorString = color.evaluate(null, String.class);
-        }
-        ensureNotNull(colorString, "colorString");
-        return color(colorString);
-    }
-
-    /**
-     * Extracts the quantity part from the provided {@link ColorMapEntry}.
-     *
-     * @param entry the provided {@link ColorMapEntry} from which we should extract the quantity
-     *     part.
-     * @return the quantity part for the provided {@link ColorMapEntry}.
-     */
-    @SuppressFBWarnings("NP_NULL_ON_SOME_PATH") // SP does not recognize the check in ensureNotNull
-    public static double getQuantity(final ColorMapEntry entry) {
-        ensureNotNull(entry, "entry");
-        Expression quantity = entry.getQuantity();
-        ensureNotNull(quantity, "quantity");
-        Double quantityString = quantity.evaluate(null, Double.class);
-        if (quantityString == null && quantity instanceof Literal) {
-            String quantityExp = quantity.evaluate(null, String.class);
-            quantity = ExpressionExtractor.extractCqlExpressions(quantityExp);
-            quantityString = quantity.evaluate(null, Double.class);
-        }
-        ensureNotNull(quantityString, "quantityString");
-        return quantityString.doubleValue();
-    }
-
-    /**
-     * Extracts the label part from the provided {@link ColorMapEntry}.
-     *
-     * @param entry the provided {@link ColorMapEntry} from which we should extract the label part.
-     * @return the label part for the provided {@link ColorMapEntry}.
-     */
-    public static String getLabel(final ColorMapEntry entry) {
-        ensureNotNull(entry, "entry");
-        String labelString = entry.getLabel();
-        if (labelString != null && labelString.startsWith("${")) {
-            Expression label = ExpressionExtractor.extractCqlExpressions(labelString);
-            labelString = label.evaluate(null, String.class);
-        }
-        return labelString;
     }
 
     /**
@@ -293,29 +172,6 @@ public class LegendUtils {
         }
 
         return ruleList.toArray(new Rule[ruleList.size()]);
-    }
-
-    /**
-     * Retrieves the group legend layout from the provided {@link GetLegendGraphicRequest}.
-     *
-     * @param req a {@link GetLegendGraphicRequest} from which we should extract the group {@link
-     *     LegendLayout} information.
-     * @return the group {@link LegendLayout} specified in the provided {@link
-     *     GetLegendGraphicRequest} or a default DEFAULT_LAYOUT.
-     */
-    public static LegendLayout getGroupLayout(final GetLegendGraphicRequest req) {
-        ensureNotNull(req, "GetLegendGraphicRequestre");
-        final Map<String, Object> legendOptions = req.getLegendOptions();
-        LegendLayout layout = DEFAULT_LAYOUT;
-        if (legendOptions != null && legendOptions.get("grouplayout") != null) {
-            try {
-                layout =
-                        LegendLayout.valueOf(
-                                ((String) legendOptions.get("grouplayout")).toUpperCase());
-            } catch (IllegalArgumentException e) {
-            }
-        }
-        return layout;
     }
 
     /**
@@ -386,66 +242,6 @@ public class LegendUtils {
                             + DEFAULT_BG_COLOR.toString());
             return DEFAULT_BG_COLOR;
         }
-    }
-
-
-    /**
-     * Checks if the provided {@link FeatureType} contains a coverage as per used by the {@link
-     * StreamingRenderer}.
-     *
-     * @param layer a {@link FeatureType} to check if it contains a grid.
-     * @return <code>true</code> if this layer contains a gridcoverage, <code>false</code>
-     *     otherwise.
-     */
-    public static boolean checkGridLayer(final FeatureType layer) {
-        if (!(layer instanceof SimpleFeatureType)) return false;
-        boolean found = false;
-        final Collection<PropertyDescriptor> descriptors = layer.getDescriptors();
-        for (PropertyDescriptor descriptor : descriptors) {
-
-            // get the type
-            final PropertyType type = descriptor.getType();
-            if (type.getBinding().isAssignableFrom(GridCoverage2D.class)
-                    || type.getBinding().isAssignableFrom(GridCoverage2DReader.class)) {
-                found = true;
-                break;
-            }
-        }
-        return found;
-    }
-
-    /** Checks if the provided style contains at least one {@link RasterSymbolizer} */
-    public static boolean checkRasterSymbolizer(final Style style) {
-        for (FeatureTypeStyle fts : style.featureTypeStyles()) {
-            for (Rule r : fts.rules()) {
-                for (Symbolizer s : r.symbolizers()) {
-                    if (s instanceof RasterSymbolizer) {
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
-    }
-
-    /** Locates the specified rule by name */
-    public static Rule getRule(FeatureTypeStyle[] fts, String rule) {
-        Rule sldRule = null;
-        for (FeatureTypeStyle ft : fts) {
-            for (Rule r : ft.rules()) {
-                if (rule.equalsIgnoreCase(r.getName())) {
-                    sldRule = r;
-                    if (LOGGER.isLoggable(Level.FINE)) {
-                        LOGGER.fine(
-                                new StringBuffer("found requested rule: ").append(rule).toString());
-                    }
-
-                    break;
-                }
-            }
-        }
-
-        return sldRule;
     }
 
     static String getRuleLabel(Rule rule) {

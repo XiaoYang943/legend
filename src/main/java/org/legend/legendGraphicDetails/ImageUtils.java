@@ -5,17 +5,9 @@
  */
 package org.legend.legendGraphicDetails;
 
-import org.geotools.image.ImageWorker;
-import org.geotools.image.palette.CustomPaletteBuilder;
-import org.geotools.image.palette.InverseColorMapOp;
-
-import javax.imageio.ImageIO;
-import javax.media.jai.PlanarImage;
 import javax.media.jai.TiledImage;
 import java.awt.*;
 import java.awt.image.*;
-import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -31,9 +23,7 @@ import java.util.logging.Logger;
  */
 public class ImageUtils {
     private static final Logger LOGGER =
-            org.geotools.util.logging.Logging.getLogger("org.vfny.geoserver.responses.wms.map");
-
-    private static String DEBUG_DIR;
+            org.geotools.util.logging.Logging.getLogger("org.legend.legendGraphicDetails");
 
     /**
      * Forces the use of the class as a pure utility methods one by declaring a private default
@@ -69,8 +59,7 @@ public class ImageUtils {
             // unfortunately we can't use packed rasters because line rendering
             // gets completely
             // broken, see GEOS-1312 (https://osgeo-org.atlassian.net/browse/GEOS-1312)
-            // final WritableRaster raster =
-            // palette.createCompatibleWritableRaster(width, height);
+            // final WritableRaster raster = palette.createCompatibleWritableRaster(width, height);
             final WritableRaster raster =
                     Raster.createInterleavedRaster(
                             palette.getTransferType(), width, height, 1, null);
@@ -84,22 +73,6 @@ public class ImageUtils {
         // don't use alpha channel if the image is not transparent (load testing shows this
         // image setup is the fastest to draw and encode on
         return new BufferedImage(width, height, BufferedImage.TYPE_3BYTE_BGR);
-    }
-
-    /** Computes the memory usage of the buffered image used as the drawing surface. */
-    public static long getDrawingSurfaceMemoryUse(
-            final int width,
-            final int height,
-            final IndexColorModel palette,
-            final boolean transparent) {
-        long memory = width * height;
-        if (palette != null) {
-            return memory;
-        }
-        if (transparent) {
-            return memory * 4;
-        }
-        return memory * 3;
     }
 
     /**
@@ -162,169 +135,4 @@ public class ImageUtils {
         return graphic;
     }
 
-    /** @param invColorMap may be {@code null} */
-    public static RenderedImage forceIndexed8Bitmask(
-            RenderedImage originalImage, final InverseColorMapOp invColorMap) {
-        if (LOGGER.isLoggable(Level.FINER)) {
-            LOGGER.finer("Method forceIndexed8Bitmask called ");
-            LOGGER.finer("invColorMap is null? " + (invColorMap == null));
-            // check image type
-            String type = "RI";
-            if (originalImage instanceof PlanarImage) {
-                type = "PI";
-            } else if (originalImage instanceof BufferedImage) {
-                type = "BI";
-            }
-            if (LOGGER.isLoggable(Level.FINER)) {
-                LOGGER.finer("OriginalImage type " + type);
-                LOGGER.finer("OriginalImage info: " + originalImage.toString());
-            }
-        }
-        // /////////////////////////////////////////////////////////////////
-        //
-        // Check what we need to do depending on the color model of the image we
-        // are working on.
-        //
-        // /////////////////////////////////////////////////////////////////
-        final ColorModel cm = originalImage.getColorModel();
-        final boolean dataTypeByte =
-                originalImage.getSampleModel().getDataType() == DataBuffer.TYPE_BYTE;
-        RenderedImage image;
-
-        // /////////////////////////////////////////////////////////////////
-        //
-        // IndexColorModel and DataBuffer.TYPE_BYTE
-        //
-        // ///
-        //
-        // If we got an image whose color model is already indexed on 8 bits
-        // we have to check if it is bitmask or not.
-        //
-        // /////////////////////////////////////////////////////////////////
-        if ((cm instanceof IndexColorModel) && dataTypeByte) {
-            if (LOGGER.isLoggable(Level.FINER)) {
-                LOGGER.finer("Image has IndexColorModel and type byte!");
-            }
-            final IndexColorModel icm = (IndexColorModel) cm;
-
-            if (icm.getTransparency() != Transparency.TRANSLUCENT) {
-                // //
-                //
-                // The image is indexed on 8 bits and the color model is either
-                // opaque or bitmask. WE do not have to do anything.
-                //
-                // //
-                image = originalImage;
-                if (LOGGER.isLoggable(Level.FINER)) {
-                    LOGGER.finer("Image has Transparency  != TRANSLUCENT, do nothing");
-                }
-            } else {
-                if (LOGGER.isLoggable(Level.FINER)) {
-                    LOGGER.finer("Image has Transparency TRANSLUCENT, forceBitmaskIndexColorModel");
-                }
-                // //
-                //
-                // The image is indexed on 8 bits and the color model is
-                // Translucent, we have to perform some color operations in
-                // order to convert it to bitmask.
-                //
-                // //
-                image =
-                        new ImageWorker(originalImage)
-                                .forceBitmaskIndexColorModel()
-                                .getRenderedImage();
-            }
-        } else {
-            if (LOGGER.isLoggable(Level.FINER)) {
-                LOGGER.finer("Image has generic color model and/or type");
-            }
-            // /////////////////////////////////////////////////////////////////
-            //
-            // NOT IndexColorModel and DataBuffer.TYPE_BYTE
-            //
-            // ///
-            //
-            // We got an image that needs to be converted.
-            //
-            // /////////////////////////////////////////////////////////////////
-            image = new ImageWorker(originalImage).rescaleToBytes().getRenderedImage();
-            if (invColorMap != null) {
-                if (LOGGER.isLoggable(Level.FINER)) {
-                    LOGGER.finer("We have an invColorMap");
-                }
-                // make me parametric which means make me work with other image
-                // types
-                image = invColorMap.filterRenderedImage(image);
-            } else {
-                if (LOGGER.isLoggable(Level.FINER)) {
-                    LOGGER.finer("We do not have an invColorMap");
-                }
-                // //
-                //
-                // We do not have a paletteInverter, let's create a palette that
-                // is as good as possible.
-                //
-                // //
-                // make sure we start from a componentcolormodel.
-                if (LOGGER.isLoggable(Level.FINER)) {
-                    LOGGER.finer("Making sure we start from a componentcolormodel");
-                }
-                image = new ImageWorker(image).forceComponentColorModel().getRenderedImage();
-
-                // //
-                //
-                // Build the CustomPaletteBuilder doing some good subsampling.
-                //
-                // //
-                int subsx = 1 + (int) (Math.log(image.getWidth()) / Math.log(32));
-                int subsy = 1 + (int) (Math.log(image.getHeight()) / Math.log(32));
-                if (LOGGER.isLoggable(Level.FINER)) {
-                    LOGGER.finer("CustomPaletteBuilder[subsx=" + subsx + ",subsy=" + subsy + "]");
-                    LOGGER.finer("InputImage is:" + image.toString());
-                }
-                CustomPaletteBuilder cpb =
-                        new CustomPaletteBuilder(image, 256, subsx, subsy, 1).buildPalette();
-                image = cpb.getIndexedImage();
-                if (LOGGER.isLoggable(Level.FINER)) {
-                    LOGGER.finer(
-                            "Computed Palette:" + paletteRepresentation(cpb.getIndexColorModel()));
-                }
-            }
-        }
-
-        return image;
-    }
-
-    private static String paletteRepresentation(IndexColorModel indexColorModel) {
-        final StringBuilder builder = new StringBuilder();
-        final int mapSize = indexColorModel.getMapSize();
-        builder.append("PaletteSize:").append(mapSize).append("\n");
-        builder.append("Transparency:").append(indexColorModel.getTransparency()).append("\n");
-        builder.append("TransparentPixel:")
-                .append(indexColorModel.getTransparentPixel())
-                .append("\n");
-        for (int i = 0; i < mapSize; i++) {
-            builder.append("[r=").append(indexColorModel.getRed(i)).append(",");
-            builder.append("[g=").append(indexColorModel.getGreen(i)).append(",");
-            builder.append("[b=").append(indexColorModel.getBlue(i)).append("]\n");
-        }
-        return builder.toString();
-    }
-
-    /**
-     * Write the provided {@link RenderedImage} in the debug directory with the provided file name.
-     *
-     * @param raster the {@link RenderedImage} that we have to write.
-     * @param fileName a {@link String} indicating where we should write it.
-     */
-    static void writeRenderedImage(final RenderedImage raster, final String fileName) {
-        if (DEBUG_DIR == null)
-            throw new NullPointerException(
-                    "Unable to write the provided coverage in the debug directory");
-        try {
-            ImageIO.write(raster, "tiff", new File(DEBUG_DIR, fileName + ".tiff"));
-        } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, e.getLocalizedMessage(), e);
-        }
-    }
 }
