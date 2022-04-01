@@ -69,7 +69,6 @@ public class LegendMerger {
          * @param labelFont font to be used for labels
          * @param forceLabelsOn force labels to be always rendered
          * @param forceLabelsOff force labels to be never rendered
-         * @param forceTitlesOff force titles to be never rendered
          */
         public MergeOptions(
                 List<RenderedImage> imageStack,
@@ -87,8 +86,7 @@ public class LegendMerger {
                 int columns,
                 Font labelFont,
                 boolean forceLabelsOn,
-                boolean forceLabelsOff,
-                boolean forceTitlesOff) {
+                boolean forceLabelsOff) {
             super();
             this.imageStack = imageStack;
             this.dx = dx;
@@ -106,7 +104,6 @@ public class LegendMerger {
             this.labelFont = labelFont;
             this.forceLabelsOn = forceLabelsOn;
             this.forceLabelsOff = forceLabelsOff;
-            this.forceTitlesOff = forceTitlesOff;
         }
         /**
          * Build a new set of options, getting most of the options from a GetLegendGraphicRequest
@@ -119,7 +116,6 @@ public class LegendMerger {
          * @param legendOptions GetLegendGraphic request descriptor object
          * @param forceLabelsOn force labels to be always rendered
          * @param forceLabelsOff force labels to be never rendered
-         * @param forceTitlesOff force titles to be never rendered
          */
         public MergeOptions(
                 List<RenderedImage> imageStack,
@@ -129,8 +125,7 @@ public class LegendMerger {
                 int labelMargin,
                 Map<String, Object> legendOptions,
                 boolean forceLabelsOn,
-                boolean forceLabelsOff,
-                boolean forceTitlesOff) {
+                boolean forceLabelsOff) {
             this(
                     imageStack,
                     dx,
@@ -147,8 +142,7 @@ public class LegendMerger {
                     LegendUtils.getColumns(legendOptions),
                     LegendUtils.getLabelFont(legendOptions),
                     forceLabelsOn,
-                    forceLabelsOff,
-                    forceTitlesOff);
+                    forceLabelsOff);
         }
 
         public List<RenderedImage> getImageStack() {
@@ -227,8 +221,7 @@ public class LegendMerger {
                 int labelMargin,
                 Map<String, Object> legendOptions,
                 boolean forceLabelsOn,
-                boolean forceLabelsOff,
-                boolean forceTitlesOff) {
+                boolean forceLabelsOff) {
             return new LegendMerger.MergeOptions(
                     imageStack,
                     dx,
@@ -237,8 +230,7 @@ public class LegendMerger {
                     labelMargin,
                     legendOptions,
                     forceLabelsOn,
-                    forceLabelsOff,
-                    forceTitlesOff);
+                    forceLabelsOff);
         }
     }
 

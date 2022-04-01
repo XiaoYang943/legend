@@ -4,16 +4,17 @@ import org.geotools.map.FeatureLayer;
 import org.legend.imageBuilder.BufferedImageLegendGraphicBuilder;
 
 import java.awt.image.BufferedImage;
+import java.util.List;
 import java.util.Map;
 
 public class LegendItem {
 
-    final private FeatureLayer featureLayer;
+    final private List<FeatureLayer> featureLayerList;
 
     final private Map<String, Object> legendOptions;
 
-    public LegendItem(FeatureLayer featureLayer, Map<String, Object> legendOptions){
-        this.featureLayer = featureLayer;
+    public LegendItem(List<FeatureLayer> featureLayerList, Map<String, Object> legendOptions){
+        this.featureLayerList = featureLayerList;
         this.legendOptions = legendOptions;
     }
 
@@ -29,7 +30,7 @@ public class LegendItem {
         if (!legendOptions.containsKey("height")){
             legendOptions.put("height",defaultHeight);
         }
-        return builder.buildLegendGraphic(featureLayer,legendOptions);
+        return builder.buildLegendGraphic(featureLayerList,legendOptions);
     }
 
 }

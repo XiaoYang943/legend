@@ -49,7 +49,6 @@ public abstract class LegendGraphicBuilder {
     protected int h;
     boolean forceLabelsOn = false;
     boolean forceLabelsOff = false;
-    boolean forceTitlesOff = false;
 
     /** */
     public LegendGraphicBuilder() {
@@ -66,13 +65,6 @@ public abstract class LegendGraphicBuilder {
                 forceLabelsOn = true;
             } else if (forceLabelsOpt.equalsIgnoreCase("off")) {
                 forceLabelsOff = true;
-            }
-        }
-
-        if (legendOptions.get("forceTitles") instanceof String) {
-            String forceTitlesOpt = (String) legendOptions.get("forceTitles");
-            if (forceTitlesOpt.equalsIgnoreCase("off")) {
-                forceTitlesOff = true;
             }
         }
     }

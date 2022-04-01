@@ -89,90 +89,91 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
      * @throws Exception if there are problems creating a "sample" feature instance for the
      *     FeatureType <code>request</code> returns as the required layer (which should not occur).
      */
-    public BufferedImage buildLegendGraphic(FeatureLayer featureLayer, Map<String, Object> legendOptions) throws Exception {
+    public BufferedImage buildLegendGraphic(List<FeatureLayer> featureLayerList, Map<String, Object> legendOptions) throws Exception {
         // list of images to be rendered for the layers (more than one if
-        // a layer group is given)
+        // a layer list is given)
         setup(legendOptions);
 
         List<RenderedImage> layersImages = new ArrayList<>();
 
-        FeatureType layer = featureLayer.getFeatureSource().getSchema();
-        // style and rule to use for the current layer
-        Style gt2Style = featureLayer.getStyle();
-        if (gt2Style == null) {
-            throw new NullPointerException("There is no style in featureLayer");
+        for (FeatureLayer featureLayer : featureLayerList) {
+
+            FeatureType layer = featureLayer.getFeatureSource().getSchema();
+            // style and rule to use for the current layer
+            Style gt2Style = featureLayer.getStyle();
+            if (gt2Style == null) {
+                throw new NullPointerException("There is no style in featureLayer");
+            }
+
+            RenderedImage titleImage = null;
+
+            Feature sampleFeature = createSampleFeature(layer);
+
+            final FeatureTypeStyle[] ftStyles = gt2Style.featureTypeStyles().toArray(new FeatureTypeStyle[0]);
+            final double scaleDenominator = -1.0;
+            Rule[] applicableRules = LegendUtils.getApplicableRules(ftStyles, scaleDenominator);
+
+            final SLDStyleFactory styleFactory = new SLDStyleFactory();
+
+            /*
+             * Default minimum size for symbols rendering. Can be overridden using LEGEND_OPTIONS
+             * (minSymbolSize).
+             */
+            double minimumSymbolSize = 3.0;
+
+            // calculate the symbols rescaling factor necessary for them to be
+            // drawn inside the icon box
+            int defaultSize = Math.min(w, h);
+
+            double[] minMax =
+                    calcSymbolSize(
+                            defaultSize,
+                            minimumSymbolSize,
+                            layer,
+                            sampleFeature,
+                            applicableRules);
+            double actualMin = minMax[0];
+            double actualMax = minMax[1];
+            boolean rescalingRequired =
+                    actualMin < minimumSymbolSize || actualMax > defaultSize;
+            java.util.function.Function<Double, Double> rescaler;
+            if (actualMax == actualMin
+                    || ((actualMin / actualMax) * defaultSize) > minimumSymbolSize) {
+                rescaler = size -> (size / actualMax) * defaultSize;
+            } else {
+                rescaler =
+                        size ->
+                                (size - actualMin)
+                                        / (actualMax - actualMin)
+                                        * (defaultSize - minimumSymbolSize)
+                                        + minimumSymbolSize;
+            }
+            boolean transparent = false;
+            final NumberRange<Double> scaleRange = NumberRange.create(scaleDenominator, scaleDenominator);
+            final int ruleCount = applicableRules.length;
+            final List<RenderedImage> legendsStack = new ArrayList<>(ruleCount);
+            renderRules(
+                    legendOptions,
+                    layersImages,
+                    forceLabelsOn,
+                    forceLabelsOff,
+                    layer,
+                    transparent,
+                    titleImage,
+                    sampleFeature,
+                    applicableRules,
+                    scaleRange,
+                    ruleCount,
+                    legendsStack,
+                    styleFactory,
+                    minimumSymbolSize,
+                    rescalingRequired,
+                    rescaler);
         }
-
-        RenderedImage titleImage = null;
-
-        Feature sampleFeature = createSampleFeature(layer);
-
-        final FeatureTypeStyle[] ftStyles = gt2Style.featureTypeStyles().toArray(new FeatureTypeStyle[0]);
-        final double scaleDenominator = -1.0;
-        Rule[] applicableRules = LegendUtils.getApplicableRules(ftStyles, scaleDenominator);
-
-        final SLDStyleFactory styleFactory = new SLDStyleFactory();
-
-        /*
-         * Default minimum size for symbols rendering. Can be overridden using LEGEND_OPTIONS
-         * (minSymbolSize).
-         */
-        double minimumSymbolSize = 3.0;
-
-        // calculate the symbols rescaling factor necessary for them to be
-        // drawn inside the icon box
-        int defaultSize = Math.min(w, h);
-
-        double[] minMax =
-                calcSymbolSize(
-                        defaultSize,
-                        minimumSymbolSize,
-                        layer,
-                        sampleFeature,
-                        applicableRules);
-        double actualMin = minMax[0];
-        double actualMax = minMax[1];
-        boolean rescalingRequired =
-                actualMin < minimumSymbolSize || actualMax > defaultSize;
-        java.util.function.Function<Double, Double> rescaler;
-        if (actualMax == actualMin
-                || ((actualMin / actualMax) * defaultSize) > minimumSymbolSize) {
-            rescaler = size -> (size / actualMax) * defaultSize;
-        } else {
-            rescaler =
-                    size ->
-                            (size - actualMin)
-                                    / (actualMax - actualMin)
-                                    * (defaultSize - minimumSymbolSize)
-                                    + minimumSymbolSize;
-        }
-        boolean transparent = false;
-        final NumberRange<Double> scaleRange = NumberRange.create(scaleDenominator, scaleDenominator);
-        final int ruleCount = applicableRules.length;
-        final List<RenderedImage> legendsStack = new ArrayList<>(ruleCount);
-        renderRules(
-                legendOptions,
-                layersImages,
-                forceLabelsOn,
-                forceLabelsOff,
-                forceTitlesOff,
-                layer,
-                transparent,
-                titleImage,
-                sampleFeature,
-                applicableRules,
-                scaleRange,
-                ruleCount,
-                legendsStack,
-                styleFactory,
-                minimumSymbolSize,
-                rescalingRequired,
-                rescaler);
-
         // all legend graphics are merged if we have a layer group
         BufferedImage finalLegend =
                 mergeGroups(
-                        layersImages, legendOptions, forceLabelsOn, forceLabelsOff, forceTitlesOff);
+                        layersImages, legendOptions, forceLabelsOn, forceLabelsOff);
         if (finalLegend == null) {
             throw new IllegalArgumentException("no legend passed");
         }
@@ -185,7 +186,6 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
             List<RenderedImage> layersImages,
             boolean forceLabelsOn,
             boolean forceLabelsOff,
-            boolean forceTitlesOff,
             FeatureType layer,
             final boolean transparent,
             RenderedImage titleImage,
@@ -280,8 +280,7 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
                         labelMargin,
                         legendOptions,
                         forceLabelsOn,
-                        forceLabelsOff,
-                        forceTitlesOff);
+                        forceLabelsOff);
         if (ruleCount > 0) {
             BufferedImage image = LegendMerger.mergeLegends(applicableRules, legendOptions, options, (int) legendOptions.get("width"));
 
@@ -333,11 +332,10 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
             List<RenderedImage> imageStack,
             Map<String, Object> legendOptions,
             boolean forceLabelsOn,
-            boolean forceLabelsOff,
-            boolean forceTitlesOff) throws Exception {
+            boolean forceLabelsOff) throws Exception {
         LegendMerger.MergeOptions options =
                 LegendMerger.MergeOptions.createFromRequest(
-                        imageStack, 0, 0, 0, 0, legendOptions, forceLabelsOn, forceLabelsOff, forceTitlesOff);
+                        imageStack, 0, 0, 0, 0, legendOptions, forceLabelsOn, forceLabelsOff);
         return LegendMerger.mergeGroups(null, options);
     }
 

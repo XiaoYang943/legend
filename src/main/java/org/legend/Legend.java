@@ -21,7 +21,9 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Legend {
@@ -57,7 +59,7 @@ public class Legend {
         // Create a basic Style to render the features
         Color fillColor2 = Color.darkGray;
         Rule rule2 = createRule(fillColor2, geomType2);
-        rule2.setName("A beautiful rule");
+        rule2.setName("landcover2000");
 
         StyleFactory styleFactory2 = CommonFactoryFinder.getStyleFactory();
         FeatureTypeStyle featureTypeStyle2 = styleFactory2.createFeatureTypeStyle();
@@ -65,8 +67,31 @@ public class Legend {
         Style style2 = styleFactory2.createStyle();
         style2.featureTypeStyles().add(featureTypeStyle2);
         FeatureLayer layer2 = new FeatureLayer(featureSource2, style2);
-        map.addLayer(layer2);
 
+        File file = new File("/home/adrien/data/hedgerow.shp");
+        Map<String, String> connect = new HashMap();
+        connect.put("url", file.toURI().toString());
+        DataStore dataStore = DataStoreFinder.getDataStore(connect);
+        String[] typeNames = dataStore.getTypeNames();
+        String typeName = typeNames[0];
+        FeatureSource featureSource = dataStore.getFeatureSource(typeName);
+        SimpleFeatureType schema = (SimpleFeatureType)featureSource.getSchema();
+        GeometryDescriptor desc = schema.getGeometryDescriptor();
+        Class<? extends Geometry> clazz = (Class<? extends Geometry>) desc.getType().getBinding();
+        Geometries geomType = Geometries.getForBinding(clazz);
+        // Create a basic Style to render the features
+        Rule rule = createRule(Color.black, geomType);
+        rule.setName("hedgerow");
+        StyleFactory styleFactory = CommonFactoryFinder.getStyleFactory();
+        FeatureTypeStyle featureTypeStyle = styleFactory.createFeatureTypeStyle();
+        featureTypeStyle.rules().add(rule);
+        Style style = styleFactory.createStyle();
+        style.featureTypeStyles().add(featureTypeStyle);
+        FeatureLayer layer = new FeatureLayer(featureSource, style);
+
+        List<FeatureLayer> layerList = new ArrayList<>();
+        layerList.add(layer);
+        layerList.add(layer2);
         /*
         File inFile = new File("/home/ian/Data/states/states.geojson");
         Map<String, Object> params = new HashMap<>();
@@ -80,10 +105,10 @@ public class Legend {
         legendOptions.put("height",100);
         legendOptions.put("forceLabels","on");
 
-        LegendItem legendElement = new LegendItem(layer2,legendOptions);
+        LegendItem legendElement = new LegendItem(layerList,legendOptions);
         BufferedImage bufferedImage = legendElement.produceBufferedImage();
         System.out.println(bufferedImage);
-        ImageIO.write(bufferedImage,"png",new FileOutputStream(new File("/tmp/legendes/fichier5.png")));
+        ImageIO.write(bufferedImage,"png",new FileOutputStream("/tmp/legendes/fichier.png"));
     }
 
     /**
