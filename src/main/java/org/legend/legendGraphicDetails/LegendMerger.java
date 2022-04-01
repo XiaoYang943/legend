@@ -105,6 +105,7 @@ public class LegendMerger {
             this.forceLabelsOn = forceLabelsOn;
             this.forceLabelsOff = forceLabelsOff;
         }
+
         /**
          * Build a new set of options, getting most of the options from a GetLegendGraphicRequest
          * object.
@@ -246,7 +247,7 @@ public class LegendMerger {
      * @return the image with all the images on the argument list.
      */
     public static BufferedImage mergeLegends(
-            Rule[] rules, Map<String, Object> legendOptionsParam, MergeOptions mergeOptions, int widthParam) throws Exception {
+            Rule[] rules, Map<String, Object> legendOptionsParam, MergeOptions mergeOptions) throws Exception {
         List<RenderedImage> imageStack = mergeOptions.getImageStack();
 
         // Builds legend nodes (graphics + label)
@@ -259,7 +260,7 @@ public class LegendMerger {
             for (int i = 0; i < imgCount; i++) {
                 BufferedImage img = (BufferedImage) imageStack.get(i);
                 if (rules != null && rules[i] != null) {
-                    BufferedImage label = renderLabel(img, rules[i], legendOptionsParam, mergeOptions, widthParam);
+                    BufferedImage label = renderLabel(img, rules[i], legendOptionsParam, mergeOptions);
                     if (label != null) {
                         img =
                                 joinBufferedImageHorizzontally(
@@ -806,12 +807,12 @@ public class LegendMerger {
      * @return the BufferedImage of label
      */
     private static BufferedImage renderLabel(
-            RenderedImage img, Rule rule, Map<String, Object> legendOptionsParam, MergeOptions options, int widthParam) {
+            RenderedImage img, Rule rule, Map<String, Object> legendOptionsParam, MergeOptions options) {
         BufferedImage labelImg = null;
         if (!options.isForceLabelsOff() && rule != null) {
             String label = LegendUtils.getRuleLabel(rule);
             if (label != null && label.length() > 0) {
-                labelImg = getRenderedLabel((BufferedImage) img, label, legendOptionsParam, widthParam);
+                labelImg = getRenderedLabel((BufferedImage) img, label, legendOptionsParam);
             }
         }
         return labelImg;
@@ -821,8 +822,8 @@ public class LegendMerger {
      * Renders a label on the given image, using parameters from the request for the rendering
      * style.
      */
-    protected static BufferedImage getRenderedLabel(
-            BufferedImage image, String label, Map<String, Object> legendOptionsParam, int widthParam) {
+    public static BufferedImage getRenderedLabel(
+            BufferedImage image, String label, Map<String, Object> legendOptionsParam) {
         final Graphics2D graphics = image.createGraphics();
         Font labelFont = LegendUtils.getLabelFont(legendOptionsParam);
         boolean useAA = LegendUtils.isFontAntiAliasing(legendOptionsParam);
@@ -835,7 +836,7 @@ public class LegendMerger {
             graphics.setRenderingHint(
                     RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
         }
-        return LegendUtils.renderLabel(label, graphics, legendOptionsParam, widthParam);
+        return LegendUtils.renderLabel(label, graphics, legendOptionsParam);
     }
 }
 

@@ -3,12 +3,15 @@ package org.legend;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFinder;
 import org.geotools.data.FeatureSource;
+import org.geotools.data.geojson.GeoJSONDataStoreFactory;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.geometry.jts.Geometries;
 import org.geotools.map.FeatureLayer;
 import org.geotools.map.MapContent;
 import org.geotools.styling.*;
 import org.geotools.styling.Stroke;
+import org.geotools.util.URLs;
+import org.geotools.xml.styling.SLDParser;
 import org.legend.model.LegendItem;
 import org.locationtech.jts.geom.Geometry;
 import org.opengis.feature.simple.SimpleFeature;
@@ -20,7 +23,14 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -52,20 +62,7 @@ public class Legend {
         String[] typeNames2 = dataStore2.getTypeNames();
         String typeName2 = typeNames2[0];
         FeatureSource<SimpleFeatureType, SimpleFeature> featureSource2 = dataStore2.getFeatureSource(typeName2);
-        SimpleFeatureType schema2 = featureSource2.getSchema();
-        GeometryDescriptor desc2 = schema2.getGeometryDescriptor();
-        Class<? extends Geometry> clazz2 = (Class<? extends Geometry>) desc2.getType().getBinding();
-        Geometries geomType2 = Geometries.getForBinding(clazz2);
-        // Create a basic Style to render the features
-        Color fillColor2 = Color.darkGray;
-        Rule rule2 = createRule(fillColor2, geomType2);
-        rule2.setName("landcover2000");
-
-        StyleFactory styleFactory2 = CommonFactoryFinder.getStyleFactory();
-        FeatureTypeStyle featureTypeStyle2 = styleFactory2.createFeatureTypeStyle();
-        featureTypeStyle2.rules().add(rule2);
-        Style style2 = styleFactory2.createStyle();
-        style2.featureTypeStyles().add(featureTypeStyle2);
+        Style style2 = getStyle(featureSource2, "landcover2000");
         FeatureLayer layer2 = new FeatureLayer(featureSource2, style2);
 
         File file = new File("/home/adrien/data/hedgerow.shp");
@@ -89,26 +86,85 @@ public class Legend {
         style.featureTypeStyles().add(featureTypeStyle);
         FeatureLayer layer = new FeatureLayer(featureSource, style);
 
+
+        File inFile = new File("/home/adrien/data/geoserver/bdtopo_v2_Redon/building.geojson");
+        Map<String, Object> params = new HashMap<>();
+        params.put(GeoJSONDataStoreFactory.URL_PARAM.key, URLs.fileToUrl(inFile));
+        DataStore dataStore3 = DataStoreFinder.getDataStore(params);
+        String[] typeNames3 = dataStore3.getTypeNames();
+        String typeName3 = typeNames3[0];
+        FeatureSource featureSource3 = dataStore3.getFeatureSource(typeName3);
+
+        StyleFactory styleFactory3 = CommonFactoryFinder.getStyleFactory();
+        FeatureTypeStyle featureTypeStyle3 = styleFactory3.createFeatureTypeStyle();
+
+        Path path = Paths.get("/home/adrien/data/geoserver/pop_grid_intervals.sld");
+        Charset charset = StandardCharsets.UTF_8;
+        String content = new String(Files.readAllBytes(path), charset);
+        content = content.replaceAll("SvgParameter", "CssParameter");
+        Files.write(path, content.getBytes(charset));
+
+        SLDParser styleReader = null;
+        try {
+            styleReader = new SLDParser(styleFactory3, new File("/home/adrien/data/geoserver/pop_grid_intervals.sld"));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        assert styleReader != null;
+        Style sld = styleReader.readXML()[0];
+        sld.featureTypeStyles().add(featureTypeStyle3);
+        FeatureLayer layer3 = new FeatureLayer(featureSource3, sld);
+
+/*
+        StyleFactory styleFactory4 = CommonFactoryFinder.getStyleFactory();
+        FeatureTypeStyle featureTypeStyle4 = styleFactory4.createFeatureTypeStyle();
+
+        SLDParser styleReader2 = null;
+        try {
+            styleReader2 = new SLDParser(styleFactory4, new File("/home/adrien/data/sld/markTest.sld"));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        assert styleReader != null;
+        Style sld2 = styleReader2.readXML()[0];
+        sld2.featureTypeStyles().add(featureTypeStyle4);
+        FeatureLayer layer4 = new FeatureLayer(featureSource3, sld2);*/
+
+
         List<FeatureLayer> layerList = new ArrayList<>();
         layerList.add(layer);
         layerList.add(layer2);
-        /*
-        File inFile = new File("/home/ian/Data/states/states.geojson");
-        Map<String, Object> params = new HashMap<>();
-        params.put(GeoJSONDataStoreFactory.URLP.key, URLs.fileToUrl(inFile));
-        DataStore newDataStore = DataStoreFinder.getDataStore(params);
-        */
+        layerList.add(layer3);
+        //layerList.add(layer4);
 
         // Initialize options for producing legend
         Map legendOptions =new HashMap<>();
-        legendOptions.put("width",100);
-        legendOptions.put("height",100);
+        legendOptions.put("width",35);
+        legendOptions.put("height",35);
         legendOptions.put("forceLabels","on");
 
         LegendItem legendElement = new LegendItem(layerList,legendOptions);
         BufferedImage bufferedImage = legendElement.produceBufferedImage();
         System.out.println(bufferedImage);
-        ImageIO.write(bufferedImage,"png",new FileOutputStream("/tmp/legendes/fichier.png"));
+        ImageIO.write(bufferedImage,"png",new FileOutputStream("/home/adrien/data/legendGraphics/legend2.png"));
+    }
+
+    private Style getStyle(FeatureSource<SimpleFeatureType, SimpleFeature> featureSource, String ruleName) throws IOException {
+        SimpleFeatureType schema = featureSource.getSchema();
+        GeometryDescriptor desc = schema.getGeometryDescriptor();
+        Class<? extends Geometry> clazz = (Class<? extends Geometry>) desc.getType().getBinding();
+        Geometries geomType = Geometries.getForBinding(clazz);
+        // Create a basic Style to render the features
+        Color fillColor = Color.darkGray;
+        Rule rule = createRule(fillColor, geomType);
+        rule.setName(ruleName);
+
+        StyleFactory styleFactory = CommonFactoryFinder.getStyleFactory();
+        FeatureTypeStyle featureTypeStyle = styleFactory.createFeatureTypeStyle();
+        featureTypeStyle.rules().add(rule);
+        Style style = styleFactory.createStyle();
+        style.featureTypeStyles().add(featureTypeStyle);
+        return style;
     }
 
     /**
@@ -121,9 +177,6 @@ public class Legend {
 
         // Factories that we use to create style and filter objects
         StyleFactory styleFactory = CommonFactoryFinder.getStyleFactory();
-/*
-        SLDParser stylereader = new SLDParser(styleFactory, new File("/home/ebocher/Autres/codes/geoclimate/geoindicators/src/main/resources/styles/lcz_primary.sld"));
-        Style sld = stylereader.readXML()[0];*/
 
         FilterFactory2 filterFactory2 = CommonFactoryFinder.getFilterFactory2();
 

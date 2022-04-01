@@ -49,6 +49,7 @@ public abstract class LegendGraphicBuilder {
     protected int h;
     boolean forceLabelsOn = false;
     boolean forceLabelsOff = false;
+    boolean forceTitlesOff = false;
 
     /** */
     public LegendGraphicBuilder() {

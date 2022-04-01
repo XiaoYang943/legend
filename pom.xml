@@ -67,7 +67,11 @@
       <artifactId>jts-core</artifactId>
       <version>1.18.2</version>
     </dependency>
-
+    <dependency>
+      <groupId>org.geotools</groupId>
+      <artifactId>gt-geojsondatastore</artifactId>
+      <version>${geotools.version}</version>
+    </dependency>
   </dependencies>
 
   <build>

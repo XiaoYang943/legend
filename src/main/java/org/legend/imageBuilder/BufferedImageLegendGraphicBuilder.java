@@ -98,22 +98,26 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
 
         for (FeatureLayer featureLayer : featureLayerList) {
 
-            FeatureType layer = featureLayer.getFeatureSource().getSchema();
+            FeatureType featureType = featureLayer.getFeatureSource().getSchema();
+            Feature sampleFeature = createSampleFeature(featureType);
+
             // style and rule to use for the current layer
             Style gt2Style = featureLayer.getStyle();
             if (gt2Style == null) {
                 throw new NullPointerException("There is no style in featureLayer");
             }
-
-            RenderedImage titleImage = null;
-
-            Feature sampleFeature = createSampleFeature(layer);
-
             final FeatureTypeStyle[] ftStyles = gt2Style.featureTypeStyles().toArray(new FeatureTypeStyle[0]);
             final double scaleDenominator = -1.0;
             Rule[] applicableRules = LegendUtils.getApplicableRules(ftStyles, scaleDenominator);
 
             final SLDStyleFactory styleFactory = new SLDStyleFactory();
+
+            final boolean transparent = false;
+            RenderedImage titleImage = null;
+            // if we have more than one layer, we put a title on top of each layer legend
+            if (featureLayerList.size() > 1 && !forceTitlesOff) {
+                titleImage = getLayerTitle(featureLayer, w, h, transparent, legendOptions);
+            }
 
             /*
              * Default minimum size for symbols rendering. Can be overridden using LEGEND_OPTIONS
@@ -129,7 +133,7 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
                     calcSymbolSize(
                             defaultSize,
                             minimumSymbolSize,
-                            layer,
+                            featureType,
                             sampleFeature,
                             applicableRules);
             double actualMin = minMax[0];
@@ -148,7 +152,7 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
                                         * (defaultSize - minimumSymbolSize)
                                         + minimumSymbolSize;
             }
-            boolean transparent = false;
+            //boolean transparent = false;
             final NumberRange<Double> scaleRange = NumberRange.create(scaleDenominator, scaleDenominator);
             final int ruleCount = applicableRules.length;
             final List<RenderedImage> legendsStack = new ArrayList<>(ruleCount);
@@ -157,7 +161,7 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
                     layersImages,
                     forceLabelsOn,
                     forceLabelsOff,
-                    layer,
+                    featureType,
                     transparent,
                     titleImage,
                     sampleFeature,
@@ -180,24 +184,45 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
         return finalLegend;
     }
 
+    /**
+     * Renders a title for a layer (to be put on top of the layer legend).
+     *
+     * @param featureLayer FeatureType representing the layer
+     * @param w width for the image (hint)
+     * @param h height for the image (hint)
+     * @param transparent (should the image be transparent)
+     * @param legendOptions GetLegendGraphicRequest being built
+     * @return image with the title
+     */
+    private RenderedImage getLayerTitle(
+            FeatureLayer featureLayer,
+            int w,
+            int h,
+            boolean transparent,
+            Map<String, Object> legendOptions) {
+        String title = featureLayer.getStyle().getName();
+        final BufferedImage image = ImageUtils.createImage(w, h, null, transparent);
+        return LegendMerger.getRenderedLabel(image, title,  legendOptions );
+    }
+
     /** */
     private void renderRules(
-            Map<String, Object> legendOptions,
-            List<RenderedImage> layersImages,
-            boolean forceLabelsOn,
-            boolean forceLabelsOff,
-            FeatureType layer,
-            final boolean transparent,
-            RenderedImage titleImage,
-            final Feature sampleFeature,
-            Rule[] applicableRules,
-            final NumberRange<Double> scaleRange,
-            final int ruleCount,
-            final List<RenderedImage> legendsStack,
-            final SLDStyleFactory styleFactory,
-            double minimumSymbolSize,
-            boolean rescalingRequired,
-            Function<Double, Double> rescaler) throws Exception {
+        Map<String, Object> legendOptions,
+        List<RenderedImage> layersImages,
+        boolean forceLabelsOn,
+        boolean forceLabelsOff,
+        FeatureType featureType,
+        final boolean transparent,
+        RenderedImage titleImage,
+        final Feature sampleFeature,
+        Rule[] applicableRules,
+        final NumberRange<Double> scaleRange,
+        final int ruleCount,
+        final List<RenderedImage> legendsStack,
+        final SLDStyleFactory styleFactory,
+        double minimumSymbolSize,
+        boolean rescalingRequired,
+        Function<Double, Double> rescaler) throws Exception {
         MetaBufferEstimator estimator = new MetaBufferEstimator(sampleFeature);
         for (int i = 0; i < ruleCount; i++) {
 
@@ -209,7 +234,7 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
             graphics.setRenderingHint(
                     RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-            Feature sample = getSampleFeatureForRule(layer, sampleFeature, applicableRules[i]);
+            Feature sample = getSampleFeatureForRule(featureType, sampleFeature, applicableRules[i]);
 
             final List<Symbolizer> symbolizers = applicableRules[i].symbolizers();
             final GraphicLegend graphic = applicableRules[i].getLegend();
@@ -282,7 +307,7 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
                         forceLabelsOn,
                         forceLabelsOff);
         if (ruleCount > 0) {
-            BufferedImage image = LegendMerger.mergeLegends(applicableRules, legendOptions, options, (int) legendOptions.get("width"));
+            BufferedImage image = LegendMerger.mergeLegends(applicableRules, legendOptions, options);
 
             if (image != null) {
                 layersImages.add(image);

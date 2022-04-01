@@ -6,16 +6,9 @@
 package org.legend.legendGraphicDetails;
 
 import org.apache.commons.text.WordUtils;
-import org.geotools.renderer.i18n.ErrorKeys;
-import org.geotools.renderer.i18n.Errors;
 import org.geotools.renderer.lite.RendererUtilities;
-import org.geotools.renderer.style.ExpressionExtractor;
 import org.geotools.styling.*;
-import org.geotools.util.SuppressFBWarnings;
 import org.legend.imageBuilder.LegendGraphicBuilder;
-import org.opengis.filter.expression.Expression;
-import org.opengis.filter.expression.Literal;
-import org.opengis.style.ChannelSelection;
 import org.opengis.util.InternationalString;
 
 import java.awt.Font;
@@ -149,7 +142,7 @@ public class LegendUtils {
     public static Rule[] getApplicableRules(
             final FeatureTypeStyle[] ftStyles, double scaleDenominator) {
         ensureNotNull(ftStyles, "FeatureTypeStyle array ");
-        /** Holds both the rules that apply and the ElseRule's if any, in the order they appear */
+        /* Holds both the rules that apply and the ElseRule's if any, in the order they appear */
         final List<Rule> ruleList = new ArrayList<>();
 
         // get applicable rules at the current scale
@@ -171,7 +164,7 @@ public class LegendUtils {
             }
         }
 
-        return ruleList.toArray(new Rule[ruleList.size()]);
+        return ruleList.toArray(new Rule[0]);
     }
 
     /**
@@ -222,9 +215,7 @@ public class LegendUtils {
      */
     public static Color getBackgroundColor(final Map<String, Object> legendOptionsParam) {
         ensureNotNull(legendOptionsParam, "GetLegendGraphicRequestre");
-        final Map<String, Object> legendOptions = legendOptionsParam;
-        if (legendOptions == null) return DEFAULT_BG_COLOR;
-        Object clr = legendOptions.get("bgColor");
+        Object clr = legendOptionsParam.get("bgColor");
         if (clr instanceof Color) {
             return (Color) clr;
         } else if (clr == null) {
@@ -272,8 +263,7 @@ public class LegendUtils {
      */
     public static Color getLabelFontColor(final Map<String, Object> legendOptionsParam) {
         ensureNotNull( legendOptionsParam, "GetLegendGraphicRequestre");
-        final Map<String, Object> legendOptions =  legendOptionsParam;
-        final String color = legendOptions != null ? (String) legendOptions.get("fontColor") : null;
+        final String color = (String) legendOptionsParam.get("fontColor");
         if (color == null) {
             // return the default
             return DEFAULT_FONT_COLOR;
@@ -337,11 +327,10 @@ public class LegendUtils {
      */
     public static int getRowWidth(final Map<String, Object> legendOptionsParam) {
         ensureNotNull(legendOptionsParam, "GetLegendGraphicRequestre");
-        final Map<String, Object> legendOptions = legendOptionsParam;
         int rowwidth = DEFAULT_ROW_WIDTH;
-        if (legendOptions != null && legendOptions.get("rowwidth") != null) {
+        if (legendOptionsParam != null && legendOptionsParam.get("rowwidth") != null) {
             try {
-                rowwidth = Integer.parseInt((String) legendOptions.get("rowwidth"));
+                rowwidth = Integer.parseInt((String) legendOptionsParam.get("rowwidth"));
             } catch (NumberFormatException e) {
             }
         }
@@ -442,7 +431,7 @@ public class LegendUtils {
      * @return a {@link BufferedImage} of the properly rendered label.
      */
     public static BufferedImage renderLabel(
-            String label, final Graphics2D g, final Map<String, Object> legendOptionsParam, int widthParam) {
+            String label, final Graphics2D g, final Map<String, Object> legendOptionsParam) {
 
         ensureNotNull(label);
         ensureNotNull(g);
@@ -454,7 +443,7 @@ public class LegendUtils {
         if (LegendUtils.isWrap(legendOptionsParam)) {
             int width = getWrapLimit(legendOptionsParam);
             if (width == -1) {
-                width = widthParam;
+                width = (int) legendOptionsParam.get("width");
             }
             FontMetrics fm = g.getFontMetrics();
             int widthChars = width / fm.stringWidth("m");
