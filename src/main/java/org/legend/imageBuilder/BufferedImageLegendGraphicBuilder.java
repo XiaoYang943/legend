@@ -252,7 +252,7 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
         LegendMerger.MergeOptions options = LegendMerger.MergeOptions.createFromRequest(
                         legendsStack,
                         0,
-                        0,
+                        ruleMargin,
                         0,
                         labelMargin,
                         legendOptions,
