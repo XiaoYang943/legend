@@ -122,12 +122,13 @@ public class Legend {
         // Set the space between the image and the rule label
         legendOptions.put("ruleLabelMargin",10); //default is 3;
         //legendOptions.put("ruleMargin",50); //default is 0;
-        legendOptions.put("layout","HORIZONTAL"); //default is VERTICAL;
+        //legendOptions.put("layout","HORIZONTAL"); //default is VERTICAL;
+        legendOptions.put("verticalMarginBetweenLayers", 25); //default is 0;
 
         LegendItem legendElement = new LegendItem(layerList,legendOptions);
         BufferedImage bufferedImage = legendElement.produceBufferedImage();
         System.out.println(bufferedImage);
-        ImageIO.write(bufferedImage,"png",new FileOutputStream("/home/adrien/data/legendGraphics/legend2.png"));
+        ImageIO.write(bufferedImage,"png",new FileOutputStream("/home/adrien/data/legendGraphics/legend3.png"));
     }
 
     private Style createStyle(FeatureSource<SimpleFeatureType, SimpleFeature> featureSource, String ruleName){

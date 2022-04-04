@@ -311,7 +311,7 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
             boolean forceLabelsOff) throws Exception {
         LegendMerger.MergeOptions options =
                 LegendMerger.MergeOptions.createFromRequest(
-                        imageStack, 0, 0, 0, 0, legendOptions, forceLabelsOn, forceLabelsOff);
+                        imageStack, 0, verticalMarginBetweenLayers, 0, 0, legendOptions, forceLabelsOn, forceLabelsOff);
         return LegendMerger.mergeGroups(null, options);
     }
 

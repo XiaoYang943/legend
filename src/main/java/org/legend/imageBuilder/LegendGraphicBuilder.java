@@ -53,6 +53,7 @@ public abstract class LegendGraphicBuilder {
     boolean isTransparent = false;
     int labelMargin = 3; //the space between the image and the rule label
     int ruleMargin = 0;
+    int verticalMarginBetweenLayers = 0;
 
     /** */
     public LegendGraphicBuilder() {
@@ -89,6 +90,10 @@ public abstract class LegendGraphicBuilder {
         // specifies the vertical space between the legend items (different rules) of the same style
         if (legendOptions.containsKey("ruleMargin")){
             ruleMargin = (int) legendOptions.get("ruleMargin");
+        }
+
+        if (legendOptions.containsKey("verticalMarginBetweenLayers")){
+            verticalMarginBetweenLayers = (int) legendOptions.get("verticalMarginBetweenLayers");
         }
     }
 
