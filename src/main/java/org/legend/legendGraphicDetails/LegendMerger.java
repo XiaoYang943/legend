@@ -262,8 +262,7 @@ public class LegendMerger {
                 if (rules != null && rules[i] != null) {
                     BufferedImage label = renderLabel(img, rules[i], legendOptionsParam, mergeOptions);
                     if (label != null) {
-                        img =
-                                joinBufferedImageHorizzontally(
+                        img = joinBufferedImageHorizzontally(
                                         img,
                                         label,
                                         mergeOptions.getLabelFont(),
@@ -614,11 +613,9 @@ public class LegendMerger {
         totalHeight = totalHeight + options.getMargin() * 2;
         // buffer the width a bit
         totalWidth += 2;
-        final BufferedImage finalLegend =
-                ImageUtils.createImage(totalWidth, totalHeight, null, options.isTransparent());
+        final BufferedImage finalLegend = ImageUtils.createImage(totalWidth, totalHeight, null, options.isTransparent());
         final Map<RenderingHints.Key, Object> hintsMap = new HashMap<>();
-        Graphics2D finalGraphics =
-                ImageUtils.prepareTransparency(
+        Graphics2D finalGraphics = ImageUtils.prepareTransparency(
                         options.isTransparent(),
                         options.getBackgroundColor(),
                         finalLegend,
