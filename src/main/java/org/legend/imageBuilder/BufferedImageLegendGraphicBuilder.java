@@ -251,8 +251,8 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
 
         LegendMerger.MergeOptions options = LegendMerger.MergeOptions.createFromRequest(
                         legendsStack,
-                        0,
-                        ruleMargin,
+                        horizontalRuleMargin,
+                        verticalRuleMargin,
                         0,
                         labelMargin,
                         legendOptions,
@@ -311,7 +311,7 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
             boolean forceLabelsOff) throws Exception {
         LegendMerger.MergeOptions options =
                 LegendMerger.MergeOptions.createFromRequest(
-                        imageStack, 0, verticalMarginBetweenLayers, 0, 0, legendOptions, forceLabelsOn, forceLabelsOff);
+                        imageStack, horizontalMarginBetweenLayers, verticalMarginBetweenLayers, 0, 0, legendOptions, forceLabelsOn, forceLabelsOff);
         return LegendMerger.mergeGroups(null, options);
     }
 

@@ -121,9 +121,11 @@ public class Legend {
         legendOptions.put("bgColor",Color.ORANGE); // default is Color.WHITE;
         // Set the space between the image and the rule label
         legendOptions.put("ruleLabelMargin",10); //default is 3;
-        //legendOptions.put("ruleMargin",50); //default is 0;
-        //legendOptions.put("layout","HORIZONTAL"); //default is VERTICAL;
+        legendOptions.put("verticalRuleMargin",5); //default is 0;
+        legendOptions.put("horizontalRuleMargin",5); //default is 0;
+        legendOptions.put("layout","HORIZONTAL"); //default is VERTICAL;
         legendOptions.put("verticalMarginBetweenLayers", 25); //default is 0;
+        legendOptions.put("horizontalMarginBetweenLayers", 25); //default is 0;
 
         LegendItem legendElement = new LegendItem(layerList,legendOptions);
         BufferedImage bufferedImage = legendElement.produceBufferedImage();
