@@ -215,53 +215,32 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
             Feature sample = getSampleFeatureForRule(featureType, sampleFeature, applicableRules[i]);
 
             final List<Symbolizer> symbolizers = applicableRules[i].symbolizers();
-            final GraphicLegend graphic = applicableRules[i].getLegend();
-
-            // If this rule has a legend graphic defined in the SLD, use it
-            if (graphic != null) {
-                if (this.samplePoint == null) {
-                    Coordinate coord = new Coordinate(w / 2.0, h / 2.0);
-
-                    try {
-                        this.samplePoint =
-                                new LiteShape2(geomFac.createPoint(coord), null, null, false);
-                    } catch (Exception e) {
-                        this.samplePoint = null;
+            for (Symbolizer symbolizer : symbolizers) {
+                // skip raster symbolizers
+                if (!(symbolizer instanceof RasterSymbolizer)) {
+                    // rescale symbols if needed
+                    LiteShape2 shape = getSampleShape(symbolizer, w, h, w, h);
+                    if (rescalingRequired && (symbolizer instanceof PointSymbolizer || symbolizer instanceof LineSymbolizer)) {
+                        double size = getSymbolizerSize(estimator, symbolizer, Math.min(w, h) - 4);
+                        double newSize = rescaler.apply(size);
+                        symbolizer = rescaleSymbolizer(symbolizer, size, newSize);
+                    } else if (symbolizer instanceof PolygonSymbolizer) {
+                        // need to make room for the stroke in the symbol, thus, a
+                        // smaller rect
+                        double symbolizerSize = getSymbolizerSize(estimator, symbolizer, 0);
+                        int rescaledWidth = integerSize(minimumSymbolSize, w - symbolizerSize);
+                        int rescaledHeight = integerSize(minimumSymbolSize, h - symbolizerSize);
+                        shape = getSampleShape(symbolizer, rescaledWidth, rescaledHeight, w, h);
+                        symbolizer = rescaleSymbolizer(symbolizer, w, rescaledWidth);
                     }
-                }
-                shapePainter.paint(graphics, this.samplePoint, graphic, -1.0, false);
 
-            } else {
-                for (Symbolizer symbolizer : symbolizers) {
-                    // skip raster symbolizers
-                    if (!(symbolizer instanceof RasterSymbolizer)) {
-                        // rescale symbols if needed
-                        LiteShape2 shape = getSampleShape(symbolizer, w, h, w, h);
-                        if (rescalingRequired
-                                && (symbolizer instanceof PointSymbolizer
-                                || symbolizer instanceof LineSymbolizer)) {
-                            double size =
-                                    getSymbolizerSize(estimator, symbolizer, Math.min(w, h) - 4);
-                            double newSize = rescaler.apply(size);
-                            symbolizer = rescaleSymbolizer(symbolizer, size, newSize);
-                        } else if (symbolizer instanceof PolygonSymbolizer) {
-                            // need to make room for the stroke in the symbol, thus, a
-                            // smaller rect
-                            double symbolizerSize = getSymbolizerSize(estimator, symbolizer, 0);
-                            int rescaledWidth = integerSize(minimumSymbolSize, w - symbolizerSize);
-                            int rescaledHeight = integerSize(minimumSymbolSize, h - symbolizerSize);
-                            shape = getSampleShape(symbolizer, rescaledWidth, rescaledHeight, w, h);
-
-                            symbolizer = rescaleSymbolizer(symbolizer, w, rescaledWidth);
-                        }
-
-                        Style2D style2d = styleFactory.createStyle(sample, symbolizer, scaleRange);
-                        if (style2d != null) {
-                            shapePainter.paint(graphics, shape, style2d, -1.0);
-                        }
+                    Style2D style2d = styleFactory.createStyle(sample, symbolizer, scaleRange);
+                    if (style2d != null) {
+                        shapePainter.paint(graphics, shape, style2d, -1.0);
                     }
                 }
             }
+
             if (titleImage != null) {
                 layersImages.add(titleImage);
                 titleImage = null;
@@ -269,13 +248,8 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
             legendsStack.add(image);
             graphics.dispose();
         }
-        int labelMargin = 3;
-        if (!StringUtils.isEmpty((CharSequence) legendOptions.get("labelMargin"))) {
-            labelMargin =
-                    Integer.parseInt(legendOptions.get("labelMargin").toString());
-        }
-        LegendMerger.MergeOptions options =
-                LegendMerger.MergeOptions.createFromRequest(
+
+        LegendMerger.MergeOptions options = LegendMerger.MergeOptions.createFromRequest(
                         legendsStack,
                         0,
                         0,
@@ -286,7 +260,6 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
                         forceLabelsOff);
         if (ruleCount > 0) {
             BufferedImage image = LegendMerger.mergeLegends(applicableRules, legendOptions, options);
-
             if (image != null) {
                 layersImages.add(image);
             }

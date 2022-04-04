@@ -51,6 +51,7 @@ public abstract class LegendGraphicBuilder {
     boolean forceLabelsOff = false;
     boolean forceTitlesOff = false;
     boolean isTransparent = false;
+    int labelMargin = 3; //the space between the image and the rule label
 
     /** */
     public LegendGraphicBuilder() {
@@ -77,6 +78,11 @@ public abstract class LegendGraphicBuilder {
             } else if (transparent.equalsIgnoreCase("off")) {
                 isTransparent = false;
             }
+        }
+
+        // specifies the space between the image and the rule label
+        if (legendOptions.containsKey("ruleLabelMargin")){
+            labelMargin = (int) legendOptions.get("ruleLabelMargin");
         }
     }
 

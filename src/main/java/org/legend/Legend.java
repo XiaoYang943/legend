@@ -119,6 +119,8 @@ public class Legend {
         legendOptions.put("transparent","on"); // default is off
         legendOptions.put("forceStyleTitlesOff","on");
         legendOptions.put("bgColor",Color.ORANGE); // default is Color.WHITE;
+        // Set the space between the image and the rule label
+        legendOptions.put("ruleLabelMargin",50); //default is 3;
 
         LegendItem legendElement = new LegendItem(layerList,legendOptions);
         BufferedImage bufferedImage = legendElement.produceBufferedImage();
