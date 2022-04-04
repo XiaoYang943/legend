@@ -3,7 +3,7 @@
  * This code is licensed under the GPL 2.0 license, available at the root
  * application directory.
  */
-package org.legend.legendGraphicDetails;
+package org.legend.utils;
 
 import javax.media.jai.TiledImage;
 import java.awt.*;

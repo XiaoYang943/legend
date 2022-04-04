@@ -17,7 +17,7 @@ import org.geotools.geometry.jts.LiteShape2;
 import org.geotools.renderer.lite.MetaBufferEstimator;
 import org.geotools.styling.*;
 import org.geotools.styling.visitor.RescaleStyleVisitor;
-import org.legend.legendGraphicDetails.LegendUtils;
+import org.legend.utils.LegendUtils;
 import org.locationtech.jts.geom.*;
 import org.opengis.feature.Feature;
 import org.opengis.feature.IllegalAttributeException;

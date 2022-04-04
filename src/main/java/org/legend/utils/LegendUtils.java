@@ -3,12 +3,11 @@
  * This code is licensed under the GPL 2.0 license, available at the root
  * application directory.
  */
-package org.legend.legendGraphicDetails;
+package org.legend.utils;
 
 import org.apache.commons.text.WordUtils;
 import org.geotools.renderer.lite.RendererUtilities;
 import org.geotools.styling.*;
-import org.legend.imageBuilder.LegendGraphicBuilder;
 import org.opengis.util.InternationalString;
 
 import java.awt.Font;
@@ -150,45 +149,19 @@ public class LegendUtils {
     }
 
     /**
-     * Checks if the graphics should be text antialiasing
+     * Returns the image background color for the given option.
      *
-     * @param legendOptionsParam the {@link GetLegendGraphicRequest} from which to extract font antialiasing
-     *     information.
-     * @return true if the fontAntiAliasing is set to on
-     */
-    public static boolean isFontAntiAliasing(final Map<String, Object> legendOptionsParam) {
-        if (legendOptionsParam.get("fontAntiAliasing") instanceof String) {
-            String aaVal = (String) legendOptionsParam.get("fontAntiAliasing");
-            if (aaVal.equalsIgnoreCase("on")
-                    || aaVal.equalsIgnoreCase("true")
-                    || aaVal.equalsIgnoreCase("yes")
-                    || aaVal.equalsIgnoreCase("1")) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * Returns the image background color for the given {@link GetLegendGraphicRequest}.
-     *
-     * @param legendOptionsParam a {@link GetLegendGraphicRequest} from which we should extract the background
-     *     color.
-     * @return the Color for the hexadecimal value passed as the <code>BGCOLOR</code> {@link
-     *     GetLegendGraphicRequest#getLegendOptions() legend option}, or the default background
-     *     color if no bgcolor were passed.
+     * @param legendOptionsParam from which we should extract the background color.
+     * @return the Color for the hexadecimal value passed by legendOptionsParam, or the default background color if no bgcolor were passed.
      */
     public static Color getBackgroundColor(final Map<String, Object> legendOptionsParam) {
-        ensureNotNull(legendOptionsParam, "GetLegendGraphicRequestre");
+        ensureNotNull(legendOptionsParam, "legendOptionsParam is null");
         Object clr = legendOptionsParam.get("bgColor");
         if (clr instanceof Color) {
             return (Color) clr;
         } else if (clr == null) {
-            // return the default
             return DEFAULT_BG_COLOR;
         }
-
         try {
             return color((String) clr);
         } catch (NumberFormatException e) {
@@ -201,11 +174,14 @@ public class LegendUtils {
         }
     }
 
+    /**
+     * Returns the rule label.
+     *
+     * @param rule the given rule of a style.
+     * @return the label of the rule.
+     */
     static String getRuleLabel(Rule rule) {
-        // What's the label on this rule? We prefer to use
-        // the 'title' if it's available, but fall-back to 'name'
         final Description description = rule.getDescription();
-
         String label = "";
         if (description != null && description.getTitle() != null) {
             final InternationalString title = description.getTitle();
@@ -217,33 +193,29 @@ public class LegendUtils {
     }
 
     /**
-     * Extracts the Label {@link Font} {@link Color} from the provided {@link
-     * GetLegendGraphicRequest}.
+     * Extracts the Label font color from legendOptionsParam.
      *
-     * <p>If there is no label {@link Font} specified a default {@link Font} {@link Color} will be
-     * provided.
+     * <p>If there is no label font specified a default font color will be provided.
      *
-     * @param legendOptionsParam the {@link GetLegendGraphicRequest} from which to extract label color information.
-     * @return the Label {@link Font} {@link Color} extracted from the provided {@link
-     *     GetLegendGraphicRequest} or a default {@link Font} {@link Color}.
+     * @param legendOptionsParam the legendOptionsParam from which to extract label color information.
+     * @return the Label font color extracted from the provided legendOptionsParam or a default font color.
      */
     public static Color getLabelFontColor(final Map<String, Object> legendOptionsParam) {
-        ensureNotNull( legendOptionsParam, "GetLegendGraphicRequestre");
-        final String color = (String) legendOptionsParam.get("fontColor");
-        if (color == null) {
-            // return the default
+        ensureNotNull(legendOptionsParam, "legendOptionsParam is null");
+        Object clr = legendOptionsParam.get("fontColor");
+        if (clr instanceof Color) {
+            return (Color) clr;
+        } else if (clr == null) {
             return DEFAULT_FONT_COLOR;
         }
-
         try {
-            return color(color);
+            return color((String) clr);
         } catch (NumberFormatException e) {
-            if (LOGGER.isLoggable(Level.WARNING))
-                LOGGER.warning(
-                        "Could not decode label color: "
-                                + color
-                                + ", default to "
-                                + DEFAULT_FONT_COLOR.toString());
+            LOGGER.warning(
+                    "Could not decode label color: "
+                            + clr
+                            + ", default to "
+                            + DEFAULT_FONT_COLOR.toString());
             return DEFAULT_FONT_COLOR;
         }
     }
@@ -251,7 +223,7 @@ public class LegendUtils {
     /**
      * Checks if the label should be word wrapped
      *
-     * @param legendOptionsParam the {@link GetLegendGraphicRequest} from which to extract font antialiasing
+     * @param legendOptionsParam the legendOptionsParam from which to extract font antialiasing
      *     information.
      * @return true if the wrap is set to on
      */
@@ -272,7 +244,7 @@ public class LegendUtils {
     /**
      * Get the wrap limit
      *
-     * @param legendOptionsParam the {@link GetLegendGraphicRequest} from which to extract wrap limit.
+     * @param legendOptionsParam the legendOptionsParam from which to extract wrap limit.
      * @return the wrap limit or -1 if no wrap limit provided
      */
     public static int getWrapLimit(final Map<String, Object> legendOptionsParam) {
@@ -284,11 +256,11 @@ public class LegendUtils {
     }
 
     /**
-     * Retrieves row width of legend from the provided {@link GetLegendGraphicRequest}.
+     * Retrieves row width of legend from the provided legendOptionsParam.
      *
-     * @param legendOptionsParam a {@link GetLegendGraphicRequest} from which we should extract row width
+     * @param legendOptionsParam a legendOptionsParam from which we should extract row width
      *     information.
-     * @return the row width specified in the provided {@link GetLegendGraphicRequest} or a default
+     * @return the row width specified in the provided legendOptionsParam or a default
      *     DEFAULT_ROW_WIDTH.
      */
     public static int getRowWidth(final Map<String, Object> legendOptionsParam) {
@@ -304,11 +276,11 @@ public class LegendUtils {
     }
 
     /**
-     * Retrieves column height of legend from the provided {@link GetLegendGraphicRequest}.
+     * Retrieves column height of legend from the provided legendOptionsParam.
      *
-     * @param legendOptionsParam a {@link GetLegendGraphicRequest} from which we should extract column height
+     * @param legendOptionsParam a legendOptionsParam from which we should extract column height
      *     information.
-     * @return the column height specified in the provided {@link GetLegendGraphicRequest} or a
+     * @return the column height specified in the provided legendOptionsParam or a
      *     default DEFAULT_COLUMN_HEIGHT.
      */
     public static int getColumnHeight(final Map<String, Object> legendOptionsParam) {
@@ -324,11 +296,11 @@ public class LegendUtils {
     }
 
     /**
-     * Retrieves columns of legend from the provided {@link GetLegendGraphicRequest}.
+     * Retrieves columns of legend from the provided legendOptionsParam.
      *
-     * @param legendOptionsParam a {@link GetLegendGraphicRequest} from which we should extract columns
+     * @param legendOptionsParam a legendOptionsParam from which we should extract columns
      *     information.
-     * @return the columns specified in the provided {@link GetLegendGraphicRequest} or a default
+     * @return the columns specified in the provided legendOptionsParam or a default
      *     DEFAULT_COLUMNS.
      */
     public static int getColumns(final Map<String, Object> legendOptionsParam) {
@@ -344,10 +316,10 @@ public class LegendUtils {
     }
 
     /**
-     * Retrieves rows of legend from the provided {@link GetLegendGraphicRequest}.
+     * Retrieves rows of legend from the provided legendOptionsParam.
      *
-     * @param legendOptionsParam a {@link GetLegendGraphicRequest} from which we should extract rows information.
-     * @return the rows specified in the provided {@link GetLegendGraphicRequest} or a default
+     * @param legendOptionsParam a legendOptionsParam from which we should extract rows information.
+     * @return the rows specified in the provided legendOptionsParam or a default
      *     DEFAULT_ROWS.
      */
     public static int getRows(final Map<String, Object> legendOptionsParam) {
@@ -363,11 +335,11 @@ public class LegendUtils {
     }
 
     /**
-     * Retrieves the legend layout from the provided {@link GetLegendGraphicRequest}.
+     * Retrieves the legend layout from the provided legendOptionsParam.
      *
-     * @param legendOptionsParam a {@link GetLegendGraphicRequest} from which we should extract the {@link
+     * @param legendOptionsParam a legendOptionsParam from which we should extract the {@link
      *     LegendLayout} information.
-     * @return the {@link LegendLayout} specified in the provided {@link GetLegendGraphicRequest} or
+     * @return the {@link LegendLayout} specified in the provided legendOptionsParam or
      *     a default DEFAULT_LAYOUT.
      */
     public static LegendLayout getLayout(final Map<String, Object> legendOptionsParam) {
@@ -484,11 +456,11 @@ public class LegendUtils {
     }
 
     /**
-     * Retrieves the font from the provided {@link GetLegendGraphicRequest}.
+     * Retrieves the font from the provided legendOptionsParam.
      *
-     * @param legendOptionsParam a {@link GetLegendGraphicRequest} from which we should extract the {@link Font}
+     * @param legendOptionsParam a legendOptionsParam from which we should extract the {@link Font}
      *     information.
-     * @return the {@link Font} specified in the provided {@link GetLegendGraphicRequest} or a
+     * @return the {@link Font} specified in the provided legendOptionsParam or a
      *     default {@link Font}.
      */
     public static Font getLabelFont(final Map<String, Object> legendOptionsParam) {

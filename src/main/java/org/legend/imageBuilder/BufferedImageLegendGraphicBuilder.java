@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-import org.apache.commons.lang3.StringUtils;
 import org.geotools.geometry.jts.LiteShape2;
 import org.geotools.map.FeatureLayer;
 import org.geotools.renderer.lite.MetaBufferEstimator;
@@ -27,14 +26,12 @@ import org.geotools.renderer.style.Style2D;
 import org.geotools.styling.*;
 import org.geotools.styling.visitor.RescaleStyleVisitor;
 import org.geotools.util.NumberRange;
-import org.legend.legendGraphicDetails.*;
-import org.locationtech.jts.geom.Coordinate;
+import org.legend.utils.*;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.opengis.feature.Feature;
 import org.opengis.feature.type.FeatureType;
 import org.opengis.filter.expression.Expression;
 import org.opengis.filter.expression.Literal;
-import org.opengis.style.GraphicLegend;
 
 /**
  * Template based on <a

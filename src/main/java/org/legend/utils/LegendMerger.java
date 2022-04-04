@@ -1,4 +1,4 @@
-package org.legend.legendGraphicDetails;
+package org.legend.utils;
 
 /* (c) 2016 Open Source Geospatial Foundation - all rights reserved
  * This code is licensed under the GPL 2.0 license, available at the root
@@ -135,7 +135,7 @@ public class LegendMerger {
                     labelMargin,
                     LegendUtils.getBackgroundColor(legendOptions),
                     false,
-                    LegendUtils.isFontAntiAliasing(legendOptions),
+                    true,
                     LegendUtils.getLayout(legendOptions),
                     LegendUtils.getRowWidth(legendOptions),
                     LegendUtils.getRows(legendOptions),
@@ -823,16 +823,11 @@ public class LegendMerger {
             BufferedImage image, String label, Map<String, Object> legendOptionsParam) {
         final Graphics2D graphics = image.createGraphics();
         Font labelFont = LegendUtils.getLabelFont(legendOptionsParam);
-        boolean useAA = LegendUtils.isFontAntiAliasing(legendOptionsParam);
+        boolean useAA = true;
 
         graphics.setFont(labelFont);
-        if (useAA) {
-            graphics.setRenderingHint(
-                    RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-        } else {
-            graphics.setRenderingHint(
-                    RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
-        }
+        graphics.setRenderingHint(
+                RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
         return LegendUtils.renderLabel(label, graphics, legendOptionsParam);
     }
 }
