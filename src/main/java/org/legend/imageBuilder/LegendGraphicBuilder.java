@@ -47,9 +47,10 @@ public abstract class LegendGraphicBuilder {
 
     protected int w;
     protected int h;
-    boolean forceLabelsOn = false;
+    boolean forceLabelsOn = true;
     boolean forceLabelsOff = false;
     boolean forceTitlesOff = false;
+    boolean isTransparent = false;
 
     /** */
     public LegendGraphicBuilder() {
@@ -60,12 +61,21 @@ public abstract class LegendGraphicBuilder {
         w = (int) legendOptions.get("width");
         h = (int) legendOptions.get("height");
 
-        if (legendOptions.get("forceLabels") instanceof String) {
-            String forceLabelsOpt = (String) legendOptions.get("forceLabels");
+        if (legendOptions.get("forceRuleLabelsOff") instanceof String) {
+            String forceLabelsOpt = (String) legendOptions.get("forceRuleLabelsOff");
             if (forceLabelsOpt.equalsIgnoreCase("on")) {
-                forceLabelsOn = true;
-            } else if (forceLabelsOpt.equalsIgnoreCase("off")) {
+                forceLabelsOn = false;
                 forceLabelsOff = true;
+            }
+        }
+
+        // specifies if the background of the legend graphic to return shall be transparent or not.
+        if(legendOptions.get("transparent") instanceof String){
+            String transparent = (String) legendOptions.get("transparent");
+            if (transparent.equalsIgnoreCase("on")) {
+                isTransparent = true;
+            } else if (transparent.equalsIgnoreCase("off")) {
+                isTransparent = false;
             }
         }
     }
@@ -219,7 +229,8 @@ public abstract class LegendGraphicBuilder {
     /**
      * Calculates a global rescaling factor for all the symbols to be drawn in the given rules. This
      * is to be sure all symbols are drawn inside the given w x h box.
-     *
+     * @param defaultMaxSize Math.min(w, h)
+     * @param defaultMinSize Default minimum size for symbols rendering.
      * @param featureType FeatureType to be used for size extraction in expressions (used to create
      *     a sample if feature is null)
      * @param feature Feature to be used for size extraction in expressions (if null a sample

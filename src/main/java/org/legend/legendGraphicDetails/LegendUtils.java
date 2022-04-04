@@ -139,48 +139,14 @@ public class LegendUtils {
      *
      * @return an array of {@link Rule}s.
      */
-    public static Rule[] getApplicableRules(
-            final FeatureTypeStyle[] ftStyles, double scaleDenominator) {
+    public static Rule[] getRules(final FeatureTypeStyle[] ftStyles) {
         ensureNotNull(ftStyles, "FeatureTypeStyle array ");
-        /* Holds both the rules that apply and the ElseRule's if any, in the order they appear */
         final List<Rule> ruleList = new ArrayList<>();
-
-        // get applicable rules at the current scale
         for (FeatureTypeStyle fts : ftStyles) {
-            for (Rule r : fts.rules()) {
-                if (isWithInScale(r, scaleDenominator)) {
-                    ruleList.add(r);
-
-                    /*
-                    * I'm commented this out since I guess it has no sense
-                    * for producing the legend, since whether or not the rule
-                    * has an else filter, the legend is drawn only if the
-                    * scale denominator lies inside the rule's scale range.
-                             if (r.hasElseFilter()) {
-                                 ruleList.add(r);
-                             }
-                    */
-                }
-            }
+            ruleList.addAll(fts.rules());
         }
 
         return ruleList.toArray(new Rule[0]);
-    }
-
-    /**
-     * Checks if a rule can be triggered at the current scale level
-     *
-     * @param r The rule
-     * @param scaleDenominator the scale denominator to check if it is between the rule's scale
-     *     range. -1 means that it allways is.
-     * @return true if the scale is compatible with the rule settings
-     */
-    public static boolean isWithInScale(final Rule r, final double scaleDenominator) {
-        return (scaleDenominator == -1)
-                || (((r.getMinScaleDenominator() - LegendGraphicBuilder.TOLERANCE)
-                <= scaleDenominator)
-                && ((r.getMaxScaleDenominator() + LegendGraphicBuilder.TOLERANCE)
-                > scaleDenominator));
     }
 
     /**
@@ -327,14 +293,14 @@ public class LegendUtils {
      */
     public static int getRowWidth(final Map<String, Object> legendOptionsParam) {
         ensureNotNull(legendOptionsParam, "GetLegendGraphicRequestre");
-        int rowwidth = DEFAULT_ROW_WIDTH;
-        if (legendOptionsParam != null && legendOptionsParam.get("rowwidth") != null) {
+        int rowWidth = DEFAULT_ROW_WIDTH;
+        if (legendOptionsParam.get("rowWidth") != null) {
             try {
-                rowwidth = Integer.parseInt((String) legendOptionsParam.get("rowwidth"));
-            } catch (NumberFormatException e) {
+                rowWidth = Integer.parseInt((String) legendOptionsParam.get("rowWidth"));
+            } catch (NumberFormatException ignored) {
             }
         }
-        return rowwidth;
+        return rowWidth;
     }
 
     /**
@@ -347,15 +313,14 @@ public class LegendUtils {
      */
     public static int getColumnHeight(final Map<String, Object> legendOptionsParam) {
         ensureNotNull(legendOptionsParam, "GetLegendGraphicRequestre");
-        final Map<String, Object> legendOptions = legendOptionsParam;
-        int columnheight = DEFAULT_COLUMN_HEIGHT;
-        if (legendOptions != null && legendOptions.get("columnheight") != null) {
+        int columnHeight = DEFAULT_COLUMN_HEIGHT;
+        if (legendOptionsParam.get("columnHeight") != null) {
             try {
-                columnheight = Integer.parseInt((String) legendOptions.get("columnheight"));
-            } catch (NumberFormatException e) {
+                columnHeight = Integer.parseInt((String) legendOptionsParam.get("columnHeight"));
+            } catch (NumberFormatException ignored) {
             }
         }
-        return columnheight;
+        return columnHeight;
     }
 
     /**
@@ -368,12 +333,11 @@ public class LegendUtils {
      */
     public static int getColumns(final Map<String, Object> legendOptionsParam) {
         ensureNotNull(legendOptionsParam, "GetLegendGraphicRequestre");
-        final Map<String, Object> legendOptions = legendOptionsParam;
         int columns = DEFAULT_COLUMNS;
-        if (legendOptions != null && legendOptions.get("columns") != null) {
+        if (legendOptionsParam.get("columns") != null) {
             try {
-                columns = Integer.parseInt((String) legendOptions.get("columns"));
-            } catch (NumberFormatException e) {
+                columns = Integer.parseInt((String) legendOptionsParam.get("columns"));
+            } catch (NumberFormatException ignored) {
             }
         }
         return columns;
@@ -388,12 +352,11 @@ public class LegendUtils {
      */
     public static int getRows(final Map<String, Object> legendOptionsParam) {
         ensureNotNull(legendOptionsParam, "GetLegendGraphicRequestre");
-        final Map<String, Object> legendOptions = legendOptionsParam;
         int rows = DEFAULT_ROWS;
-        if (legendOptions != null && legendOptions.get("rows") != null) {
+        if (legendOptionsParam.get("rows") != null) {
             try {
-                rows = Integer.parseInt((String) legendOptions.get("rows"));
-            } catch (NumberFormatException e) {
+                rows = Integer.parseInt((String) legendOptionsParam.get("rows"));
+            } catch (NumberFormatException ignored) {
             }
         }
         return rows;
@@ -409,12 +372,11 @@ public class LegendUtils {
      */
     public static LegendLayout getLayout(final Map<String, Object> legendOptionsParam) {
         ensureNotNull(legendOptionsParam, "GetLegendGraphicRequestre");
-        final Map<String, Object> legendOptions = legendOptionsParam;
         LegendLayout layout = DEFAULT_LAYOUT;
-        if (legendOptions != null && legendOptions.get("layout") != null) {
+        if (legendOptionsParam.get("layout") != null) {
             try {
-                layout = LegendLayout.valueOf(((String) legendOptions.get("layout")).toUpperCase());
-            } catch (IllegalArgumentException e) {
+                layout = LegendLayout.valueOf(((String) legendOptionsParam.get("layout")).toUpperCase());
+            } catch (IllegalArgumentException ignored) {
             }
         }
         return layout;
@@ -449,7 +411,7 @@ public class LegendUtils {
             int widthChars = width / fm.stringWidth("m");
             label = WordUtils.wrap(label, widthChars, "\n", true);
         }
-        if ((label.indexOf("\n") != -1) || (label.indexOf("\\n") != -1)) {
+        if ((label.contains("\n")) || (label.contains("\\n"))) {
             // this is a label WITH line-breaks...we need to figure out it's height *and*
             // width, and then adjust the legend size accordingly
             Rectangle2D bounds = new Rectangle2D.Double(0, 0, 0, 0);
@@ -489,11 +451,11 @@ public class LegendUtils {
             rlg.setRenderingHint(
                     RenderingHints.KEY_FRACTIONALMETRICS,
                     g.getRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS));
-            int y = 0 - g.getFontMetrics().getDescent();
+            int y = -g.getFontMetrics().getDescent();
             int c = 0;
 
             while (st.hasMoreElements()) {
-                y += lineHeight.get(c++).intValue();
+                y += lineHeight.get(c++);
                 rlg.drawString(st.nextToken(), 0, y);
             }
             rlg.dispose();
@@ -531,16 +493,14 @@ public class LegendUtils {
      */
     public static Font getLabelFont(final Map<String, Object> legendOptionsParam) {
         ensureNotNull(legendOptionsParam, "GetLegendGraphicRequestre");
-        final Map<String, Object> legendOptions = legendOptionsParam;
-        if (legendOptions == null) return DEFAULT_FONT;
         String legendFontName = LegendUtils.DEFAULT_FONT_NAME;
-        if (legendOptions.get("fontName") != null) {
-            legendFontName = (String) legendOptions.get("fontName");
+        if (legendOptionsParam.get("fontName") != null) {
+            legendFontName = (String) legendOptionsParam.get("fontName");
         }
 
         int legendFontFamily = LegendUtils.DEFAULT_FONT_TYPE;
-        if (legendOptions.get("fontStyle") != null) {
-            String legendFontFamily_ = (String) legendOptions.get("fontStyle");
+        if (legendOptionsParam.get("fontStyle") != null) {
+            String legendFontFamily_ = (String) legendOptionsParam.get("fontStyle");
             if (legendFontFamily_.equalsIgnoreCase("italic")) {
                 legendFontFamily = Font.ITALIC;
             } else if (legendFontFamily_.equalsIgnoreCase("bold")) {
@@ -549,14 +509,13 @@ public class LegendUtils {
         }
 
         int legendFontSize = LegendUtils.DEFAULT_FONT_SIZE;
-        if (legendOptions.get("fontSize") != null) {
+        if (legendOptionsParam.get("fontSize") != null) {
             try {
-                legendFontSize = Integer.valueOf((String) legendOptions.get("fontSize"));
+                legendFontSize = Integer.parseInt((String) legendOptionsParam.get("fontSize"));
             } catch (NumberFormatException e) {
                 LOGGER.warning(
                         "Error trying to interpret legendOption 'fontSize': "
-                                + legendOptions.get("fontSize"));
-                legendFontSize = LegendUtils.DEFAULT_FONT_SIZE;
+                                + legendOptionsParam.get("fontSize"));
             }
         }
 

@@ -83,11 +83,11 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
     }
 
     /**
-     * Takes a GetLegendGraphicRequest and produces a BufferedImage that then can be used by a
-     * subclass to encode it to the appropriate output format.
-     *
+     * Takes a featureLayerList and legendOptions and produces a BufferedImage.
+     * @param featureLayerList feature layer list
+     * @param legendOptions legend options map that can contain information like legenItem width, height, forceLabels (rule label : on (or off by default))
      * @throws Exception if there are problems creating a "sample" feature instance for the
-     *     FeatureType <code>request</code> returns as the required layer (which should not occur).
+     *     FeatureType returns as the required layer (which should not occur).
      */
     public BufferedImage buildLegendGraphic(List<FeatureLayer> featureLayerList, Map<String, Object> legendOptions) throws Exception {
         // list of images to be rendered for the layers (more than one if
@@ -107,21 +107,19 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
                 throw new NullPointerException("There is no style in featureLayer");
             }
             final FeatureTypeStyle[] ftStyles = gt2Style.featureTypeStyles().toArray(new FeatureTypeStyle[0]);
-            final double scaleDenominator = -1.0;
-            Rule[] applicableRules = LegendUtils.getApplicableRules(ftStyles, scaleDenominator);
 
-            final SLDStyleFactory styleFactory = new SLDStyleFactory();
+            Rule[] rules = LegendUtils.getRules(ftStyles);
 
-            final boolean transparent = false;
+
             RenderedImage titleImage = null;
-            // if we have more than one layer, we put a title on top of each layer legend
-            if (featureLayerList.size() > 1 && !forceTitlesOff) {
-                titleImage = getLayerTitle(featureLayer, w, h, transparent, legendOptions);
+
+            // we put a title on top of each style legend
+            if (!forceTitlesOff) {
+                titleImage = getStyleTitle(featureLayer, w, h, isTransparent, legendOptions);
             }
 
             /*
-             * Default minimum size for symbols rendering. Can be overridden using LEGEND_OPTIONS
-             * (minSymbolSize).
+             * Default minimum size for symbols rendering.
              */
             double minimumSymbolSize = 3.0;
 
@@ -129,32 +127,14 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
             // drawn inside the icon box
             int defaultSize = Math.min(w, h);
 
-            double[] minMax =
-                    calcSymbolSize(
-                            defaultSize,
-                            minimumSymbolSize,
-                            featureType,
-                            sampleFeature,
-                            applicableRules);
-            double actualMin = minMax[0];
-            double actualMax = minMax[1];
-            boolean rescalingRequired =
-                    actualMin < minimumSymbolSize || actualMax > defaultSize;
-            java.util.function.Function<Double, Double> rescaler;
-            if (actualMax == actualMin
-                    || ((actualMin / actualMax) * defaultSize) > minimumSymbolSize) {
-                rescaler = size -> (size / actualMax) * defaultSize;
-            } else {
-                rescaler =
-                        size ->
-                                (size - actualMin)
-                                        / (actualMax - actualMin)
-                                        * (defaultSize - minimumSymbolSize)
-                                        + minimumSymbolSize;
-            }
-            //boolean transparent = false;
+            double[] minMax = calcSymbolSize(defaultSize,minimumSymbolSize,featureType,sampleFeature,rules);
+            boolean rescalingRequired = false;
+            java.util.function.Function<Double, Double> rescaler = size -> (size / minMax[1]) * defaultSize;
+
+            final SLDStyleFactory styleFactory = new SLDStyleFactory();
+            final double scaleDenominator = -1.0;
             final NumberRange<Double> scaleRange = NumberRange.create(scaleDenominator, scaleDenominator);
-            final int ruleCount = applicableRules.length;
+            final int ruleCount = rules.length;
             final List<RenderedImage> legendsStack = new ArrayList<>(ruleCount);
             renderRules(
                     legendOptions,
@@ -162,10 +142,10 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
                     forceLabelsOn,
                     forceLabelsOff,
                     featureType,
-                    transparent,
+                    isTransparent,
                     titleImage,
                     sampleFeature,
-                    applicableRules,
+                    rules,
                     scaleRange,
                     ruleCount,
                     legendsStack,
@@ -194,7 +174,7 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
      * @param legendOptions GetLegendGraphicRequest being built
      * @return image with the title
      */
-    private RenderedImage getLayerTitle(
+    private RenderedImage getStyleTitle(
             FeatureLayer featureLayer,
             int w,
             int h,
@@ -223,14 +203,12 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
         double minimumSymbolSize,
         boolean rescalingRequired,
         Function<Double, Double> rescaler) throws Exception {
+
         MetaBufferEstimator estimator = new MetaBufferEstimator(sampleFeature);
         for (int i = 0; i < ruleCount; i++) {
-
             final RenderedImage image = ImageUtils.createImage(w, h, null, transparent);
             final Map<RenderingHints.Key, Object> hintsMap = new HashMap<>();
-            final Graphics2D graphics =
-                    ImageUtils.prepareTransparency(
-                            transparent, LegendUtils.getBackgroundColor(legendOptions), image, hintsMap);
+            final Graphics2D graphics = ImageUtils.prepareTransparency(transparent, LegendUtils.getBackgroundColor(legendOptions), image, hintsMap);
             graphics.setRenderingHint(
                     RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
