@@ -1,8 +1,23 @@
-/* (c) 2014 - 2016 Open Source Geospatial Foundation - all rights reserved
- * (c) 2001 - 2013 OpenPlans
- * This code is licensed under the GPL 2.0 license, available at the root
- * application directory.
+/*
+ * Legend is a library that generates a legend.
+ * Legend is developed by CNRS http://www.cnrs.fr/.
+ *
+ * Most of the code had been picked up from Geoserver (https://github.com/geoserver/geoserver). Legend is free software;
+ * you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation;
+ * version 3.0 of the License.
+ *
+ * Legend is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details http://www.gnu.org/licenses.
+ *
+ *
+ *For more information, please consult: http://www.orbisgis.org
+ *or contact directly: info_at_orbisgis.org
+ *
  */
+
 package org.legend.utils;
 
 import javax.media.jai.TiledImage;
@@ -17,13 +32,10 @@ import java.util.logging.Logger;
  * Provides utility methods for the shared handling of images by the raster map and legend
  * producers.
  *
- * @author Gabriel Roldan
- * @author Simone Giannecchini, GeoSolutions S.A.S.
- * @version $Id$
+ * @author Adrien Bessy (entirely based on what Gabriel Roldan and Simone Giannecchini did with GeoServer)
  */
 public class ImageUtils {
-    private static final Logger LOGGER =
-            org.geotools.util.logging.Logging.getLogger("org.legend.legendGraphicDetails");
+    private static final Logger LOGGER = org.geotools.util.logging.Logging.getLogger("org.legend.utils");
 
     /**
      * Forces the use of the class as a pure utility methods one by declaring a private default
@@ -34,7 +46,7 @@ public class ImageUtils {
     }
 
     /**
-     * Sets up a {@link BufferedImage#TYPE_4BYTE_ABGR} if the paletteInverter is not provided, or a
+     * Sets up a {@link BufferedImage#TYPE_4BYTE_ABGR} if the paletteInverter is not provided, or an
      * indexed image otherwise. Subclasses may override this method should they need a special kind
      * of image
      *
@@ -46,8 +58,8 @@ public class ImageUtils {
      *     if any, and to be used as a transparent image or not depending on the <code>transparent
      *     </code> parameter.
      */
-    public static BufferedImage createImage(
-            int width, int height, final IndexColorModel palette, final boolean transparent) {
+    public static BufferedImage createImage(int width, int height, final IndexColorModel palette,
+                                            final boolean transparent) {
         // tolerance against image generation with zero width/height (can happen in various places
         // for the legend generation code, easier to handle it once here)
         height = Math.max(1, height);
@@ -60,9 +72,8 @@ public class ImageUtils {
             // gets completely
             // broken, see GEOS-1312 (https://osgeo-org.atlassian.net/browse/GEOS-1312)
             // final WritableRaster raster = palette.createCompatibleWritableRaster(width, height);
-            final WritableRaster raster =
-                    Raster.createInterleavedRaster(
-                            palette.getTransferType(), width, height, 1, null);
+            final WritableRaster raster = Raster.createInterleavedRaster(palette.getTransferType(), width, height,
+                    1, null);
             return new BufferedImage(palette, raster, false, null);
         }
 
@@ -80,7 +91,7 @@ public class ImageUtils {
      * already prepared with a transparent background or the given background color.
      *
      * @param transparent whether the graphics is transparent or not.
-     * @param bgColor the background color to fill the graphics with if its not transparent.
+     * @param bgColor the background color to fill the graphics with if it's not transparent.
      * @param preparedImage the image for which to create the graphics.
      * @param extraHints an optional map of extra rendering hints to apply to the {@link
      *     Graphics2D}, other than {@link RenderingHints#KEY_ANTIALIASING}.
@@ -88,13 +99,10 @@ public class ImageUtils {
      *     <code>transparent == true</code> or with the background painted with <code>bgColor</code>
      *     otherwise.
      */
-    public static Graphics2D prepareTransparency(
-            final boolean transparent,
-            final Color bgColor,
-            final RenderedImage preparedImage,
-            final Map<RenderingHints.Key, Object> extraHints) throws Exception {
+    public static Graphics2D prepareTransparency(final boolean transparent, final Color bgColor,
+                                                 final RenderedImage preparedImage,
+                                                 final Map<RenderingHints.Key, Object> extraHints) throws Exception {
         final Graphics2D graphic;
-
         if (preparedImage instanceof BufferedImage) {
             graphic = ((BufferedImage) preparedImage).createGraphics();
         } else if (preparedImage instanceof TiledImage) {
@@ -118,16 +126,15 @@ public class ImageUtils {
             if (LOGGER.isLoggable(Level.FINE)) {
                 LOGGER.fine("setting to transparent");
             }
-
             int type = AlphaComposite.SRC;
             graphic.setComposite(AlphaComposite.getInstance(type));
-
             Color c = new Color(bgColor.getRed(), bgColor.getGreen(), bgColor.getBlue(), 0);
             graphic.setBackground(bgColor);
             graphic.setColor(c);
             graphic.fillRect(0, 0, preparedImage.getWidth(), preparedImage.getHeight());
             type = AlphaComposite.SRC_OVER;
             graphic.setComposite(AlphaComposite.getInstance(type));
+
         } else {
             graphic.setColor(bgColor);
             graphic.fillRect(0, 0, preparedImage.getWidth(), preparedImage.getHeight());

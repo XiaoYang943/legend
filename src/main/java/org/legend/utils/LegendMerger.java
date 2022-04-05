@@ -1,9 +1,24 @@
-package org.legend.utils;
-
-/* (c) 2016 Open Source Geospatial Foundation - all rights reserved
- * This code is licensed under the GPL 2.0 license, available at the root
- * application directory.
+/*
+ * Legend is a library that generates a legend.
+ * Legend is developed by CNRS http://www.cnrs.fr/.
+ *
+ * Most of the code had been picked up from Geoserver (https://github.com/geoserver/geoserver). Legend is free software;
+ * you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation;
+ * version 3.0 of the License.
+ *
+ * Legend is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details http://www.gnu.org/licenses.
+ *
+ *
+ *For more information, please consult: http://www.orbisgis.org
+ *or contact directly: info_at_orbisgis.org
+ *
  */
+
+package org.legend.utils;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -26,8 +41,7 @@ import org.geotools.styling.Rule;
 public class LegendMerger {
 
     /**
-     * Set of options for legend merging. Used to set all needed options for merging a set of icons
-     * in a single place
+     * Set of options for legend merging. Used to set all needed options for merging a set of icons in a single place
      *
      * @author mauro.bartolomeoli@geo-solutions.it
      */

@@ -1,3 +1,23 @@
+/*
+ * Legend is a library that generates a legend.
+ * Legend is developed by CNRS http://www.cnrs.fr/.
+ *
+ * Most of the code had been picked up from Geoserver (https://github.com/geoserver/geoserver). Legend is free software;
+ * you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation;
+ * version 3.0 of the License.
+ *
+ * Legend is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details http://www.gnu.org/licenses.
+ *
+ *
+ *For more information, please consult: http://www.orbisgis.org
+ *or contact directly: info_at_orbisgis.org
+ *
+ */
+
 package org.legend;
 
 import org.geotools.data.DataStore;
@@ -12,7 +32,7 @@ import org.geotools.styling.*;
 import org.geotools.styling.Stroke;
 import org.geotools.util.URLs;
 import org.geotools.xml.styling.SLDParser;
-import org.legend.model.LegendItem;
+import org.legend.imageBuilder.BufferedImageLegendGraphicBuilder;
 import org.locationtech.jts.geom.Geometry;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -87,6 +107,7 @@ public class Legend {
         FeatureSource featureSource3 = dataStore3.getFeatureSource(typeName3);
         Style sld = getSldStyle("/home/adrien/data/geoserver/pop_grid_intervals.sld");
         FeatureLayer layer3 = new FeatureLayer(featureSource3, sld);
+        //layer3.setTitle("population density");
 
 /*
         StyleFactory styleFactory4 = CommonFactoryFinder.getStyleFactory();
@@ -104,7 +125,6 @@ public class Legend {
         FeatureLayer layer4 = new FeatureLayer(featureSource3, sld2);
 */
 
-
         List<FeatureLayer> layerList = new ArrayList<>();
         layerList.add(layer);
         layerList.add(layer2);
@@ -117,7 +137,6 @@ public class Legend {
         legendOptions.put("height",35); // default is 50
         //legendOptions.put("forceRuleLabelsOff","on");
         legendOptions.put("transparent","on"); // default is off
-        legendOptions.put("forceStyleTitlesOff","on");
         legendOptions.put("bgColor",Color.ORANGE); // default is Color.WHITE;
         legendOptions.put("fontColor",Color.BLUE); // default is Color.BLACK;
         // Set the space between the image and the rule label
@@ -127,10 +146,11 @@ public class Legend {
         legendOptions.put("layout","HORIZONTAL"); //default is VERTICAL;
         legendOptions.put("verticalMarginBetweenLayers", 25); //default is 0;
         legendOptions.put("horizontalMarginBetweenLayers", 25); //default is 0;
+        legendOptions.put("fontName", "TimesRoman"); //default is "Sans-Serif"
+        legendOptions.put("fontStyle", "bold");
 
-        LegendItem legendElement = new LegendItem(layerList,legendOptions);
-        BufferedImage bufferedImage = legendElement.produceBufferedImage();
-        System.out.println(bufferedImage);
+        BufferedImageLegendGraphicBuilder builder = new BufferedImageLegendGraphicBuilder();
+        BufferedImage bufferedImage = builder.buildLegendGraphic(layerList,legendOptions);
         ImageIO.write(bufferedImage,"png",new FileOutputStream("/home/adrien/data/legendGraphics/legend2.png"));
     }
 

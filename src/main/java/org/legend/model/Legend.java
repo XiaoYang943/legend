@@ -1,9 +1,8 @@
 package org.legend.model;
 
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.List;
 
+// TODO
 public class Legend {
 
     int x;
@@ -25,8 +24,6 @@ public class Legend {
     Font textFont = new Font("Arial", Font.PLAIN, 12);
 
     Color textColor = Color.BLACK;
-
-    List<LegendItem> legendItem = new ArrayList<>();
 
     int gapBetweenLegendItem = 10;
 
