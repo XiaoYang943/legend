@@ -138,7 +138,6 @@ public class Legend {
         //legendOptions.put("forceRuleLabelsOff","on");
         legendOptions.put("transparent","on"); // default is off
         legendOptions.put("bgColor",Color.ORANGE); // default is Color.WHITE;
-        legendOptions.put("fontColor",Color.BLUE); // default is Color.BLACK;
         // Set the space between the image and the rule label
         legendOptions.put("ruleLabelMargin",0); //default is 3;
         legendOptions.put("verticalRuleMargin",5); //default is 0;
@@ -148,10 +147,12 @@ public class Legend {
         legendOptions.put("horizontalMarginBetweenLayers", 25); //default is 0;
         legendOptions.put("fontName", "TimesRoman"); //default is "Sans-Serif"
         legendOptions.put("fontStyle", "bold");
+        legendOptions.put("fontColor",Color.BLUE); // default is Color.BLACK;
+        legendOptions.put("fontSize","14"); // default is 12;
 
         BufferedImageLegendGraphicBuilder builder = new BufferedImageLegendGraphicBuilder();
         BufferedImage bufferedImage = builder.buildLegendGraphic(layerList,legendOptions);
-        ImageIO.write(bufferedImage,"png",new FileOutputStream("/home/adrien/data/legendGraphics/legend2.png"));
+        ImageIO.write(bufferedImage,"png",new FileOutputStream("/home/adrien/data/legendGraphics/legend3.png"));
     }
 
     private Style createStyle(FeatureSource<SimpleFeatureType, SimpleFeature> featureSource, String ruleName){

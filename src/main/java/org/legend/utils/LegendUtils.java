@@ -36,7 +36,7 @@ import java.util.logging.Logger;
 /**
  * Utility class for building legends, it exposes many methods that could be reused anywhere.
  *
- * <p>I am not preventin people from subclassing this method so that they could add their own
+ * <p>I am not preventing people from subclassing this method so that they could add their own
  * utility methods.
  *
  * @author Simone Giannecchini, GeoSolutions SAS

@@ -248,7 +248,7 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
             graphics.dispose();
         }
 
-        LegendMerger.MergeOptions options = LegendMerger.MergeOptions.createFromRequest(legendsStack,
+        LegendMerger.MergeOptions options = LegendMerger.MergeOptions.createFromOptions(legendsStack,
                 horizontalRuleMargin, verticalRuleMargin, 0, labelMargin, legendOptions, forceLabelsOn,
                 forceLabelsOff);
         if (ruleCount > 0) {
@@ -312,7 +312,7 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
      */
     private BufferedImage mergeGroups(List<RenderedImage> imageStack, Map<String, Object> legendOptions,
                                       boolean forceLabelsOn, boolean forceLabelsOff) throws Exception {
-        LegendMerger.MergeOptions options = LegendMerger.MergeOptions.createFromRequest(imageStack,
+        LegendMerger.MergeOptions options = LegendMerger.MergeOptions.createFromOptions(imageStack,
                 horizontalMarginBetweenLayers, verticalMarginBetweenLayers, 0, 0, legendOptions,
                 forceLabelsOn, forceLabelsOff);
         return LegendMerger.mergeGroups(null, options);
