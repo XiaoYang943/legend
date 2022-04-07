@@ -82,8 +82,8 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
      * Takes a featureLayerList and legendOptions and produces a BufferedImage.
      * @param featureLayerList feature layer list
      * @param legendOptions legend options map that can contain information like icon width, icon height, forceRuleLabelsOff, ...)
-     * @throws Exception if there are problems creating a "sample" feature instance for the
-     *     FeatureType returns as the required layer (which should not occur).
+     * @return the buffered image
+     * @throws Exception if there are problems creating a "sample" feature instance for the FeatureType returns as the required layer (which should not occur).
      */
     public BufferedImage buildLegendGraphic(List<FeatureLayer> featureLayerList, Map<String, Object> legendOptions) throws Exception {
         setup(legendOptions);

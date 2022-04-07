@@ -1,62 +1,33 @@
 package org.legend.model;
 
+import org.geotools.geometry.jts.ReferencedEnvelope;
+import org.geotools.map.Layer;
+
 import java.awt.*;
+import java.awt.image.BufferedImage;
 
 // TODO
-public class Legend {
+public class Legend  extends Layer {
 
-    int x;
-
-    int y;
-
-    int width;
-
-    int height;
-
-    Color backgroundColor = Color.WHITE;
-
+    int xPosition;
+    int yPosition;
+    BufferedImage bufferedImage;
     String title = "Legend";
-
     Font titleFont = new Font("Arial", Font.BOLD, 18);
-
     Color titleColor = Color.BLACK;
+    String titleStyle = "Sans-Serif";
 
-    Font textFont = new Font("Arial", Font.PLAIN, 12);
-
-    Color textColor = Color.BLACK;
-
-    int gapBetweenLegendItem = 10;
-
-    String numberFormat = "#.##";
 
     /**
-     * Create a Legend from the top left with the given width and height.
+     * Create a Legend from the top left.
      * @param x The number of pixels from the left
      * @param y The number of pixels from the top
-     * @param width The width in pixels
-     * @param height The height in pixels
+     * @param bufferedImage The legend graphic buffered image
      */
-    Legend(int x, int y, int width, int height) {
-        this.x = x;
-        this.y = y;
-        this.width = width;
-        this.height = height;
-    }
-
-    /**
-     * Set the background color
-     * @param backgroundColor The background color
-     */
-    void setBackgroundColor(Color backgroundColor) {
-        this.backgroundColor = backgroundColor;
-    }
-
-    /**
-     * Set the legend title
-     * @param title The title
-     */
-    void setTitle(String title) {
-        this.title = title;
+    public Legend(int x, int y, BufferedImage bufferedImage) {
+        this.xPosition = x;
+        this.yPosition = y;
+        this.bufferedImage = bufferedImage;
     }
 
     /**
@@ -76,35 +47,15 @@ public class Legend {
     }
 
     /**
-     * Set the text Font
-     * @param textFont The text Font
+     * Set the title style
+     * @param titleStyle The title Style
      */
-    void setTextFont(Font textFont) {
-        this.textFont = textFont;
+    void setTitleStyle(String titleStyle) {
+        this.titleStyle = titleStyle;
     }
 
-    /**
-     * Set the text Color
-     * @param textColor The text Color
-     */
-    void setTextColor(Color textColor) {
-        this.textColor = textColor;
+    @Override
+    public ReferencedEnvelope getBounds() {
+        return null;
     }
-
-    /**
-     * Set the gap between entries
-     * @param gapBetweenEntries The gap between entries
-     */
-    void setGapBetweenEntries(int gapBetweenEntries) {
-        this.gapBetweenLegendItem = gapBetweenEntries;
-    }
-
-    /**
-     * Set the number format
-     * @param numberFormat The number format
-     */
-    void setNumberFormat(String numberFormat) {
-        this.numberFormat = numberFormat;
-    }
-
 }

@@ -20,7 +20,6 @@
 
 package org.legend.utils;
 
-import org.apache.commons.text.WordUtils;
 import org.geotools.renderer.lite.RendererUtilities;
 import org.geotools.styling.*;
 import org.opengis.util.InternationalString;
@@ -110,8 +109,7 @@ public class LegendUtils {
     private static final int DEFAULT_ROWS = 0;
 
     /** shared package's logger */
-    private static final Logger LOGGER =
-            org.geotools.util.logging.Logging.getLogger(LegendUtils.class.getPackage().getName());
+    private static final Logger LOGGER = org.geotools.util.logging.Logging.getLogger(LegendUtils.class.getPackage().getName());
 
     /**
      * Tries to decode the provided {@link String} into an HEX color definition in RRGGBB, 0xRRGGBB
@@ -136,11 +134,11 @@ public class LegendUtils {
 
     /**
      * Finds the applicable Rules for the given scale denominator.
-     *
+     * @param ftStyles a featureTypeStyle list.
      * @return an array of {@link Rule}s.
      */
     public static Rule[] getRules(final FeatureTypeStyle[] ftStyles) {
-        ensureNotNull(ftStyles, "FeatureTypeStyle array ");
+        ensureNotNull(ftStyles, "FeatureTypeStyle array is null");
         final List<Rule> ruleList = new ArrayList<>();
         for (FeatureTypeStyle fts : ftStyles) {
             ruleList.addAll(fts.rules());
@@ -222,39 +220,6 @@ public class LegendUtils {
     }
 
     /**
-     * Checks if the label should be word wrapped
-     *
-     * @param legendOptionsParam the legendOptionsParam from which to extract font antialiasing
-     *     information.
-     * @return true if the wrap is set to on
-     */
-    public static boolean isWrap(final Map<String, Object> legendOptionsParam) {
-        if (legendOptionsParam.get("wrap") instanceof String) {
-            String wrapVal = (String) legendOptionsParam.get("wrap");
-            return wrapVal.equalsIgnoreCase("on")
-                    || wrapVal.equalsIgnoreCase("true")
-                    || wrapVal.equalsIgnoreCase("yes")
-                    || wrapVal.equalsIgnoreCase("1");
-        }
-
-        return false;
-    }
-
-    /**
-     * Get the wrap limit
-     *
-     * @param legendOptionsParam the legendOptionsParam from which to extract wrap limit.
-     * @return the wrap limit or -1 if no wrap limit provided
-     */
-    public static int getWrapLimit(final Map<String, Object> legendOptionsParam) {
-        if (legendOptionsParam.get("wrap_limit") instanceof String) {
-            String wrapVal = (String) legendOptionsParam.get("wrap_limit");
-            return Integer.parseInt(wrapVal);
-        }
-        return -1;
-    }
-
-    /**
      * Retrieves row width of legend from the provided legendOptionsParam.
      *
      * @param legendOptionsParam a legendOptionsParam from which we should extract row width
@@ -263,13 +228,10 @@ public class LegendUtils {
      *     DEFAULT_ROW_WIDTH.
      */
     public static int getRowWidth(final Map<String, Object> legendOptionsParam) {
-        ensureNotNull(legendOptionsParam, "GetLegendGraphicRequestre");
+        ensureNotNull(legendOptionsParam, "legendOptionsParam is null");
         int rowWidth = DEFAULT_ROW_WIDTH;
         if (legendOptionsParam.get("rowWidth") != null) {
-            try {
-                rowWidth = Integer.parseInt((String) legendOptionsParam.get("rowWidth"));
-            } catch (NumberFormatException ignored) {
-            }
+            rowWidth = Integer.parseInt((String) legendOptionsParam.get("rowWidth"));
         }
         return rowWidth;
     }
@@ -279,17 +241,13 @@ public class LegendUtils {
      *
      * @param legendOptionsParam a legendOptionsParam from which we should extract column height
      *     information.
-     * @return the column height specified in the provided legendOptionsParam or a
-     *     default DEFAULT_COLUMN_HEIGHT.
+     * @return the column height specified in the provided legendOptionsParam or a default DEFAULT_COLUMN_HEIGHT.
      */
     public static int getColumnHeight(final Map<String, Object> legendOptionsParam) {
-        ensureNotNull(legendOptionsParam, "GetLegendGraphicRequestre");
+        ensureNotNull(legendOptionsParam, "legendOptionsParam is null");
         int columnHeight = DEFAULT_COLUMN_HEIGHT;
         if (legendOptionsParam.get("columnHeight") != null) {
-            try {
-                columnHeight = Integer.parseInt((String) legendOptionsParam.get("columnHeight"));
-            } catch (NumberFormatException ignored) {
-            }
+            columnHeight = Integer.parseInt((String) legendOptionsParam.get("columnHeight"));
         }
         return columnHeight;
     }
@@ -303,13 +261,10 @@ public class LegendUtils {
      *     DEFAULT_COLUMNS.
      */
     public static int getColumns(final Map<String, Object> legendOptionsParam) {
-        ensureNotNull(legendOptionsParam, "GetLegendGraphicRequestre");
+        ensureNotNull(legendOptionsParam, "legendOptionsParam is null");
         int columns = DEFAULT_COLUMNS;
         if (legendOptionsParam.get("columns") != null) {
-            try {
-                columns = Integer.parseInt((String) legendOptionsParam.get("columns"));
-            } catch (NumberFormatException ignored) {
-            }
+            columns = Integer.parseInt((String) legendOptionsParam.get("columns"));
         }
         return columns;
     }
@@ -322,13 +277,10 @@ public class LegendUtils {
      *     DEFAULT_ROWS.
      */
     public static int getRows(final Map<String, Object> legendOptionsParam) {
-        ensureNotNull(legendOptionsParam, "GetLegendGraphicRequestre");
+        ensureNotNull(legendOptionsParam, "legendOptionsParam is null");
         int rows = DEFAULT_ROWS;
         if (legendOptionsParam.get("rows") != null) {
-            try {
-                rows = Integer.parseInt((String) legendOptionsParam.get("rows"));
-            } catch (NumberFormatException ignored) {
-            }
+            rows = Integer.parseInt((String) legendOptionsParam.get("rows"));
         }
         return rows;
     }
@@ -342,13 +294,10 @@ public class LegendUtils {
      *     a default DEFAULT_LAYOUT.
      */
     public static LegendLayout getLayout(final Map<String, Object> legendOptionsParam) {
-        ensureNotNull(legendOptionsParam, "GetLegendGraphicRequestre");
+        ensureNotNull(legendOptionsParam, "legendOptionsParam is null");
         LegendLayout layout = DEFAULT_LAYOUT;
         if (legendOptionsParam.get("layout") != null) {
-            try {
-                layout = LegendLayout.valueOf(((String) legendOptionsParam.get("layout")).toUpperCase());
-            } catch (IllegalArgumentException ignored) {
-            }
+            layout = LegendLayout.valueOf(((String) legendOptionsParam.get("layout")).toUpperCase());
         }
         return layout;
     }
@@ -361,11 +310,11 @@ public class LegendUtils {
      *
      * @param label - the label to render
      * @param g - the Graphics2D that will be used to render this label
+     * @param legendOptionsParam - the legend option param
      * @return a {@link BufferedImage} of the properly rendered label.
      */
-    public static BufferedImage renderLabel(
-            String label, final Graphics2D g, final Map<String, Object> legendOptionsParam) {
-
+    public static BufferedImage renderLabel(String label, final Graphics2D g,
+                                            final Map<String, Object> legendOptionsParam) {
         ensureNotNull(label);
         ensureNotNull(g);
         ensureNotNull(legendOptionsParam);
@@ -373,15 +322,6 @@ public class LegendUtils {
         // to indicate a line break, as well as a traditional 'real' line-break in the XML.
         BufferedImage renderedLabel;
         Color labelColor = getLabelFontColor(legendOptionsParam);
-        if (LegendUtils.isWrap(legendOptionsParam)) {
-            int width = getWrapLimit(legendOptionsParam);
-            if (width == -1) {
-                width = (int) legendOptionsParam.get("width");
-            }
-            FontMetrics fm = g.getFontMetrics();
-            int widthChars = width / fm.stringWidth("m");
-            label = WordUtils.wrap(label, widthChars, "\n", true);
-        }
         if ((label.contains("\n")) || (label.contains("\\n"))) {
             // this is a label WITH line-breaks...we need to figure out it's height *and*
             // width, and then adjust the legend size accordingly
@@ -463,7 +403,7 @@ public class LegendUtils {
      *     default {@link Font}.
      */
     public static Font getLabelFont(final Map<String, Object> legendOptionsParam) {
-        ensureNotNull(legendOptionsParam, "legendOptionsParam");
+        ensureNotNull(legendOptionsParam, "legendOptionsParam is null");
         String legendFontName = LegendUtils.DEFAULT_FONT_NAME;
         if (legendOptionsParam.get("fontName") != null) {
             legendFontName = (String) legendOptionsParam.get("fontName");
