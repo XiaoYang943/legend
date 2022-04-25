@@ -93,6 +93,11 @@ public class LegendUtils {
     /** top & bottom padding percentage factor for the legend */
     public static final float vpaddingFactor = 0.15f;
 
+    /** padding percentage factor at both sides of the legend. */
+    public static final float marginFactor = 0.015f;
+    //private final double vMarginPercentage = LegendUtils.marginFactor;
+    //private final double hMarginPercentage = LegendUtils.marginFactor;
+
     /** default legend graphic layout is vertical */
     private static final LegendLayout DEFAULT_LAYOUT = LegendLayout.VERTICAL;
 

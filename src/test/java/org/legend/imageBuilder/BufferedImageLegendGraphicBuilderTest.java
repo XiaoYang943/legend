@@ -21,6 +21,7 @@ import org.geotools.swing.JMapFrame;
 import org.geotools.swing.data.JFileDataStoreChooser;
 import org.geotools.util.URLs;
 import org.geotools.xml.styling.SLDParser;
+import org.legend.model.Compass;
 import org.legend.model.Legend;
 import org.locationtech.jts.geom.Geometry;
 import org.opengis.feature.simple.SimpleFeature;
@@ -217,18 +218,27 @@ public class BufferedImageLegendGraphicBuilderTest extends TestCase {
 
         BufferedImageLegendGraphicBuilder builder = new BufferedImageLegendGraphicBuilder();
         BufferedImage bufferedImage = builder.buildLegendGraphic(produceLayerList(),legendOptions);
-        ImageIO.write(bufferedImage,"png",new FileOutputStream("data/legend/legend.png"));
+        
+        int padding = 100;
+        BufferedImage newImage = new BufferedImage(bufferedImage.getWidth()
+                + padding *2, bufferedImage.getHeight() + padding *2, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g = (Graphics2D) newImage.getGraphics();
+        g.drawImage(bufferedImage, padding, padding, null);
+        g.dispose();
+        ImageIO.write(bufferedImage,"png",new FileOutputStream("data/legend/legend2.png"));
     }
 
     public void testProduceMapWithLegend() throws Exception {
-        File inFile = new File("/home/adrien/data/geoserver/bdtopo_v2_Redon/building_indicators.geojson");
+        //File inFile = new File("/home/adrien/data/geoserver/bdtopo_v2_Redon/building_indicators.geojson");
+        File inFile = new File("/home/adrien/data/geoserver/bdtopo_v2_Redon/building.geojson");
         Map<String, Object> params = new HashMap<>();
         params.put(GeoJSONDataStoreFactory.URL_PARAM.key, URLs.fileToUrl(inFile));
         DataStore dataStore3 = DataStoreFinder.getDataStore(params);
         String[] typeNames3 = dataStore3.getTypeNames();
         String typeName3 = typeNames3[0];
         FeatureSource<SimpleFeatureType, SimpleFeature> featureSource3 = dataStore3.getFeatureSource(typeName3);
-        Style sld = getSldStyle("data/sld/building_urban_typo.sld");
+        //Style sld = getSldStyle("data/sld/building_urban_typo.sld");
+        Style sld = getSldStyle("data/sld/pop_grid_intervals.sld");
         FeatureLayer layer3 = new FeatureLayer(featureSource3, sld);
         //layer3.setTitle("population density");
 
@@ -258,7 +268,8 @@ public class BufferedImageLegendGraphicBuilderTest extends TestCase {
 
         BufferedImageLegendGraphicBuilder builder = new BufferedImageLegendGraphicBuilder();
         BufferedImage legendBufferedImage = builder.buildLegendGraphic(layerList,legendOptions);
-        ImageIO.write(legendBufferedImage,"png",new FileOutputStream("data/legend/building_urban_typo_legend.png"));
+        //ImageIO.write(legendBufferedImage,"png",new FileOutputStream("data/legend/building_urban_typo_legend.png"));
+        ImageIO.write(legendBufferedImage,"png",new FileOutputStream("data/legend/building_legend.png"));
 
         GTRenderer renderer = new StreamingRenderer();
         RenderingHints hints = new RenderingHints(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -281,7 +292,6 @@ public class BufferedImageLegendGraphicBuilderTest extends TestCase {
             double heightToWidth = mapBounds.getSpan(1) / mapBounds.getSpan(0);
             imageBounds = new Rectangle(
                     0, 0, 1000, (int) Math.round(1000 * heightToWidth));
-
         } catch (Exception e) {
             // failed to access map layers
             throw new RuntimeException(e);
@@ -292,11 +302,14 @@ public class BufferedImageLegendGraphicBuilderTest extends TestCase {
         gr.setPaint(Color.WHITE);
         gr.fill(imageBounds);
         renderer.paint(gr, imageBounds, mapBounds);
-        ImageIO.write(mapBufferedImage, "png", new FileOutputStream("data/legend/building_indicators_map.png"));
+        //ImageIO.write(mapBufferedImage, "png", new FileOutputStream("data/legend/building_indicators_map.png"));
+        ImageIO.write(mapBufferedImage, "png", new FileOutputStream("data/legend/building_map.png"));
 
 
-        BufferedImage image = ImageIO.read(new File("data/legend/building_indicators_map.png"));
-        BufferedImage legend = ImageIO.read(new File("data/legend/building_urban_typo_legend.png"));
+        //BufferedImage image = ImageIO.read(new File("data/legend/building_indicators_map.png"));
+        BufferedImage image = ImageIO.read(new File("data/legend/building_map.png"));
+        //BufferedImage legend = ImageIO.read(new File("data/legend/building_urban_typo_legend.png"));
+        BufferedImage legend = ImageIO.read(new File("data/legend/building_legend.png"));
 
         // create the new image, canvas size is the max. of both image sizes
         int w = Math.max(image.getWidth(), legend.getWidth());
@@ -308,10 +321,16 @@ public class BufferedImageLegendGraphicBuilderTest extends TestCase {
         g.drawImage(image, 0, 0, null);
         g.drawImage(legend, 0, 0, null);
 
+        // Generate the compass image
+        Compass compass = new Compass();
+        BufferedImage compassBufIma = compass.create_COMPASS_ROSE_Image(100);
+        g.drawImage(compassBufIma, image.getWidth()-150, image.getHeight()-150, null);
+
         g.dispose();
 
         // Save as new image
-        ImageIO.write(combined, "PNG", new File("data/legend/building_indicators_mapAndlegend.png"));
+        //ImageIO.write(combined, "PNG", new File("data/legend/building_urban_typo_mapAndlegend.png"));
+        ImageIO.write(combined, "PNG", new File("data/legend/building_mapAndlegend.png"));
     }
 
 }

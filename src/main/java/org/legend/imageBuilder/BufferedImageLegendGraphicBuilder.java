@@ -48,7 +48,7 @@ import org.opengis.filter.expression.Literal;
 
 /**
  * Template based on <a
- * href="http://svn.geotools.org/geotools/trunk/gt/module/main/src/org/geotools/renderer/lite/StyledShapePainter.java">
+ * href="<a href="http://svn.geotools.org/geotools/trunk/gt/module/main/src/org/geotools/renderer/lite/StyledShapePainter.java">http://svn.geotools.org/geotools/trunk/gt/module/main/src/org/geotools/renderer/lite/StyledShapePainter.java</a>">
  * GeoTools StyledShapePainter</a> that produces a BufferedImage with the appropriate legend graphic
  * for a given layerList and legendOptions.
  *
@@ -216,6 +216,7 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
             final Graphics2D graphics = ImageUtils.prepareTransparency(transparent, LegendUtils.getBackgroundColor(legendOptions), image, hintsMap);
             graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             final List<Symbolizer> symbolizers = applicableRules[i].symbolizers();
+            
             for (Symbolizer symbolizer : symbolizers) {
                 // skip raster symbolizers
                 if (!(symbolizer instanceof RasterSymbolizer)) {
