@@ -34,6 +34,8 @@ public class Scale {
 
     double worldWidth;
     int imageWidth;
+    int positionX;
+    int positionY;
 
     public Scale(MapContent mapContent, int imageWidth){
         this.worldWidth = mapContent.getViewport().getBounds().getWidth();
@@ -52,15 +54,47 @@ public class Scale {
         graph2d.setColor(Color.WHITE);
         graph2d.fillRect(0, 0, 200, 200);
         graph2d.setPaint( Color.BLACK );
+
+        double marge = (scaleBufferedImage.getWidth()-pixelScaleFor500m)/2;
         // horizontal line
-        graph2d.draw( new Line2D.Double( 0, 0, pixelScaleFor500m, 0 ) );
+        graph2d.draw( new Line2D.Double( marge, 0, marge + pixelScaleFor500m, 0 ) );
         // vertical lines
-        graph2d.draw( new Line2D.Double( pixelScaleFor100m, 0, pixelScaleFor100m, 5 ) );
-        graph2d.draw( new Line2D.Double( 0, 0, 0, 5 ) );
-        graph2d.draw( new Line2D.Double( pixelScaleFor500m, 0, pixelScaleFor500m, 5 ) );
-        graph2d.drawString("100", (int) pixelScaleFor100m - 10, 20);
-        graph2d.drawString("500 m", (int) pixelScaleFor500m - 10, 20);
+        graph2d.draw( new Line2D.Double( marge + pixelScaleFor100m, 0, marge + pixelScaleFor100m, 5 ) );
+        graph2d.draw( new Line2D.Double( marge, 0, marge, 5 ) );
+        graph2d.draw( new Line2D.Double( marge + pixelScaleFor500m, 0, marge + pixelScaleFor500m, 5 ) );
+        graph2d.drawString("100", (int) marge + (int) pixelScaleFor100m - 10, 20);
+        graph2d.drawString("500 m", (int) marge + (int) pixelScaleFor500m - 10, 20);
         return scaleBufferedImage;
     }
 
+    public void setPosition(String position, BufferedImage image, BufferedImage scaleBufferedImage) {
+        int imgWidth = image.getWidth();
+        int imgHeight = image.getWidth();
+        switch (position){
+            case "bottom":
+                positionY = imgHeight - scaleBufferedImage.getHeight()/2;
+                positionX = imgWidth/2 - scaleBufferedImage.getWidth()/2;
+                break;
+            case "bottomLeft":
+                positionY = imgHeight - imgHeight/5;
+                positionX = imgWidth/5 - scaleBufferedImage.getWidth()/2;
+                break;
+            case "bottomRight":
+                positionY = imgHeight - imgHeight/5;
+                positionX = imgWidth - imgWidth/5 - scaleBufferedImage.getWidth()/2;
+                break;
+            case "top":
+                positionY = scaleBufferedImage.getHeight()/2;
+                positionX = imgWidth/2 - scaleBufferedImage.getWidth()/2;
+                break;
+        }
+    }
+
+    public int getPositionX() {
+        return positionX;
+    }
+
+    public int getPositionY() {
+        return positionY;
+    }
 }

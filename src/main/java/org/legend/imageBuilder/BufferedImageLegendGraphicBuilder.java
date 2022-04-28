@@ -257,7 +257,7 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
         }
 
         LegendMerger.MergeOptions options = LegendMerger.MergeOptions.createFromOptions(legendsStack,
-                horizontalRuleMargin, verticalRuleMargin, 0, labelMargin, legendOptions, forceLabelsOn,
+                horizontalRuleMargin, verticalRuleMargin, 10, labelMargin, legendOptions, forceLabelsOn,
                 forceLabelsOff);
         if (ruleCount > 0) {
             BufferedImage image = LegendMerger.mergeLegends(applicableRules, legendOptions, options);

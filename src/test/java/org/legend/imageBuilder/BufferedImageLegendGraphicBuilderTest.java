@@ -27,7 +27,9 @@ import org.geotools.styling.*;
 import org.geotools.styling.Stroke;
 import org.geotools.util.URLs;
 import org.geotools.xml.styling.SLDParser;
+import org.legend.model.Compass;
 import org.legend.model.Scale;
+import org.legend.utils.LayerUtils;
 import org.locationtech.jts.geom.Geometry;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -36,6 +38,7 @@ import org.opengis.filter.FilterFactory2;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
+import java.awt.Font;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.charset.Charset;
@@ -230,25 +233,11 @@ public class BufferedImageLegendGraphicBuilderTest extends TestCase {
     }
 
     public void testProduceMapWithLegend() throws Exception {
-        //File inFile = new File("/home/adrien/data/geoserver/bdtopo_v2_Redon/building_indicators.geojson");
-        File inFile = new File("/home/adrien/data/geoserver/bdtopo_v2_Redon/building.geojson");
-        Map<String, Object> params = new HashMap<>();
-        params.put(GeoJSONDataStoreFactory.URL_PARAM.key, URLs.fileToUrl(inFile));
-        DataStore dataStore3 = DataStoreFinder.getDataStore(params);
-        String[] typeNames3 = dataStore3.getTypeNames();
-        String typeName3 = typeNames3[0];
-        FeatureSource<SimpleFeatureType, SimpleFeature> featureSource3 = dataStore3.getFeatureSource(typeName3);
 
-        //Style sld = getSldStyle("data/sld/building_urban_typo.sld");
-        Style sld = getSldStyle("data/sld/pop_grid_intervals.sld");
-        FeatureLayer layer3 = new FeatureLayer(featureSource3, sld);
-        //layer3.setTitle("population density");
-
+        /**** to print the legend in a png file : ***/
+        FeatureLayer layer = LayerUtils.buildLayer("/home/adrien/data/geoserver/bdtopo_v2_Redon/building.geojson","data/sld/pop_grid_intervals.sld");
         List<FeatureLayer> layerList = new ArrayList<>();
-        layerList.add(layer3);
-
-        MapContent map = new MapContent();
-        map.addLayer(layer3);
+        layerList.add(layer);
 
         Map legendOptions =new HashMap<>();
         legendOptions.put("width",35); // default is 50
@@ -272,40 +261,16 @@ public class BufferedImageLegendGraphicBuilderTest extends TestCase {
         BufferedImage legendBufferedImage = builder.buildLegendGraphic(layerList,legendOptions);
         //ImageIO.write(legendBufferedImage,"png",new FileOutputStream("data/legend/building_urban_typo_legend.png"));
         ImageIO.write(legendBufferedImage,"png",new FileOutputStream("data/legend/building_legend.png"));
+        /*****************************************/
 
-        GTRenderer renderer = new StreamingRenderer();
-        RenderingHints hints = new RenderingHints(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        hints.add(new RenderingHints(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON));
-        renderer.setJava2DHints(hints);
-        Map<String, Object> rendererParams = new HashMap<>();
-        LabelCacheImpl labelCache = new LabelCacheImpl();
-        rendererParams.put(StreamingRenderer.LABEL_CACHE_KEY, labelCache);
-        //rendererParams.put(StreamingRenderer.SCALE_COMPUTATION_METHOD_KEY,StreamingRenderer.SCALE_ACCURATE);
-        rendererParams.put(StreamingRenderer.LINE_WIDTH_OPTIMIZATION_KEY, Boolean.FALSE);
-        rendererParams.put(StreamingRenderer.ADVANCED_PROJECTION_HANDLING_KEY, true);
-        //rendererParams.put(StreamingRenderer.CONTINUOUS_MAP_WRAPPING, true);
-        renderer.setRendererHints(rendererParams);
-        renderer.setMapContent(map);
-
-        Rectangle imageBounds;
-        ReferencedEnvelope mapBounds;
-        try {
-            mapBounds = map.getMaxBounds();
-            double heightToWidth = mapBounds.getSpan(1) / mapBounds.getSpan(0);
-            imageBounds = new Rectangle(
-                    0, 0, 1000, (int) Math.round(1000 * heightToWidth));
-        } catch (Exception e) {
-            // failed to access map layers
-            throw new RuntimeException(e);
-        }
-        BufferedImage mapBufferedImage = new BufferedImage(imageBounds.width, imageBounds.height, BufferedImage.TYPE_INT_RGB);
-
-        Graphics2D gr = mapBufferedImage.createGraphics();
-        gr.setPaint(Color.WHITE);
-        gr.fill(imageBounds);
-        renderer.paint(gr, imageBounds, mapBounds);
+        /**** to print the map in a png file : ***/
+        MapContent map = new MapContent();
+        map.addLayer(layer);
+        org.legend.model.Map modelMap = new org.legend.model.Map(map);
+        BufferedImage mapBufferedImage = modelMap.paintMap("Great title", Color.black, Font.BOLD, 20,"default");
         //ImageIO.write(mapBufferedImage, "png", new FileOutputStream("data/legend/building_indicators_map.png"));
         ImageIO.write(mapBufferedImage, "png", new FileOutputStream("data/legend/building_map.png"));
+        /*****************************************/
 
         //BufferedImage image = ImageIO.read(new File("data/legend/building_indicators_map.png"));
         BufferedImage image = ImageIO.read(new File("data/legend/building_map.png"));
@@ -323,87 +288,22 @@ public class BufferedImageLegendGraphicBuilderTest extends TestCase {
         g.drawImage(legend, 10, image.getHeight()-300, null);
 
         // Generate the compass image
-        BufferedImage compassBufIma = rasterize(new File("data/img/Rose_des_vents.svg"));
-        g.drawImage(compassBufIma, image.getWidth()-150, image.getHeight()-150, null);
+        Compass compass = new Compass("data/img/Rose_des_vents.svg");
+        BufferedImage compassBufIma = compass.paintCompass();
+        compass.setPosition("bottomRight", image, compassBufIma);
+        g.drawImage(compassBufIma, compass.getPositionX(), compass.getPositionY(), null);
 
         // Generate the map scale
         Scale mapScale = new Scale(map,imgWidth);
         BufferedImage scaleBufferedImage = mapScale.paintMapScale();
-        g.drawImage(scaleBufferedImage, image.getWidth()-500, image.getHeight()-150, null);
+        mapScale.setPosition("bottom",image,scaleBufferedImage);
+        g.drawImage(scaleBufferedImage, mapScale.getPositionX(), mapScale.getPositionY(), null);
 
         g.dispose();
 
         // Save as new image
         //ImageIO.write(combined, "PNG", new File("data/legend/building_urban_typo_mapAndlegend.png"));
-        ImageIO.write(combined, "PNG", new File("data/legend/building_mapAndlegend_withMarges.png"));
-    }
-
-    public static BufferedImage resize(BufferedImage img, int newW, int newH) {
-        Image tmp = img.getScaledInstance(newW, newH, Image.SCALE_SMOOTH);
-        BufferedImage dimg = new BufferedImage(newW, newH, BufferedImage.TYPE_INT_ARGB);
-
-        Graphics2D g2d = dimg.createGraphics();
-        g2d.drawImage(tmp, 0, 0, null);
-        g2d.dispose();
-
-        return dimg;
-    }
-
-    public static BufferedImage rasterize(File svgFile) throws IOException {
-
-        final BufferedImage[] imagePointer = new BufferedImage[1];
-
-        // Rendering hints can't be set programatically, so
-        // we override defaults with a temporary stylesheet.
-        // These defaults emphasize quality and precision, and
-        // are more similar to the defaults of other SVG viewers.
-        // SVG documents can still override these defaults.
-        String css = "svg {" +
-                "shape-rendering: geometricPrecision;" +
-                "text-rendering:  geometricPrecision;" +
-                "color-rendering: optimizeQuality;" +
-                "image-rendering: optimizeQuality;" +
-                "}";
-        File cssFile = File.createTempFile("batik-default-override-", ".css");
-        FileUtils.writeStringToFile(cssFile, css);
-
-        TranscodingHints transcoderHints = new TranscodingHints();
-        transcoderHints.put(ImageTranscoder.KEY_XML_PARSER_VALIDATING, Boolean.FALSE);
-        transcoderHints.put(ImageTranscoder.KEY_DOM_IMPLEMENTATION,
-                SVGDOMImplementation.getDOMImplementation());
-        transcoderHints.put(ImageTranscoder.KEY_DOCUMENT_ELEMENT_NAMESPACE_URI,
-                SVGConstants.SVG_NAMESPACE_URI);
-        transcoderHints.put(ImageTranscoder.KEY_DOCUMENT_ELEMENT, "svg");
-        transcoderHints.put(ImageTranscoder.KEY_USER_STYLESHEET_URI, cssFile.toURI().toString());
-        transcoderHints.put(ImageTranscoder.KEY_WIDTH, (float) 150);
-        transcoderHints.put(ImageTranscoder.KEY_HEIGHT, (float) 150);
-
-        try {
-            TranscoderInput input = new TranscoderInput(new FileInputStream(svgFile));
-            ImageTranscoder t = new ImageTranscoder() {
-                @Override
-                public BufferedImage createImage(int w, int h) {
-                    return new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
-                }
-
-                @Override
-                public void writeImage(BufferedImage image, TranscoderOutput out)
-                        throws TranscoderException {
-                    imagePointer[0] = image;
-                }
-            };
-            t.setTranscodingHints(transcoderHints);
-            t.transcode(input, null);
-        }
-        catch (TranscoderException ex) {
-            // Requires Java 6
-            ex.printStackTrace();
-            throw new IOException("Couldn't convert " + svgFile);
-        }
-        finally {
-            cssFile.delete();
-        }
-        return imagePointer[0];
+        ImageIO.write(combined, "PNG", new File("data/legend/building_mapAndlegend.png"));
     }
 
 }
