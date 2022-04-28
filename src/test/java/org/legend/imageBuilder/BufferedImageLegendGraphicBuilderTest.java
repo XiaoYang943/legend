@@ -28,6 +28,7 @@ import org.geotools.styling.Stroke;
 import org.geotools.util.URLs;
 import org.geotools.xml.styling.SLDParser;
 import org.legend.model.Compass;
+import org.legend.model.Legend;
 import org.legend.model.Scale;
 import org.legend.utils.LayerUtils;
 import org.locationtech.jts.geom.Geometry;
@@ -285,12 +286,14 @@ public class BufferedImageLegendGraphicBuilderTest extends TestCase {
         // paint both images, preserving the alpha channels
         Graphics g = combined.getGraphics();
         g.drawImage(image, 0, 0, null);
-        g.drawImage(legend, 10, image.getHeight()-300, null);
+        Legend modelLegend = new Legend();
+        modelLegend.setPosition("bottomRight",image,legend);
+        g.drawImage(legend, modelLegend.getPositionX(), modelLegend.getPositionY(), null);
 
         // Generate the compass image
         Compass compass = new Compass("data/img/Rose_des_vents.svg");
         BufferedImage compassBufIma = compass.paintCompass();
-        compass.setPosition("bottomRight", image, compassBufIma);
+        compass.setPosition("bottomLeft", image, compassBufIma);
         g.drawImage(compassBufIma, compass.getPositionX(), compass.getPositionY(), null);
 
         // Generate the map scale

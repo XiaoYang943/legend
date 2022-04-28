@@ -104,7 +104,7 @@ public class Compass {
                 break;
             case "bottomLeft":
                 positionY = imgHeight - imgHeight/5;
-                positionX = imgWidth/5 - compassBufferedImage.getWidth()/2;
+                positionX = imgWidth/15;
                 break;
             case "bottomRight":
                 positionY = imgHeight - imgHeight/5;
