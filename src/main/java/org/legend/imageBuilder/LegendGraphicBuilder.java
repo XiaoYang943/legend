@@ -65,6 +65,7 @@ public abstract class LegendGraphicBuilder {
     int horizontalRuleMargin = 0;
     int verticalMarginBetweenLayers = 0;
     int horizontalMarginBetweenLayers = 0;
+    int marge = 10;
 
     /** */
     public LegendGraphicBuilder() {

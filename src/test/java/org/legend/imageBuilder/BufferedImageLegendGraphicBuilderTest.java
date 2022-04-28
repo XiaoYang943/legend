@@ -1,28 +1,33 @@
 package org.legend.imageBuilder;
 
-import com.sun.xml.bind.v2.TODO;
 import junit.framework.TestCase;
+import org.apache.batik.anim.dom.SVGDOMImplementation;
+import org.apache.batik.transcoder.TranscoderException;
+import org.apache.batik.transcoder.TranscoderInput;
+import org.apache.batik.transcoder.TranscoderOutput;
+import org.apache.batik.transcoder.TranscodingHints;
+import org.apache.batik.transcoder.image.ImageTranscoder;
+import org.apache.batik.util.SVGConstants;
+import org.apache.commons.io.FileUtils;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFinder;
 import org.geotools.data.FeatureSource;
 import org.geotools.data.geojson.GeoJSONDataStoreFactory;
+import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.geometry.jts.Geometries;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.map.FeatureLayer;
 import org.geotools.map.MapContent;
+import org.geotools.map.MapViewport;
 import org.geotools.renderer.GTRenderer;
-import org.geotools.renderer.Renderer;
 import org.geotools.renderer.label.LabelCacheImpl;
 import org.geotools.renderer.lite.StreamingRenderer;
 import org.geotools.styling.*;
 import org.geotools.styling.Stroke;
-import org.geotools.swing.JMapFrame;
-import org.geotools.swing.data.JFileDataStoreChooser;
 import org.geotools.util.URLs;
 import org.geotools.xml.styling.SLDParser;
-import org.legend.model.Compass;
-import org.legend.model.Legend;
+import org.legend.model.Scale;
 import org.locationtech.jts.geom.Geometry;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -30,13 +35,9 @@ import org.opengis.feature.type.GeometryDescriptor;
 import org.opengis.filter.FilterFactory2;
 
 import javax.imageio.ImageIO;
-import javax.imageio.stream.ImageOutputStream;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -237,6 +238,7 @@ public class BufferedImageLegendGraphicBuilderTest extends TestCase {
         String[] typeNames3 = dataStore3.getTypeNames();
         String typeName3 = typeNames3[0];
         FeatureSource<SimpleFeatureType, SimpleFeature> featureSource3 = dataStore3.getFeatureSource(typeName3);
+
         //Style sld = getSldStyle("data/sld/building_urban_typo.sld");
         Style sld = getSldStyle("data/sld/pop_grid_intervals.sld");
         FeatureLayer layer3 = new FeatureLayer(featureSource3, sld);
@@ -305,32 +307,103 @@ public class BufferedImageLegendGraphicBuilderTest extends TestCase {
         //ImageIO.write(mapBufferedImage, "png", new FileOutputStream("data/legend/building_indicators_map.png"));
         ImageIO.write(mapBufferedImage, "png", new FileOutputStream("data/legend/building_map.png"));
 
-
         //BufferedImage image = ImageIO.read(new File("data/legend/building_indicators_map.png"));
         BufferedImage image = ImageIO.read(new File("data/legend/building_map.png"));
         //BufferedImage legend = ImageIO.read(new File("data/legend/building_urban_typo_legend.png"));
         BufferedImage legend = ImageIO.read(new File("data/legend/building_legend.png"));
 
         // create the new image, canvas size is the max. of both image sizes
-        int w = Math.max(image.getWidth(), legend.getWidth());
-        int h = Math.max(image.getHeight(), legend.getHeight());
-        BufferedImage combined = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+        int imgWidth = Math.max(image.getWidth(), legend.getWidth());
+        int imgHeight = Math.max(image.getHeight(), legend.getHeight());
+        BufferedImage combined = new BufferedImage(imgWidth, imgHeight, BufferedImage.TYPE_INT_ARGB);
 
         // paint both images, preserving the alpha channels
         Graphics g = combined.getGraphics();
         g.drawImage(image, 0, 0, null);
-        g.drawImage(legend, 0, 0, null);
+        g.drawImage(legend, 10, image.getHeight()-300, null);
 
         // Generate the compass image
-        Compass compass = new Compass();
-        BufferedImage compassBufIma = compass.create_COMPASS_ROSE_Image(100);
+        BufferedImage compassBufIma = rasterize(new File("data/img/Rose_des_vents.svg"));
         g.drawImage(compassBufIma, image.getWidth()-150, image.getHeight()-150, null);
+
+        // Generate the map scale
+        Scale mapScale = new Scale(map,imgWidth);
+        BufferedImage scaleBufferedImage = mapScale.paintMapScale();
+        g.drawImage(scaleBufferedImage, image.getWidth()-500, image.getHeight()-150, null);
 
         g.dispose();
 
         // Save as new image
         //ImageIO.write(combined, "PNG", new File("data/legend/building_urban_typo_mapAndlegend.png"));
-        ImageIO.write(combined, "PNG", new File("data/legend/building_mapAndlegend.png"));
+        ImageIO.write(combined, "PNG", new File("data/legend/building_mapAndlegend_withMarges.png"));
+    }
+
+    public static BufferedImage resize(BufferedImage img, int newW, int newH) {
+        Image tmp = img.getScaledInstance(newW, newH, Image.SCALE_SMOOTH);
+        BufferedImage dimg = new BufferedImage(newW, newH, BufferedImage.TYPE_INT_ARGB);
+
+        Graphics2D g2d = dimg.createGraphics();
+        g2d.drawImage(tmp, 0, 0, null);
+        g2d.dispose();
+
+        return dimg;
+    }
+
+    public static BufferedImage rasterize(File svgFile) throws IOException {
+
+        final BufferedImage[] imagePointer = new BufferedImage[1];
+
+        // Rendering hints can't be set programatically, so
+        // we override defaults with a temporary stylesheet.
+        // These defaults emphasize quality and precision, and
+        // are more similar to the defaults of other SVG viewers.
+        // SVG documents can still override these defaults.
+        String css = "svg {" +
+                "shape-rendering: geometricPrecision;" +
+                "text-rendering:  geometricPrecision;" +
+                "color-rendering: optimizeQuality;" +
+                "image-rendering: optimizeQuality;" +
+                "}";
+        File cssFile = File.createTempFile("batik-default-override-", ".css");
+        FileUtils.writeStringToFile(cssFile, css);
+
+        TranscodingHints transcoderHints = new TranscodingHints();
+        transcoderHints.put(ImageTranscoder.KEY_XML_PARSER_VALIDATING, Boolean.FALSE);
+        transcoderHints.put(ImageTranscoder.KEY_DOM_IMPLEMENTATION,
+                SVGDOMImplementation.getDOMImplementation());
+        transcoderHints.put(ImageTranscoder.KEY_DOCUMENT_ELEMENT_NAMESPACE_URI,
+                SVGConstants.SVG_NAMESPACE_URI);
+        transcoderHints.put(ImageTranscoder.KEY_DOCUMENT_ELEMENT, "svg");
+        transcoderHints.put(ImageTranscoder.KEY_USER_STYLESHEET_URI, cssFile.toURI().toString());
+        transcoderHints.put(ImageTranscoder.KEY_WIDTH, (float) 150);
+        transcoderHints.put(ImageTranscoder.KEY_HEIGHT, (float) 150);
+
+        try {
+            TranscoderInput input = new TranscoderInput(new FileInputStream(svgFile));
+            ImageTranscoder t = new ImageTranscoder() {
+                @Override
+                public BufferedImage createImage(int w, int h) {
+                    return new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+                }
+
+                @Override
+                public void writeImage(BufferedImage image, TranscoderOutput out)
+                        throws TranscoderException {
+                    imagePointer[0] = image;
+                }
+            };
+            t.setTranscodingHints(transcoderHints);
+            t.transcode(input, null);
+        }
+        catch (TranscoderException ex) {
+            // Requires Java 6
+            ex.printStackTrace();
+            throw new IOException("Couldn't convert " + svgFile);
+        }
+        finally {
+            cssFile.delete();
+        }
+        return imagePointer[0];
     }
 
 }

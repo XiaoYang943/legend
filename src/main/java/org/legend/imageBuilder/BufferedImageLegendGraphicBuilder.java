@@ -20,8 +20,7 @@
 
 package org.legend.imageBuilder;
 
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 
@@ -147,7 +146,15 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
         if (finalLegend == null) {
             throw new IllegalArgumentException("no legend passed");
         }
-        return finalLegend;
+
+        // create marge
+        BufferedImage BufferedImageForMarge = new BufferedImage(finalLegend.getWidth() + marge*2, finalLegend.getHeight() + marge*2, BufferedImage.TYPE_INT_RGB);
+        Graphics g = BufferedImageForMarge.getGraphics();
+        g.setColor(LegendUtils.getBackgroundColor(legendOptions));
+        g.fillRect(0, 0, finalLegend.getWidth() + marge*2, finalLegend.getHeight() + marge*2);
+        g.drawImage(finalLegend, marge, marge, null);
+
+        return BufferedImageForMarge;
     }
 
     /**
