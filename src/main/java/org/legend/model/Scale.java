@@ -46,34 +46,62 @@ public class Scale {
      * Create a bufferedImage, paint a map scale for 100 and 500 metres, then return the bufferedImage.
      * @return the buffered image
      */
-    public BufferedImage paintMapScale(){
-        double pixelScaleFor100m = 100 * imageWidth / worldWidth;
+    public BufferedImage paintMapScale(String bars){
         double pixelScaleFor500m = 500 * imageWidth / worldWidth;
-        BufferedImage scaleBufferedImage = new BufferedImage(200, 200, BufferedImage.TYPE_INT_RGB);
+        double pixelScaleFor1000m = 1000 * imageWidth / worldWidth;
+        BufferedImage scaleBufferedImage = new BufferedImage(425, 400, BufferedImage.TYPE_INT_RGB);
         Graphics2D graph2d = scaleBufferedImage.createGraphics();
         graph2d.setColor(Color.WHITE);
-        graph2d.fillRect(0, 0, 200, 200);
+        graph2d.fillRect(0, 0, 425, 400);
         graph2d.setPaint( Color.BLACK );
 
         double marge = (scaleBufferedImage.getWidth()-pixelScaleFor500m)/2;
-        // horizontal line
-        graph2d.draw( new Line2D.Double( marge, 0, marge + pixelScaleFor500m, 0 ) );
-        // vertical lines
-        graph2d.draw( new Line2D.Double( marge + pixelScaleFor100m, 0, marge + pixelScaleFor100m, 5 ) );
-        graph2d.draw( new Line2D.Double( marge, 0, marge, 5 ) );
-        graph2d.draw( new Line2D.Double( marge + pixelScaleFor500m, 0, marge + pixelScaleFor500m, 5 ) );
-        graph2d.drawString("100", (int) marge + (int) pixelScaleFor100m - 10, 20);
-        graph2d.drawString("500 m", (int) marge + (int) pixelScaleFor500m - 10, 20);
+
+        if(bars.equalsIgnoreCase("downBars")) {
+            // horizontal line
+            graph2d.draw( new Line2D.Double( marge, 0, marge + pixelScaleFor1000m + pixelScaleFor500m, 0 ) );
+            // vertical lines
+            graph2d.draw(new Line2D.Double(marge, 0, marge, 5));
+            graph2d.draw(new Line2D.Double(marge + pixelScaleFor500m, 0, marge + pixelScaleFor500m, 5));
+            graph2d.draw(new Line2D.Double(marge + pixelScaleFor1000m, 0, marge + pixelScaleFor1000m, 5));
+            graph2d.draw(new Line2D.Double(marge + pixelScaleFor1000m + pixelScaleFor500m, 0, marge + pixelScaleFor1000m + pixelScaleFor500m, 5));
+            graph2d.drawString("0", (int) marge -3, 20);
+            graph2d.drawString("500", (int) marge + (int) pixelScaleFor500m - 10, 20);
+            graph2d.drawString("1000", (int) marge + (int) pixelScaleFor1000m - 17, 20);
+            graph2d.drawString("1500", (int) marge + (int) pixelScaleFor1000m + (int) pixelScaleFor500m  - 17, 20);
+        } else if(bars.equalsIgnoreCase("upBars")){
+            // horizontal line
+            graph2d.draw( new Line2D.Double( marge, 50, marge + pixelScaleFor1000m + pixelScaleFor500m, 50 ) );
+            // vertical lines
+            graph2d.draw(new Line2D.Double(marge, 50, marge, 45));
+            graph2d.draw(new Line2D.Double(marge + pixelScaleFor500m, 50, marge + pixelScaleFor500m, 45));
+            graph2d.draw(new Line2D.Double(marge + pixelScaleFor1000m, 50, marge + pixelScaleFor1000m, 45));
+            graph2d.draw(new Line2D.Double(marge + pixelScaleFor1000m + pixelScaleFor500m, 50, marge + pixelScaleFor1000m + pixelScaleFor500m, 45));
+            graph2d.drawString("0", (int) marge - 3, 30);
+            graph2d.drawString("500", (int) marge + (int) pixelScaleFor500m - 10, 30);
+            graph2d.drawString("1000", (int) marge + (int) pixelScaleFor1000m - 17, 30);
+            graph2d.drawString("1500", (int) marge + (int) pixelScaleFor1000m + (int) pixelScaleFor500m  - 17, 30);
+        } else if (bars.equalsIgnoreCase("thickHorizontalBar")) {
+            graph2d.drawRect((int) marge, 50, (int) pixelScaleFor500m, 5);
+            graph2d.fillRect((int) marge, 50, (int) pixelScaleFor500m, 5);
+            graph2d.drawRect((int) marge + (int) pixelScaleFor500m, 50, (int) pixelScaleFor500m, 5);
+            graph2d.drawRect((int) marge + (int) pixelScaleFor500m + (int) pixelScaleFor500m, 50, (int) pixelScaleFor500m, 5);
+            graph2d.fillRect((int) marge + (int) pixelScaleFor500m + (int) pixelScaleFor500m, 50, (int) pixelScaleFor500m, 5);
+            graph2d.drawString("0", (int) marge-3, 40);
+            graph2d.drawString("500", (int) marge + (int) pixelScaleFor500m - 12, 40);
+            graph2d.drawString("1000", (int) marge + (int) pixelScaleFor1000m - 17, 40);
+            graph2d.drawString("1500", (int) marge + (int) pixelScaleFor1000m + (int) pixelScaleFor500m  - 17, 40);
+        }
         return scaleBufferedImage;
     }
 
     public void setPosition(String position, BufferedImage image, BufferedImage scaleBufferedImage) {
         int imgWidth = image.getWidth();
-        int imgHeight = image.getWidth();
+        int imgHeight = image.getHeight();
         switch (position){
             case "bottom":
-                positionY = imgHeight - scaleBufferedImage.getHeight()/2;
-                positionX = imgWidth/2 - scaleBufferedImage.getWidth()/2;
+                positionY = imgHeight - scaleBufferedImage.getHeight() / 3;
+                positionX = imgWidth/2 - scaleBufferedImage.getWidth() * 2 / 3;
                 break;
             case "bottomLeft":
                 positionY = imgHeight - imgHeight/5;
@@ -87,6 +115,17 @@ public class Scale {
                 positionY = scaleBufferedImage.getHeight()/2;
                 positionX = imgWidth/2 - scaleBufferedImage.getWidth()/2;
                 break;
+            case "topLeft":
+                positionY = imgHeight/20;
+                positionX = imgWidth/25;
+                break;
+            case "topRight":
+                positionY = imgHeight/20;
+                positionX = imgWidth - imgWidth/5;
+                break;
+            default:
+                positionX = Integer.parseInt(position.split(":")[0]);
+                positionY = Integer.parseInt(position.split(":")[1]);
         }
     }
 

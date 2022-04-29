@@ -30,6 +30,7 @@ import org.geotools.xml.styling.SLDParser;
 import org.legend.model.Compass;
 import org.legend.model.Legend;
 import org.legend.model.Scale;
+import org.legend.model.Title;
 import org.legend.utils.LayerUtils;
 import org.locationtech.jts.geom.Geometry;
 import org.opengis.feature.simple.SimpleFeature;
@@ -268,7 +269,7 @@ public class BufferedImageLegendGraphicBuilderTest extends TestCase {
         MapContent map = new MapContent();
         map.addLayer(layer);
         org.legend.model.Map modelMap = new org.legend.model.Map(map);
-        BufferedImage mapBufferedImage = modelMap.paintMap("Great title", Color.black, Font.BOLD, 20,"default");
+        BufferedImage mapBufferedImage = modelMap.paintMap();
         //ImageIO.write(mapBufferedImage, "png", new FileOutputStream("data/legend/building_indicators_map.png"));
         ImageIO.write(mapBufferedImage, "png", new FileOutputStream("data/legend/building_map.png"));
         /*****************************************/
@@ -286,9 +287,17 @@ public class BufferedImageLegendGraphicBuilderTest extends TestCase {
         // paint both images, preserving the alpha channels
         Graphics g = combined.getGraphics();
         g.drawImage(image, 0, 0, null);
+
+        // paint the legend
         Legend modelLegend = new Legend();
         modelLegend.setPosition("bottomRight",image,legend);
         g.drawImage(legend, modelLegend.getPositionX(), modelLegend.getPositionY(), null);
+
+        // paint the title
+        Title title = new Title("Great title", Color.black, Font.BOLD, 20,"default", true);
+        BufferedImage titleBufferedImage = title.paintTitle();
+        title.setPosition("topLeft", image, titleBufferedImage);
+        g.drawImage(titleBufferedImage, title.getPositionX(), title.getPositionY(), null);
 
         // Generate the compass image
         Compass compass = new Compass("data/img/Rose_des_vents.svg");
@@ -298,7 +307,7 @@ public class BufferedImageLegendGraphicBuilderTest extends TestCase {
 
         // Generate the map scale
         Scale mapScale = new Scale(map,imgWidth);
-        BufferedImage scaleBufferedImage = mapScale.paintMapScale();
+        BufferedImage scaleBufferedImage = mapScale.paintMapScale("thickHorizontalBar");
         mapScale.setPosition("bottom",image,scaleBufferedImage);
         g.drawImage(scaleBufferedImage, mapScale.getPositionX(), mapScale.getPositionY(), null);
 

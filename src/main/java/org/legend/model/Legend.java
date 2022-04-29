@@ -9,7 +9,7 @@ public class Legend {
 
     public void setPosition(String position, BufferedImage image, BufferedImage legendBufferedImage) {
         int imgWidth = image.getWidth();
-        int imgHeight = image.getWidth();
+        int imgHeight = image.getHeight();
         switch (position){
             case "bottom":
                 positionY = imgHeight - legendBufferedImage.getHeight()/2;
@@ -27,6 +27,17 @@ public class Legend {
                 positionY = legendBufferedImage.getHeight()/2;
                 positionX = imgWidth/2 - legendBufferedImage.getWidth()/2;
                 break;
+            case "topLeft":
+                positionY = imgHeight/20;
+                positionX = imgWidth/25;
+                break;
+            case "topRight":
+                positionY = imgHeight/20;
+                positionX = imgWidth - imgWidth/5;
+                break;
+            default:
+                positionX = Integer.parseInt(position.split(":")[0]);
+                positionY = Integer.parseInt(position.split(":")[1]);
         }
     }
 

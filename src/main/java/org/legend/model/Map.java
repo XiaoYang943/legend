@@ -18,7 +18,7 @@ public class Map {
         this.map = map;
     }
 
-    public BufferedImage paintMap(String title, Color titleColor, int titleFont, int titleSize, String titleFontName){
+    public BufferedImage paintMap(){
         GTRenderer renderer = new StreamingRenderer();
         RenderingHints hints = new RenderingHints(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         hints.add(new RenderingHints(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON));
@@ -50,10 +50,6 @@ public class Map {
         gr.setPaint(Color.WHITE);
         gr.fill(imageBounds);
         renderer.paint(gr, imageBounds, mapBounds);
-        gr.setPaint(titleColor);
-        gr.setFont(new Font("default", titleFont, titleSize));
-        int titleWidth = gr.getFontMetrics().stringWidth(title);
-        gr.drawString(title, mapBufferedImage.getWidth()/2 - titleWidth/2 , 30);
         return mapBufferedImage;
     }
 

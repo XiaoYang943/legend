@@ -96,7 +96,7 @@ public class Compass {
 
     public void setPosition(String position, BufferedImage image, BufferedImage compassBufferedImage) {
         int imgWidth = image.getWidth();
-        int imgHeight = image.getWidth();
+        int imgHeight = image.getHeight();
         switch (position){
             case "bottom":
                 positionY = imgHeight - imgHeight/5;
@@ -114,6 +114,17 @@ public class Compass {
                 positionY = compassBufferedImage.getHeight()/3;
                 positionX = imgWidth/2 - compassBufferedImage.getWidth()/2;
                 break;
+            case "topLeft":
+                positionY = imgHeight/20;
+                positionX = imgWidth/25;
+                break;
+            case "topRight":
+                positionY = imgHeight/20;
+                positionX = imgWidth - imgWidth/5;
+                break;
+            default:
+                positionX = Integer.parseInt(position.split(":")[0]);
+                positionY = Integer.parseInt(position.split(":")[1]);
         }
     }
 
