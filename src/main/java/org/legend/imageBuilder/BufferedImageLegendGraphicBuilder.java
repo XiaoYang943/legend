@@ -30,6 +30,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
+import org.apache.commons.lang3.StringUtils;
+import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.geometry.jts.LiteShape2;
 import org.geotools.map.FeatureLayer;
 import org.geotools.renderer.lite.MetaBufferEstimator;
@@ -37,13 +39,17 @@ import org.geotools.renderer.lite.StyledShapePainter;
 import org.geotools.renderer.style.SLDStyleFactory;
 import org.geotools.renderer.style.Style2D;
 import org.geotools.styling.*;
+import org.geotools.styling.Stroke;
 import org.geotools.styling.visitor.RescaleStyleVisitor;
 import org.geotools.util.NumberRange;
 import org.legend.utils.*;
 import org.opengis.feature.Feature;
 import org.opengis.feature.type.FeatureType;
+import org.opengis.filter.FilterFactory2;
 import org.opengis.filter.expression.Expression;
 import org.opengis.filter.expression.Literal;
+
+import javax.measure.quantity.Length;
 
 /**
  * Template based on <a
@@ -175,6 +181,9 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
             title = featureLayer.getTitle();
         }else {
             title = featureLayer.getStyle().getName();
+            if(title.equals("Default Styler")){
+                title = "Legend";
+            }
         }
         final BufferedImage image = ImageUtils.createImage(w, h, null, transparent);
         return LegendMerger.getRenderedLabel(image, title,  legendOptions );
@@ -215,7 +224,6 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
             double minimumSymbolSize,
             boolean rescalingRequired,
             Function<Double, Double> rescaler) throws Exception {
-
         MetaBufferEstimator estimator = new MetaBufferEstimator(sampleFeature);
         for (int i = 0; i < ruleCount; i++) {
             final RenderedImage image = ImageUtils.createImage(width, height, null, transparent);
@@ -241,19 +249,19 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
                         shape = getSampleShape(symbolizer, rescaledWidth, rescaledHeight, width, height);
                         symbolizer = rescaleSymbolizer(symbolizer, width, rescaledWidth);
                     }
-                    Style2D style2d = styleFactory.createStyle(sampleFeature, symbolizer, scaleRange);
-                    if (style2d != null) {
-                        shapePainter.paint(graphics, shape, style2d, -1.0);
-                    }
+
+                        Style2D style2d = styleFactory.createStyle(sampleFeature, symbolizer, scaleRange);
+                        if (style2d != null) {
+                            shapePainter.paint(graphics, shape, style2d, -1.0);
+                        }
+                        if (titleImage != null) {
+                            layersImages.add(titleImage);
+                            titleImage = null;
+                        }
+                        legendsStack.add(image);
+                        graphics.dispose();
                 }
             }
-
-            if (titleImage != null) {
-                layersImages.add(titleImage);
-                titleImage = null;
-            }
-            legendsStack.add(image);
-            graphics.dispose();
         }
 
         LegendMerger.MergeOptions options = LegendMerger.MergeOptions.createFromOptions(legendsStack,

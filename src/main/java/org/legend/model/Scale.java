@@ -53,9 +53,11 @@ public class Scale {
         Graphics2D graph2d = scaleBufferedImage.createGraphics();
         graph2d.setColor(Color.WHITE);
         graph2d.fillRect(0, 0, 425, 400);
-        graph2d.setPaint( Color.BLACK );
+        graph2d.setPaint(Color.BLACK);
+        //graph2d.draw(new Line2D.Double(0, 0, 0, 400));
+        //graph2d.draw(new Line2D.Double(425, 0, 425, 400));
 
-        double marge = (scaleBufferedImage.getWidth()-pixelScaleFor500m)/2;
+        double marge = (scaleBufferedImage.getWidth()-pixelScaleFor500m-pixelScaleFor1000m)/2;
 
         if(bars.equalsIgnoreCase("downBars")) {
             // horizontal line
@@ -101,7 +103,7 @@ public class Scale {
         switch (position){
             case "bottom":
                 positionY = imgHeight - scaleBufferedImage.getHeight() / 3;
-                positionX = imgWidth/2 - scaleBufferedImage.getWidth() * 2 / 3;
+                positionX = imgWidth/2 - scaleBufferedImage.getWidth() / 2;
                 break;
             case "bottomLeft":
                 positionY = imgHeight - imgHeight/5;

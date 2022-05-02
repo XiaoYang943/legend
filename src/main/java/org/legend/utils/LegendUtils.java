@@ -20,8 +20,12 @@
 
 package org.legend.utils;
 
+import org.apache.commons.lang3.StringUtils;
+import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.renderer.lite.RendererUtilities;
 import org.geotools.styling.*;
+import org.geotools.styling.Stroke;
+import org.opengis.filter.FilterFactory2;
 import org.opengis.util.InternationalString;
 
 import java.awt.Font;
@@ -145,10 +149,41 @@ public class LegendUtils {
     public static Rule[] getRules(final FeatureTypeStyle[] ftStyles) {
         ensureNotNull(ftStyles, "FeatureTypeStyle array is null");
         final List<Rule> ruleList = new ArrayList<>();
-        for (FeatureTypeStyle fts : ftStyles) {
-            ruleList.addAll(fts.rules());
+        if(ftStyles[0].rules().get(0).toString().contains("if_then_else")) {
+            StyleFactory styleFactory = CommonFactoryFinder.getStyleFactory();
+            if (ftStyles[0].rules().get(0).symbolizers().get(0) instanceof LineSymbolizer) {
+                String s = String.valueOf(((LineSymbolizer) ftStyles[0].rules().get(0).symbolizers().get(0)).getStroke().getColor());
+                String[] colors = StringUtils.substringsBetween(s, "#", "]");
+                String variable = Arrays.toString(StringUtils.substringsBetween(s, "([", "],"));
+                String operator = StringUtils.substringBetween(s, "[", "(");
+                String variable2 = variable.replace(operator, "").replace("[([", "").replace("]", "");
+                String value = StringUtils.substringBetween(s, ", [", "])],");
+                FilterFactory2 filterFactory2 = CommonFactoryFinder.getFilterFactory2();
+                float LINE_WIDTH = 1.0f;
+                List<String> operatorList = new ArrayList<>();
+                if (operator.equals("greaterThan")) {
+                    operatorList.add(">");
+                    operatorList.add("<");
+                }
+                if (operator.equals("lowerThan")) {
+                    operatorList.add("<");
+                    operatorList.add(">");
+                }
+                for (int i = 0; i < 2; i++) {
+                    Rule rule = styleFactory.createRule();
+                    Stroke stroke = styleFactory.createStroke(filterFactory2.literal("#" + colors[i]), filterFactory2.literal(LINE_WIDTH));
+                    Symbolizer symbolizer = styleFactory.createLineSymbolizer(stroke, null);
+                    rule.symbolizers().add(symbolizer);
+                    rule.setName(variable2 + " " + operatorList.get(i) + " " + value);
+                    ruleList.add(rule);
+                }
+            }
         }
-
+        else {
+            for (FeatureTypeStyle fts : ftStyles) {
+                ruleList.addAll(fts.rules());
+            }
+        }
         return ruleList.toArray(new Rule[0]);
     }
 

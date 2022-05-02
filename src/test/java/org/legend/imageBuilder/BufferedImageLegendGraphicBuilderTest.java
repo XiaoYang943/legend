@@ -1,28 +1,14 @@
 package org.legend.imageBuilder;
 
 import junit.framework.TestCase;
-import org.apache.batik.anim.dom.SVGDOMImplementation;
-import org.apache.batik.transcoder.TranscoderException;
-import org.apache.batik.transcoder.TranscoderInput;
-import org.apache.batik.transcoder.TranscoderOutput;
-import org.apache.batik.transcoder.TranscodingHints;
-import org.apache.batik.transcoder.image.ImageTranscoder;
-import org.apache.batik.util.SVGConstants;
-import org.apache.commons.io.FileUtils;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFinder;
 import org.geotools.data.FeatureSource;
 import org.geotools.data.geojson.GeoJSONDataStoreFactory;
-import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.geometry.jts.Geometries;
-import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.map.FeatureLayer;
 import org.geotools.map.MapContent;
-import org.geotools.map.MapViewport;
-import org.geotools.renderer.GTRenderer;
-import org.geotools.renderer.label.LabelCacheImpl;
-import org.geotools.renderer.lite.StreamingRenderer;
 import org.geotools.styling.*;
 import org.geotools.styling.Stroke;
 import org.geotools.util.URLs;
@@ -237,7 +223,8 @@ public class BufferedImageLegendGraphicBuilderTest extends TestCase {
     public void testProduceMapWithLegend() throws Exception {
 
         /**** to print the legend in a png file : ***/
-        FeatureLayer layer = LayerUtils.buildLayer("/home/adrien/data/geoserver/bdtopo_v2_Redon/building.geojson","data/sld/pop_grid_intervals.sld");
+        //FeatureLayer layer = LayerUtils.buildLayer("/home/adrien/data/geoserver/bdtopo_v2_Redon/building.geojson","data/sld/pop_grid_intervals.sld");
+        FeatureLayer layer = LayerUtils.buildLayer("/home/adrien/data/geoserver/bdtopo_v2_Redon/rsu_indicators.geojson","data/sld/rsu_indicators_filter_color_byid_EDIT.sld");
         List<FeatureLayer> layerList = new ArrayList<>();
         layerList.add(layer);
 
@@ -315,7 +302,8 @@ public class BufferedImageLegendGraphicBuilderTest extends TestCase {
 
         // Save as new image
         //ImageIO.write(combined, "PNG", new File("data/legend/building_urban_typo_mapAndlegend.png"));
-        ImageIO.write(combined, "PNG", new File("data/legend/building_mapAndlegend.png"));
+        //ImageIO.write(combined, "PNG", new File("data/legend/building_mapAndlegend.png"));
+        ImageIO.write(combined, "PNG", new File("data/legend/rsu_indicators_mapAndlegend.png"));
     }
 
 }
