@@ -104,7 +104,7 @@ public class Compass {
                 break;
             case "bottomLeft":
                 positionY = imgHeight - imgHeight/5;
-                positionX = imgWidth/15;
+                positionX = imgWidth/60;
                 break;
             case "bottomRight":
                 positionY = imgHeight - imgHeight/5;
@@ -116,7 +116,7 @@ public class Compass {
                 break;
             case "topLeft":
                 positionY = imgHeight/20;
-                positionX = imgWidth/25;
+                positionX = imgWidth/60;
                 break;
             case "topRight":
                 positionY = imgHeight/20;

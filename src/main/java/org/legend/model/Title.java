@@ -27,16 +27,18 @@ public class Title {
     }
 
     public BufferedImage paintTitle(){
-        BufferedImage titleBufferedImage = new BufferedImage(200, 200, BufferedImage.TYPE_INT_RGB);
+        BufferedImage titleBufferedImage = new BufferedImage(200, 200, BufferedImage.TYPE_INT_ARGB);
         Graphics2D graph2d = titleBufferedImage.createGraphics();
-        graph2d.setColor(Color.WHITE);
+        graph2d.setComposite(AlphaComposite.Clear);
         graph2d.fillRect(0, 0, 200, 200);
+        graph2d.setComposite(AlphaComposite.Src);
         graph2d.setPaint(titleColor);
         graph2d.setFont(new Font(titleFontName, titleFont, titleSize));
+        graph2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         int titleWidth = graph2d.getFontMetrics().stringWidth(title);
-        graph2d.drawString(title, titleBufferedImage.getWidth()/2 - titleWidth/2 , 20);
+        graph2d.drawString(title, titleBufferedImage.getWidth()/3 - titleWidth/2 , 20);
         if(underlined){
-            graph2d.draw( new Line2D.Double( (double) titleBufferedImage.getWidth()/2 - (double) titleWidth/2, 30, (double) titleBufferedImage.getWidth()/2 + (double) titleWidth/2, 30 ) );
+            graph2d.draw( new Line2D.Double( (double) titleBufferedImage.getWidth()/3 - (double) titleWidth/2, 30, (double) titleBufferedImage.getWidth()/3 + (double) titleWidth/2, 30 ) );
         }
         return titleBufferedImage;
     }
@@ -51,7 +53,7 @@ public class Title {
                 break;
             case "bottomLeft":
                 positionY = imgHeight - imgHeight/5;
-                positionX = imgWidth/5 - scaleBufferedImage.getWidth()/2;
+                positionX = imgWidth/60;
                 break;
             case "bottomRight":
                 positionY = imgHeight - imgHeight/5;
@@ -63,7 +65,7 @@ public class Title {
                 break;
             case "topLeft":
                 positionY = imgHeight/20;
-                positionX = imgWidth/25;
+                positionX = imgWidth/60;
                 break;
             case "topRight":
                 positionY = imgHeight/20;

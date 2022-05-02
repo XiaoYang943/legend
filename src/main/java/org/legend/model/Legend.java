@@ -21,7 +21,7 @@ public class Legend {
                 break;
             case "bottomRight":
                 positionY = imgHeight - legendBufferedImage.getHeight() - imgHeight/15;
-                positionX = imgWidth - imgWidth/5;
+                positionX = imgWidth - legendBufferedImage.getWidth() - imgWidth/60;
                 break;
             case "top":
                 positionY = legendBufferedImage.getHeight()/2;

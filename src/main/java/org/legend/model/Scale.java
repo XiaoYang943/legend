@@ -49,13 +49,12 @@ public class Scale {
     public BufferedImage paintMapScale(String bars){
         double pixelScaleFor500m = 500 * imageWidth / worldWidth;
         double pixelScaleFor1000m = 1000 * imageWidth / worldWidth;
-        BufferedImage scaleBufferedImage = new BufferedImage(425, 400, BufferedImage.TYPE_INT_RGB);
+        BufferedImage scaleBufferedImage = new BufferedImage(425, 400, BufferedImage.TYPE_INT_ARGB);
         Graphics2D graph2d = scaleBufferedImage.createGraphics();
-        graph2d.setColor(Color.WHITE);
+        graph2d.setComposite(AlphaComposite.Clear);
         graph2d.fillRect(0, 0, 425, 400);
+        graph2d.setComposite(AlphaComposite.Src);
         graph2d.setPaint(Color.BLACK);
-        //graph2d.draw(new Line2D.Double(0, 0, 0, 400));
-        //graph2d.draw(new Line2D.Double(425, 0, 425, 400));
 
         double marge = (scaleBufferedImage.getWidth()-pixelScaleFor500m-pixelScaleFor1000m)/2;
 

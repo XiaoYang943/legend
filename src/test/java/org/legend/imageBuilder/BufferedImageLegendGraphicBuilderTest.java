@@ -224,7 +224,8 @@ public class BufferedImageLegendGraphicBuilderTest extends TestCase {
 
         /**** to print the legend in a png file : ***/
         //FeatureLayer layer = LayerUtils.buildLayer("/home/adrien/data/geoserver/bdtopo_v2_Redon/building.geojson","data/sld/pop_grid_intervals.sld");
-        FeatureLayer layer = LayerUtils.buildLayer("/home/adrien/data/geoserver/bdtopo_v2_Redon/rsu_indicators.geojson","data/sld/rsu_indicators_filter_color_byid_EDIT.sld");
+        //FeatureLayer layer = LayerUtils.buildLayer("/home/adrien/data/geoserver/bdtopo_v2_Redon/rsu_indicators.geojson","data/sld/rsu_indicators_filter_color_byid.sld");
+        FeatureLayer layer = LayerUtils.buildLayer("/home/adrien/data/geoserver/bdtopo_v2_Redon/rsu_indicators.geojson","data/sld/rsu_indicators_linesize_byid.sld");
         List<FeatureLayer> layerList = new ArrayList<>();
         layerList.add(layer);
 
@@ -283,7 +284,7 @@ public class BufferedImageLegendGraphicBuilderTest extends TestCase {
         // paint the title
         Title title = new Title("Great title", Color.black, Font.BOLD, 20,"default", true);
         BufferedImage titleBufferedImage = title.paintTitle();
-        title.setPosition("topLeft", image, titleBufferedImage);
+        title.setPosition("0:10", image, titleBufferedImage);
         g.drawImage(titleBufferedImage, title.getPositionX(), title.getPositionY(), null);
 
         // Generate the compass image
@@ -303,7 +304,8 @@ public class BufferedImageLegendGraphicBuilderTest extends TestCase {
         // Save as new image
         //ImageIO.write(combined, "PNG", new File("data/legend/building_urban_typo_mapAndlegend.png"));
         //ImageIO.write(combined, "PNG", new File("data/legend/building_mapAndlegend.png"));
-        ImageIO.write(combined, "PNG", new File("data/legend/rsu_indicators_mapAndlegend.png"));
+        //ImageIO.write(combined, "PNG", new File("data/legend/rsu_indicators_mapAndlegend.png"));
+        ImageIO.write(combined, "PNG", new File("data/legend/rsu_indicators_lineSize_mapAndlegend.png"));
     }
 
 }
