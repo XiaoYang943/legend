@@ -7,10 +7,8 @@ import org.geotools.data.FeatureSource;
 import org.geotools.data.geojson.GeoJSONDataStoreFactory;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.geometry.jts.Geometries;
-import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.map.FeatureLayer;
 import org.geotools.map.MapContent;
-import org.geotools.map.MapViewport;
 import org.geotools.styling.*;
 import org.geotools.styling.Stroke;
 import org.geotools.util.URLs;
@@ -263,7 +261,7 @@ public class BufferedImageLegendGraphicBuilderTest extends TestCase {
         // Create the base frame where we will paint the map and the decorations.
         BaseFrame frame = new BaseFrame();
         frame.setBaseFrameSize(mapBufferedImage,100);
-        frame.setBufferedImage();
+        frame.setBufferedImage("LETTER_PORTRAIT");
         Graphics2D g = frame.paintMapOnBaseFrame("center");
 
         // paint the legend
@@ -272,10 +270,16 @@ public class BufferedImageLegendGraphicBuilderTest extends TestCase {
         g.drawImage(legendBufferedImage, modelLegend.getPositionX(), modelLegend.getPositionY(), null);
 
         // paint the title
-        Title title = new Title("Great title", Color.black, Font.BOLD, 20,"default", true);
+        TextItem title = new TextItem("Great title", Color.black, Font.BOLD, 20,"default", true);
         BufferedImage titleBufferedImage = title.paintTitle();
         title.setPosition("0:10", frame.getImgWidth(), frame.getImgHeight(), titleBufferedImage);
         g.drawImage(titleBufferedImage, title.getPositionX(), title.getPositionY(), null);
+
+        // paint a paragraph
+        TextItem paragraph = new TextItem("Cum autem commodis intervallata temporibus convivia longa et noxia coeperint apparari vel distributio sollemnium sportularum, anxia deliberatione tractatur an exceptis his quibus vicissitudo debetur, peregrinum invitari conveniet", Color.ORANGE, Font.ITALIC, 18,"default", false);
+        BufferedImage paragraphBufferedImage = paragraph.paintTitle();
+        paragraph.setPosition("150:100", frame.getImgWidth(), frame.getImgHeight(), paragraphBufferedImage);
+        g.drawImage(paragraphBufferedImage, paragraph.getPositionX(), paragraph.getPositionY(), null);
 
         // Generate the compass image
         Compass compass = new Compass("data/img/Rose_des_vents.svg");

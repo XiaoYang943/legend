@@ -31,12 +31,10 @@ import java.awt.image.BufferedImage;
  *
  * @author Adrien Bessy
  */
-public class Scale {
+public class Scale extends Item{
 
     double worldWidth;
     int imageWidth;
-    int positionX;
-    int positionY;
 
     public Scale(MapContent mapContent, int imageWidth){
         this.worldWidth = mapContent.getViewport().getBounds().getWidth();
@@ -50,10 +48,10 @@ public class Scale {
     public BufferedImage paintMapScale(String bars){
         double pixelScaleFor500m = 500 * imageWidth / worldWidth;
         double pixelScaleFor1000m = 1000 * imageWidth / worldWidth;
-        BufferedImage scaleBufferedImage = new BufferedImage(425, 400, BufferedImage.TYPE_INT_ARGB);
+        BufferedImage scaleBufferedImage = new BufferedImage(imageWidth/30+425, 100, BufferedImage.TYPE_INT_ARGB);
         Graphics2D graph2d = scaleBufferedImage.createGraphics();
         graph2d.setComposite(AlphaComposite.Clear);
-        graph2d.fillRect(0, 0, 425, 400);
+        graph2d.fillRect(0, 0, imageWidth/30+425, 100);
         graph2d.setComposite(AlphaComposite.Src);
         graph2d.setPaint(Color.BLACK);
 
@@ -97,50 +95,4 @@ public class Scale {
         return scaleBufferedImage;
     }
 
-    /**
-     * Set position of the map scale on the base frame
-     * @param position the position (can be absolute position like "[40:10]")
-     * @param imgWidth the width of the base frame
-     * @param imgHeight the height of the base frame
-     * @param scaleBufferedImage the buffered image of the map scale
-     */
-    public void setPosition(String position, int imgWidth, int imgHeight, BufferedImage scaleBufferedImage) {
-        switch (position){
-            case "bottom":
-                positionY = imgHeight - scaleBufferedImage.getHeight() / 3;
-                positionX = imgWidth/2 - scaleBufferedImage.getWidth() / 2;
-                break;
-            case "bottomLeft":
-                positionY = imgHeight - imgHeight/5;
-                positionX = imgWidth/5 - scaleBufferedImage.getWidth()/2;
-                break;
-            case "bottomRight":
-                positionY = imgHeight - imgHeight/5;
-                positionX = imgWidth - imgWidth/5 - scaleBufferedImage.getWidth()/2;
-                break;
-            case "top":
-                positionY = scaleBufferedImage.getHeight()/2;
-                positionX = imgWidth/2 - scaleBufferedImage.getWidth()/2;
-                break;
-            case "topLeft":
-                positionY = imgHeight/20;
-                positionX = imgWidth/25;
-                break;
-            case "topRight":
-                positionY = imgHeight/20;
-                positionX = imgWidth - imgWidth/5;
-                break;
-            default:
-                positionX = Integer.parseInt(position.split(":")[0]);
-                positionY = Integer.parseInt(position.split(":")[1]);
-        }
-    }
-
-    public int getPositionX() {
-        return positionX;
-    }
-
-    public int getPositionY() {
-        return positionY;
-    }
 }

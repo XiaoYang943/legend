@@ -43,7 +43,57 @@ public class BaseFrame {
         this.margin = margin;
     }
 
-    public void setBufferedImage(){
+    public void setBufferedImage(String landscape){
+        switch (landscape) {
+            case "LETTER_LANDSCAPE":
+                if (imgHeight < 612) {
+                    this.imgHeight = 612;
+                    this.imgWidth = 792;
+                } else {
+                    this.imgWidth = imgHeight * 792 / 612;
+                }
+                break;
+            case "TABLOID_LANDSCAPE":
+                if (imgHeight < 792) {
+                    this.imgHeight = 792;
+                    this.imgWidth = 1224;
+                } else {
+                    this.imgWidth = imgHeight * 1224 / 792;
+                }
+                break;
+            case "C_LANDSCAPE":
+                if (imgHeight < 1224) {
+                    this.imgHeight = 1224;
+                    this.imgWidth = 1584;
+                } else {
+                    this.imgWidth = imgHeight * 1584 / 1224;
+                }
+                break;
+            case "D_LANDSCAPE":
+                if (imgHeight < 1584) {
+                    this.imgHeight = 1584;
+                    this.imgWidth = 2448;
+                } else {
+                    this.imgWidth = imgHeight * 2448 / 1584;
+                }
+                break;
+            case "LETTER_PORTRAIT":
+                if (imgWidth < 612) {
+                    this.imgHeight = 792;
+                    this.imgWidth = 612;
+                } else {
+                    this.imgHeight = imgWidth * 792 / 612;
+                }
+                break;
+            case "TABLOID_PORTRAIT":
+                if (imgWidth < 792) {
+                    this.imgHeight = 1224;
+                    this.imgWidth = 792;
+                } else {
+                    this.imgHeight = imgWidth * 1224 / 792;
+                }
+                break;
+        }
         this.baseFrameBufferedImage = new BufferedImage(imgWidth, imgHeight, BufferedImage.TYPE_INT_ARGB);
     }
 
@@ -71,7 +121,7 @@ public class BaseFrame {
                     g.drawImage(mapImage, 0, margin / 2, null);
                     break;
                 case "center":
-                    g.drawImage(mapImage, margin / 2, margin / 2, null);
+                    g.drawImage(mapImage, (imgWidth - mapImage.getWidth())/2, (imgHeight - mapImage.getHeight())/2, null);
                     break;
                 default:
                     g.drawImage(mapImage, Integer.parseInt(position.split(":")[0]), Integer.parseInt(position.split(":")[1]), null);

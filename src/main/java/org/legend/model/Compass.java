@@ -39,11 +39,9 @@ import java.nio.file.Files;
  *
  * @author Adrien Bessy
  */
-public class Compass {
+public class Compass extends Item{
 
     String filePath;
-    int positionX;
-    int positionY;
 
     public Compass(String filePath){
         this.filePath = filePath;
@@ -113,50 +111,4 @@ public class Compass {
         return imagePointer[0];
     }
 
-    /**
-     * Set position of the compass on the base frame
-     * @param position the position (can be absolute position like "[40:10]")
-     * @param imgWidth the width of the base frame
-     * @param imgHeight the height of the base frame
-     * @param compassBufferedImage the buffered image of the compass
-     */
-    public void setPosition(String position, int imgWidth, int imgHeight, BufferedImage compassBufferedImage) {
-        switch (position){
-            case "bottom":
-                positionY = imgHeight - imgHeight/5;
-                positionX = imgWidth/2 - compassBufferedImage.getWidth()/2;
-                break;
-            case "bottomLeft":
-                positionY = imgHeight - imgHeight/5;
-                positionX = imgWidth/60;
-                break;
-            case "bottomRight":
-                positionY = imgHeight - imgHeight/5;
-                positionX = imgWidth - imgWidth/5;
-                break;
-            case "top":
-                positionY = compassBufferedImage.getHeight()/3;
-                positionX = imgWidth/2 - compassBufferedImage.getWidth()/2;
-                break;
-            case "topLeft":
-                positionY = imgHeight/20;
-                positionX = imgWidth/60;
-                break;
-            case "topRight":
-                positionY = imgHeight/20;
-                positionX = imgWidth - imgWidth/5;
-                break;
-            default:
-                positionX = Integer.parseInt(position.split(":")[0]);
-                positionY = Integer.parseInt(position.split(":")[1]);
-        }
-    }
-
-    public int getPositionX() {
-        return positionX;
-    }
-
-    public int getPositionY() {
-        return positionY;
-    }
 }
