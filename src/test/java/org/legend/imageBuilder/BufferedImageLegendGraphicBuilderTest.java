@@ -7,22 +7,22 @@ import org.geotools.data.FeatureSource;
 import org.geotools.data.geojson.GeoJSONDataStoreFactory;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.geometry.jts.Geometries;
+import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.map.FeatureLayer;
 import org.geotools.map.MapContent;
+import org.geotools.map.MapViewport;
 import org.geotools.styling.*;
 import org.geotools.styling.Stroke;
 import org.geotools.util.URLs;
 import org.geotools.xml.styling.SLDParser;
-import org.legend.model.Compass;
-import org.legend.model.Legend;
-import org.legend.model.Scale;
-import org.legend.model.Title;
+import org.legend.model.*;
 import org.legend.utils.LayerUtils;
 import org.locationtech.jts.geom.Geometry;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.GeometryDescriptor;
 import org.opengis.filter.FilterFactory2;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -249,7 +249,6 @@ public class BufferedImageLegendGraphicBuilderTest extends TestCase {
 
         BufferedImageLegendGraphicBuilder builder = new BufferedImageLegendGraphicBuilder();
         BufferedImage legendBufferedImage = builder.buildLegendGraphic(layerList,legendOptions);
-        //ImageIO.write(legendBufferedImage,"png",new FileOutputStream("data/legend/building_urban_typo_legend.png"));
         ImageIO.write(legendBufferedImage,"png",new FileOutputStream("data/legend/building_legend.png"));
         /*****************************************/
 
@@ -258,54 +257,45 @@ public class BufferedImageLegendGraphicBuilderTest extends TestCase {
         map.addLayer(layer);
         org.legend.model.Map modelMap = new org.legend.model.Map(map);
         BufferedImage mapBufferedImage = modelMap.paintMap();
-        //ImageIO.write(mapBufferedImage, "png", new FileOutputStream("data/legend/building_indicators_map.png"));
         ImageIO.write(mapBufferedImage, "png", new FileOutputStream("data/legend/building_map.png"));
         /*****************************************/
 
-        //BufferedImage image = ImageIO.read(new File("data/legend/building_indicators_map.png"));
-        BufferedImage image = ImageIO.read(new File("data/legend/building_map.png"));
-        //BufferedImage legend = ImageIO.read(new File("data/legend/building_urban_typo_legend.png"));
-        BufferedImage legend = ImageIO.read(new File("data/legend/building_legend.png"));
-
-        // create the new image, canvas size is the max. of both image sizes
-        int imgWidth = Math.max(image.getWidth(), legend.getWidth());
-        int imgHeight = Math.max(image.getHeight(), legend.getHeight());
-        BufferedImage combined = new BufferedImage(imgWidth, imgHeight, BufferedImage.TYPE_INT_ARGB);
-
-        // paint both images, preserving the alpha channels
-        Graphics g = combined.getGraphics();
-        g.drawImage(image, 0, 0, null);
+        // Create the base frame where we will paint the map and the decorations.
+        BaseFrame frame = new BaseFrame();
+        frame.setBaseFrameSize(mapBufferedImage,100);
+        frame.setBufferedImage();
+        Graphics2D g = frame.paintMapOnBaseFrame("center");
 
         // paint the legend
         Legend modelLegend = new Legend();
-        modelLegend.setPosition("bottomRight",image,legend);
-        g.drawImage(legend, modelLegend.getPositionX(), modelLegend.getPositionY(), null);
+        modelLegend.setPosition("bottomRight", frame.getImgWidth(), frame.getImgHeight(), legendBufferedImage);
+        g.drawImage(legendBufferedImage, modelLegend.getPositionX(), modelLegend.getPositionY(), null);
 
         // paint the title
         Title title = new Title("Great title", Color.black, Font.BOLD, 20,"default", true);
         BufferedImage titleBufferedImage = title.paintTitle();
-        title.setPosition("0:10", image, titleBufferedImage);
+        title.setPosition("0:10", frame.getImgWidth(), frame.getImgHeight(), titleBufferedImage);
         g.drawImage(titleBufferedImage, title.getPositionX(), title.getPositionY(), null);
 
         // Generate the compass image
         Compass compass = new Compass("data/img/Rose_des_vents.svg");
         BufferedImage compassBufIma = compass.paintCompass();
-        compass.setPosition("bottomLeft", image, compassBufIma);
+        CoordinateReferenceSystem crs = map.getViewport().getBounds().getCoordinateReferenceSystem();
+        compass.setPosition("bottomLeft", frame.getImgWidth(), frame.getImgHeight(), compassBufIma);
         g.drawImage(compassBufIma, compass.getPositionX(), compass.getPositionY(), null);
 
         // Generate the map scale
-        Scale mapScale = new Scale(map,imgWidth);
+        Scale mapScale = new Scale(map,frame.getImgWidth());
         BufferedImage scaleBufferedImage = mapScale.paintMapScale("thickHorizontalBar");
-        mapScale.setPosition("bottom",image,scaleBufferedImage);
+        mapScale.setPosition("bottom", frame.getImgWidth(), frame.getImgHeight(), scaleBufferedImage);
         g.drawImage(scaleBufferedImage, mapScale.getPositionX(), mapScale.getPositionY(), null);
 
         g.dispose();
 
         // Save as new image
-        //ImageIO.write(combined, "PNG", new File("data/legend/building_urban_typo_mapAndlegend.png"));
         //ImageIO.write(combined, "PNG", new File("data/legend/building_mapAndlegend.png"));
         //ImageIO.write(combined, "PNG", new File("data/legend/rsu_indicators_mapAndlegend.png"));
-        ImageIO.write(combined, "PNG", new File("data/legend/rsu_indicators_lineSize_mapAndlegend.png"));
+        ImageIO.write(frame.getBaseFrameBufferedImage(), "PNG", new File("data/legend/rsu_indicators_lineSize_mapAndlegend_bigger.png"));
     }
 
 }

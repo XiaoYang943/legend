@@ -1,3 +1,23 @@
+/*
+ * Legend is a library that generates a legend.
+ * Legend is developed by CNRS http://www.cnrs.fr/.
+ *
+ * Most of the code had been picked up from Geoserver (https://github.com/geoserver/geoserver). Legend is free software;
+ * you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation;
+ * version 3.0 of the License.
+ *
+ * Legend is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details http://www.gnu.org/licenses.
+ *
+ *
+ *For more information, please consult: http://www.orbisgis.org
+ *or contact directly: info_at_orbisgis.org
+ *
+ */
+
 package org.legend.model;
 
 import org.apache.batik.anim.dom.SVGDOMImplementation;
@@ -8,16 +28,17 @@ import org.apache.batik.transcoder.TranscodingHints;
 import org.apache.batik.transcoder.image.ImageTranscoder;
 import org.apache.batik.util.SVGConstants;
 import org.apache.commons.io.FileUtils;
-import org.geotools.map.MapContent;
 
-import java.awt.*;
-import java.awt.geom.Line2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 
+/**
+ * Provides methods to build a compass buffered image.
+ *
+ * @author Adrien Bessy
+ */
 public class Compass {
 
     String filePath;
@@ -42,9 +63,7 @@ public class Compass {
      * @return the buffered image
      */
     public static BufferedImage rasterize(File svgFile) throws IOException {
-
         final BufferedImage[] imagePointer = new BufferedImage[1];
-
         // Rendering hints can't be set programatically, so
         // we override defaults with a temporary stylesheet.
         // These defaults emphasize quality and precision, and
@@ -94,9 +113,14 @@ public class Compass {
         return imagePointer[0];
     }
 
-    public void setPosition(String position, BufferedImage image, BufferedImage compassBufferedImage) {
-        int imgWidth = image.getWidth();
-        int imgHeight = image.getHeight();
+    /**
+     * Set position of the compass on the base frame
+     * @param position the position (can be absolute position like "[40:10]")
+     * @param imgWidth the width of the base frame
+     * @param imgHeight the height of the base frame
+     * @param compassBufferedImage the buffered image of the compass
+     */
+    public void setPosition(String position, int imgWidth, int imgHeight, BufferedImage compassBufferedImage) {
         switch (position){
             case "bottom":
                 positionY = imgHeight - imgHeight/5;

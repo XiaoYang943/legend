@@ -17,6 +17,7 @@
  *or contact directly: info_at_orbisgis.org
  *
  */
+
 package org.legend.model;
 
 import org.geotools.map.MapContent;
@@ -26,7 +27,7 @@ import java.awt.geom.Line2D;
 import java.awt.image.BufferedImage;
 
 /**
- * This class allows to create a map scale to add to your map.
+ * Provides methods to build a map scale buffered image.
  *
  * @author Adrien Bessy
  */
@@ -96,9 +97,14 @@ public class Scale {
         return scaleBufferedImage;
     }
 
-    public void setPosition(String position, BufferedImage image, BufferedImage scaleBufferedImage) {
-        int imgWidth = image.getWidth();
-        int imgHeight = image.getHeight();
+    /**
+     * Set position of the map scale on the base frame
+     * @param position the position (can be absolute position like "[40:10]")
+     * @param imgWidth the width of the base frame
+     * @param imgHeight the height of the base frame
+     * @param scaleBufferedImage the buffered image of the map scale
+     */
+    public void setPosition(String position, int imgWidth, int imgHeight, BufferedImage scaleBufferedImage) {
         switch (position){
             case "bottom":
                 positionY = imgHeight - scaleBufferedImage.getHeight() / 3;
