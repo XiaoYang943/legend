@@ -16,7 +16,7 @@
     {
       "layers": "/home/adrien/data/geoserver/bdtopo_v2_Redon/rsu_indicators.geojson",
       "sld" : "data/sld/rsu_indicators_filter_color_byid.sld",
-      "position" : "[825:975]",
+      "position" : [825,975],
       "size" : 250
     }
   ],
@@ -54,7 +54,7 @@
       "fontStyle" : "bold",
       "fontColor" : "blue",
       "fontSize" : 16,
-      "position" : "[500:900]"
+      "position" : [500,900]
     }
   ],
 
@@ -66,7 +66,7 @@
       "content" : "Great title",
       "underlined" : true,
       "fontColor" : "black",
-      "position" : "[0:10]"
+      "position" : [0,10]
     },
     {
       "fontName" : "default",
@@ -75,7 +75,7 @@
       "content" : "Cum autem commodis intervallata temporibus convivia longa et noxia coeperint apparari vel distributio sollemnium sportularum, anxia deliberatione tractatur an exceptis his quibus vicissitudo debetur, peregrinum invitari conveniet",
       "underlined" : false,
       "fontColor" : "orange",
-      "position" : "[150:100]"
+      "position" : [150,100]
     }
   ],
 

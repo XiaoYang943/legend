@@ -20,7 +20,11 @@
 
 package org.legend.model;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.List;
 
 abstract public class Item {
 
@@ -64,6 +68,11 @@ abstract public class Item {
                 positionX = Integer.parseInt(position.split(":")[0]);
                 positionY = Integer.parseInt(position.split(":")[1]);
         }
+    }
+
+    public void setPosition(List<Integer> positionList) {
+        positionX = positionList.get(0);
+        positionY = positionList.get(1);
     }
 
     public int getPositionX() {

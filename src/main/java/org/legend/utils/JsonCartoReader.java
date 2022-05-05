@@ -20,8 +20,10 @@
 
 package org.legend.utils;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
 import org.geotools.map.FeatureLayer;
 import org.geotools.map.MapContent;
 import org.legend.imageBuilder.BufferedImageLegendGraphicBuilder;
@@ -51,6 +53,8 @@ public class JsonCartoReader {
     public void readAndBuildMap(String jsonFilePath) throws Exception {
 
         ObjectMapper mapper = new ObjectMapper();
+        ObjectReader reader = mapper.readerFor(new TypeReference<List<Integer>>() {
+        });
 
         JsonNode mapDocumentArrayNode = mapper.readTree(new File(jsonFilePath)).get("mapDocument");
         this.frame = new BaseFrame();
@@ -76,7 +80,11 @@ public class JsonCartoReader {
             mapContent.addLayer(layer);
             org.legend.model.MapItem modelMap = new org.legend.model.MapItem(mapContent);
             BufferedImage mapBufferedImage = modelMap.paintMap(Integer.parseInt(jsonNode.get("size").toString().replace("\"", "")));
-            this.g = frame.paintMapOnBaseFrame(jsonNode.findValue("position").toString().replace("[","").replace("]","").replace("\"", ""), mapBufferedImage, g);
+            if(jsonNode.get("position").isArray()){
+                this.g = frame.paintMapOnMapDocument(reader.readValue(jsonNode.get("position")), mapBufferedImage, g);
+            } else{
+                this.g = frame.paintMapOnBaseFrame(jsonNode.findValue("position").toString().replace("[","").replace("]","").replace("\"", ""), mapBufferedImage, g);
+            }
             mapContent.dispose();
         }
 
@@ -87,14 +95,7 @@ public class JsonCartoReader {
             layerList.add(layer);
             Map legendOptions = new HashMap<>();
             legendOptions.put("transparent", jsonNode.get("transparent").toString().replace("\"","")); // default is off
-            Object bgColor;
-            if(!jsonNode.get("bgColor").toString().replace("\"","").contains("#")) {
-                Field bgColorField = Class.forName("java.awt.Color").getField(jsonNode.get("bgColor").toString().replace("\"", ""));
-                bgColor = bgColorField.get(null);
-            }else{
-                bgColor = jsonNode.get("bgColor").toString().replace("\"","");
-            }
-            legendOptions.put("bgColor", bgColor); // default is Color.WHITE;
+            legendOptions.put("bgColor", getColor(jsonNode.get("bgColor").toString().replace("\"",""))); // default is Color.WHITE;
             legendOptions.put("ruleLabelMargin", Integer.parseInt(jsonNode.get("ruleLabelMargin").toString().replace("\"",""))); //default is 3;
             legendOptions.put("verticalRuleMargin", Integer.parseInt(jsonNode.get("verticalRuleMargin").toString().replace("\"",""))); //default is 0;
             legendOptions.put("horizontalRuleMargin", Integer.parseInt(jsonNode.get("horizontalRuleMargin").toString().replace("\"",""))); //default is 0;
@@ -103,27 +104,32 @@ public class JsonCartoReader {
             legendOptions.put("horizontalMarginBetweenLayers", Integer.parseInt(jsonNode.get("horizontalMarginBetweenLayers").toString().replace("\"",""))); //default is 0;
             legendOptions.put("fontName", jsonNode.get("fontName").toString().replace("\"","")); //default is "Sans-Serif"
             legendOptions.put("fontStyle", jsonNode.get("fontStyle").toString().replace("\"",""));
-            Field fontColorField = Class.forName("java.awt.Color").getField(jsonNode.get("fontColor").toString().replace("\"",""));
-            Color fontColor = (Color) fontColorField.get(null);
-            legendOptions.put("fontColor", fontColor); // default is Color.BLACK;
+            legendOptions.put("fontColor", getColor(jsonNode.get("fontColor").toString().replace("\"",""))); // default is Color.BLACK;
             legendOptions.put("fontSize", jsonNode.get("fontSize").toString().replace("\"","")); // default is 12;
             BufferedImageLegendGraphicBuilder builder = new BufferedImageLegendGraphicBuilder();
             BufferedImage legendBufferedImage = builder.buildLegendGraphic(layerList, legendOptions);
             Legend modelLegend = new Legend();
-            modelLegend.setPosition(jsonNode.get("position").toString().replace("[","").replace("]","").replace("\"",""), frame.getImgWidth(), frame.getImgHeight(), legendBufferedImage);
+            if(jsonNode.get("position").isArray()){
+                modelLegend.setPosition(reader.readValue(jsonNode.get("position")));
+            }else {
+                modelLegend.setPosition(jsonNode.get("position").toString().replace("[", "").replace("]", "").replace("\"", ""), frame.getImgWidth(), frame.getImgHeight(), legendBufferedImage);
+            }
             g.drawImage(legendBufferedImage, modelLegend.getPositionX(), modelLegend.getPositionY(), null);
         }
 
         JsonNode textArrayNode = mapper.readTree(new File(jsonFilePath)).get("text");
         for (JsonNode jsonNode : textArrayNode) {
-            Font titleFont = new Font(jsonNode.get("fontName").toString().replace("\"",""), setFontStyle(jsonNode.get("fontStyle").toString().replace("\"","")), Integer.parseInt(jsonNode.get("fontSize").toString()));
+            Font titleFont = new Font(jsonNode.get("fontName").toString().replace("\"",""), getFontStyle(jsonNode.get("fontStyle").toString().replace("\"","")), Integer.parseInt(jsonNode.get("fontSize").toString()));
             String color1 = jsonNode.get("fontColor").toString().replace("\"","");
             Field field = Class.forName("java.awt.Color").getField(color1);
             Color color = (Color) field.get(null);
             TextItem textItem = new TextItem(jsonNode.get("content").toString().replace("\"",""), color, titleFont, Boolean.parseBoolean(jsonNode.get("underlined").toString()));
             BufferedImage titleBufferedImage = textItem.paintText();
-            String jsonPosition = jsonNode.get("position").toString().replace("[","").replace("]","").replace("\"","");
-            textItem.setPosition(jsonPosition, frame.getImgWidth(), frame.getImgHeight(), titleBufferedImage);
+            if(jsonNode.get("position").isArray()){
+                textItem.setPosition(reader.readValue(jsonNode.get("position")));
+            } else{
+                textItem.setPosition(jsonNode.get("position").toString().replace("[","").replace("]","").replace("\"",""), frame.getImgWidth(), frame.getImgHeight(), titleBufferedImage);
+            }
             g.drawImage(titleBufferedImage, textItem.getPositionX(), textItem.getPositionY(), null);
         }
 
@@ -131,7 +137,11 @@ public class JsonCartoReader {
         for (JsonNode jsonNode : compassArrayNode) {
             Compass compass = new Compass(jsonNode.get("svg").toString().replace("\"",""));
             BufferedImage compassBufIma = compass.paintCompass(Integer.parseInt(jsonNode.get("size").toString().replace("\"","")));
-            compass.setPosition(jsonNode.get("position").toString().replace("\"",""), frame.getImgWidth(), frame.getImgHeight(), compassBufIma);
+            if(jsonNode.get("position").isArray()){
+                compass.setPosition(reader.readValue(jsonNode.get("position")));
+            } else {
+                compass.setPosition(jsonNode.get("position").toString().replace("\"", ""), frame.getImgWidth(), frame.getImgHeight(), compassBufIma);
+            }
             g.drawImage(compassBufIma, compass.getPositionX(), compass.getPositionY(), null);
         }
 
@@ -142,9 +152,13 @@ public class JsonCartoReader {
             mapContent.addLayer(layer);
             Scale mapScale = new Scale(mapContent, frame.getImgWidth());
             mapScale.setStrokeWidth(Integer.parseInt(jsonNode.get("strokeWidth").toString().replace("\"","")));
-            mapScale.setFont(new Font(jsonNode.get("fontName").toString().replace("\"",""), setFontStyle(jsonNode.get("fontStyle").toString().replace("\"","")), Integer.parseInt(jsonNode.get("fontSize").toString().replace("\"",""))));
+            mapScale.setFont(new Font(jsonNode.get("fontName").toString().replace("\"",""), getFontStyle(jsonNode.get("fontStyle").toString().replace("\"","")), Integer.parseInt(jsonNode.get("fontSize").toString().replace("\"",""))));
             BufferedImage scaleBufferedImage = mapScale.paintMapScale(jsonNode.get("bars").toString().replace("\"",""));
-            mapScale.setPosition(jsonNode.get("position").toString().replace("\"",""), frame.getImgWidth(), frame.getImgHeight(), scaleBufferedImage);
+            if(jsonNode.get("position").isArray()){
+                mapScale.setPosition(reader.readValue(jsonNode.get("position")));
+            } else {
+                mapScale.setPosition(jsonNode.get("position").toString().replace("\"", ""), frame.getImgWidth(), frame.getImgHeight(), scaleBufferedImage);
+            }
             g.drawImage(scaleBufferedImage, mapScale.getPositionX(), mapScale.getPositionY(), null);
             mapContent.dispose();
         }
@@ -154,7 +168,7 @@ public class JsonCartoReader {
         ImageIO.write(frame.getBaseFrameBufferedImage(), outputArrayNode.findValue("fileType").toString().replace("\"","").toUpperCase(), new File(outputArrayNode.findValue("filePath").toString().replace("\"","") + resultFileName));
     }
 
-    private int setFontStyle(String fontStyleString){
+    private int getFontStyle(String fontStyleString){
         int style = 0;
         switch (fontStyleString) {
             case "bold":
@@ -165,6 +179,17 @@ public class JsonCartoReader {
                 break;
         }
         return style;
+    }
+
+    private Object getColor(String stringColor) throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
+        Object bgColor;
+        if(!stringColor.contains("#")) {
+            Field bgColorField = Class.forName("java.awt.Color").getField(stringColor);
+            bgColor = bgColorField.get(null);
+        }else{
+            bgColor = stringColor;
+        }
+        return bgColor;
     }
 
 }

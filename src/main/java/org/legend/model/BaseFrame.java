@@ -22,6 +22,7 @@ package org.legend.model;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.util.List;
 
 /**
  * Provides methods to build a base frame buffered image where a map and decorations can then be painted.
@@ -108,6 +109,8 @@ public class BaseFrame {
     /**
      * Paint map on the base frame, set its position and returns the graphics2d
      * @param position the position (can be absolute position like "[40:10]")
+     * @param mapImage mapImage
+     * @param g the graphics 2d
      * @return the graphics2D
      */
     public Graphics2D paintMapOnBaseFrame(String position, BufferedImage mapImage, Graphics2D g) {
@@ -130,13 +133,31 @@ public class BaseFrame {
                 case "left":
                     g.drawImage(mapImage, 0, margin / 2, null);
                     break;
-                case "center":
-                    g.drawImage(mapImage, (imgWidth - mapImage.getWidth())/2, (imgHeight - mapImage.getHeight())/2, null);
-                    break;
                 default:
-                    g.drawImage(mapImage, Integer.parseInt(position.split(":")[0]), Integer.parseInt(position.split(":")[1]), null);
+                    g.drawImage(mapImage, (imgWidth - mapImage.getWidth())/2, (imgHeight - mapImage.getHeight())/2, null);
             }
         }else{
+            g.drawImage(mapImage, 0, 0, null);
+        }
+        return g;
+    }
+
+    /**
+     * Paint map on the base frame, set its position and returns the graphics2d
+     * @param positionList the position (can be absolute position like "[40:10]")
+     * @param mapImage mapImage
+     * @param g the graphics 2d
+     * @return the graphics2D
+     */
+    public Graphics2D paintMapOnMapDocument(List<Integer> positionList, BufferedImage mapImage, Graphics2D g) {
+        if (g == null) {
+            g = (Graphics2D) baseFrameBufferedImage.getGraphics();
+            g.setPaint(Color.WHITE);
+            g.fillRect(0, 0, imgWidth, imgHeight);
+        }
+        if(margin>0) {
+                g.drawImage(mapImage, positionList.get(0), positionList.get(1), null);
+        } else{
             g.drawImage(mapImage, 0, 0, null);
         }
         return g;
