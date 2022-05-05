@@ -1,0 +1,77 @@
+{
+  "map" : [
+    {
+      "layers": "/home/adrien/data/geoserver/bdtopo_v2_Redon/rsu_indicators.geojson",
+      "sld" : "data/sld/rsu_indicators_filter_color_byid.sld",
+      "position" : "center",
+      "landscape" : "LETTER_PORTRAIT",
+      "margin" : 100
+    }
+  ],
+
+  "legend" : [
+    {
+      "transparent": "on",
+      "bgColor": "#33ccff",
+      "ruleLabelMargin" : 0,
+      "verticalRuleMargin" : 5,
+      "horizontalRuleMargin" : 5,
+      "verticalMarginBetweenLayers" : 25,
+      "horizontalMarginBetweenLayers" : 25,
+      "fontName" : "TimesRoman",
+      "fontStyle" : "bold",
+      "fontColor" : "blue",
+      "fontSize" : "16",
+      "position" : "bottomRight"
+    }
+  ],
+
+  "text" : [
+    {
+      "fontName" : "Arial",
+      "fontStyle" : "bold",
+      "fontSize" : 30,
+      "content" : "Great title",
+      "underlined" : true,
+      "fontColor" : "black",
+      "position" : "[0:10]"
+    },
+    {
+      "fontName" : "default",
+      "fontStyle" : "italic",
+      "fontSize" : 18,
+      "content" : "Cum autem commodis intervallata temporibus convivia longa et noxia coeperint apparari vel distributio sollemnium sportularum, anxia deliberatione tractatur an exceptis his quibus vicissitudo debetur, peregrinum invitari conveniet",
+      "underlined" : false,
+      "fontColor" : "orange",
+      "position" : "[150:100]"
+    }
+  ],
+
+  "compass" : [
+    {
+      "svg" : "data/img/Rose_des_vents.svg",
+      "size" : 50,
+      "position" : "bottomLeft"
+    }
+  ],
+
+  "scale" : [
+    {
+      "fontName" : "Serif",
+      "fontStyle" : "plain",
+      "fontSize" : 16,
+      "strokeWidth" : 10,
+      "bars" : "thickHorizontalBar",
+      "position" : "bottom"
+    }
+  ],
+
+  "output" : [
+    {
+      "fileType" : "png",
+      "fileName" : "sortie",
+      "filePath" : "data/legend/"
+    }
+  ]
+
+}

@@ -14,6 +14,7 @@ import org.geotools.styling.Stroke;
 import org.geotools.util.URLs;
 import org.geotools.xml.styling.SLDParser;
 import org.legend.model.*;
+import org.legend.utils.JsonCartoReader;
 import org.legend.utils.LayerUtils;
 import org.locationtech.jts.geom.Geometry;
 import org.opengis.feature.simple.SimpleFeature;
@@ -219,50 +220,46 @@ public class BufferedImageLegendGraphicBuilderTest extends TestCase {
     }
 
     public void testProduceMapWithLegend() throws Exception {
-
-        /**** to print the legend in a png file : ***/
         //FeatureLayer layer = LayerUtils.buildLayer("/home/adrien/data/geoserver/bdtopo_v2_Redon/building.geojson","data/sld/pop_grid_intervals.sld");
-        //FeatureLayer layer = LayerUtils.buildLayer("/home/adrien/data/geoserver/bdtopo_v2_Redon/rsu_indicators.geojson","data/sld/rsu_indicators_filter_color_byid.sld");
-        FeatureLayer layer = LayerUtils.buildLayer("/home/adrien/data/geoserver/bdtopo_v2_Redon/rsu_indicators.geojson","data/sld/rsu_indicators_linesize_byid.sld");
+        FeatureLayer layer = LayerUtils.buildLayer("/home/adrien/data/geoserver/bdtopo_v2_Redon/rsu_indicators.geojson","data/sld/rsu_indicators_filter_color_byid.sld");
+        //FeatureLayer layer = LayerUtils.buildLayer("/home/adrien/data/geoserver/bdtopo_v2_Redon/rsu_indicators.geojson","data/sld/rsu_indicators_linesize_byid.sld");
+
+        // create the bufferedImage for the map
+        MapContent map = new MapContent();
+        map.addLayer(layer);
+        org.legend.model.MapItem modelMap = new org.legend.model.MapItem(map);
+        BufferedImage mapBufferedImage = modelMap.paintMap();
+        ImageIO.write(mapBufferedImage, "png", new FileOutputStream("data/legend/building_map.png"));
+
+        // create the base frame and paint the map on it
+        BaseFrame frame = new BaseFrame();
+        frame.setBaseFrameSize(mapBufferedImage,100);
+        frame.setBufferedImage("LETTER_PORTRAIT");
+        Graphics2D g = frame.paintMapOnBaseFrame("center");
+
+        // create the bufferedImage for the legend
         List<FeatureLayer> layerList = new ArrayList<>();
         layerList.add(layer);
-
         Map legendOptions =new HashMap<>();
-        legendOptions.put("width",35); // default is 50
-        legendOptions.put("height",35); // default is 50
+        //legendOptions.put("width",70); // default is 50
+        //legendOptions.put("height",70); // default is 50
         //legendOptions.put("forceRuleLabelsOff","on");
-        legendOptions.put("transparent","on"); // default is off
-        legendOptions.put("bgColor","#33ccff"); // default is Color.WHITE;
+        legendOptions.put("transparent", "on"); // default is off
+        legendOptions.put("bgColor", "#33ccff"); // default is Color.WHITE;
         // Set the space between the image and the rule label
-        legendOptions.put("ruleLabelMargin",0); //default is 3;
-        legendOptions.put("verticalRuleMargin",5); //default is 0;
-        legendOptions.put("horizontalRuleMargin",5); //default is 0;
+        legendOptions.put("ruleLabelMargin", 0); //default is 3;
+        legendOptions.put("verticalRuleMargin", 5); //default is 0;
+        legendOptions.put("horizontalRuleMargin", 5); //default is 0;
         //legendOptions.put("layout","HORIZONTAL"); //default is VERTICAL;
         legendOptions.put("verticalMarginBetweenLayers", 25); //default is 0;
         legendOptions.put("horizontalMarginBetweenLayers", 25); //default is 0;
         legendOptions.put("fontName", "TimesRoman"); //default is "Sans-Serif"
         legendOptions.put("fontStyle", "bold");
-        legendOptions.put("fontColor",Color.BLUE); // default is Color.BLACK;
-        legendOptions.put("fontSize","14"); // default is 12;
-
+        legendOptions.put("fontColor", Color.BLUE); // default is Color.BLACK;
+        legendOptions.put("fontSize", "16"); // default is 12;
         BufferedImageLegendGraphicBuilder builder = new BufferedImageLegendGraphicBuilder();
         BufferedImage legendBufferedImage = builder.buildLegendGraphic(layerList,legendOptions);
         ImageIO.write(legendBufferedImage,"png",new FileOutputStream("data/legend/building_legend.png"));
-        /*****************************************/
-
-        /**** to print the map in a png file : ***/
-        MapContent map = new MapContent();
-        map.addLayer(layer);
-        org.legend.model.Map modelMap = new org.legend.model.Map(map);
-        BufferedImage mapBufferedImage = modelMap.paintMap();
-        ImageIO.write(mapBufferedImage, "png", new FileOutputStream("data/legend/building_map.png"));
-        /*****************************************/
-
-        // Create the base frame where we will paint the map and the decorations.
-        BaseFrame frame = new BaseFrame();
-        frame.setBaseFrameSize(mapBufferedImage,100);
-        frame.setBufferedImage("LETTER_PORTRAIT");
-        Graphics2D g = frame.paintMapOnBaseFrame("center");
 
         // paint the legend
         Legend modelLegend = new Legend();
@@ -270,26 +267,32 @@ public class BufferedImageLegendGraphicBuilderTest extends TestCase {
         g.drawImage(legendBufferedImage, modelLegend.getPositionX(), modelLegend.getPositionY(), null);
 
         // paint the title
-        TextItem title = new TextItem("Great title", Color.black, Font.BOLD, 20,"default", true);
-        BufferedImage titleBufferedImage = title.paintTitle();
+        Font titleFont = new Font("Arial", Font.BOLD, 30);
+        TextItem title = new TextItem("Great title", Color.black, titleFont, true);
+        BufferedImage titleBufferedImage = title.paintText();
         title.setPosition("0:10", frame.getImgWidth(), frame.getImgHeight(), titleBufferedImage);
         g.drawImage(titleBufferedImage, title.getPositionX(), title.getPositionY(), null);
 
         // paint a paragraph
-        TextItem paragraph = new TextItem("Cum autem commodis intervallata temporibus convivia longa et noxia coeperint apparari vel distributio sollemnium sportularum, anxia deliberatione tractatur an exceptis his quibus vicissitudo debetur, peregrinum invitari conveniet", Color.ORANGE, Font.ITALIC, 18,"default", false);
-        BufferedImage paragraphBufferedImage = paragraph.paintTitle();
+        Font paragraphFont = new Font("default", Font.ITALIC, 18);
+        TextItem paragraph = new TextItem("Cum autem commodis intervallata temporibus convivia longa et noxia " +
+                "coeperint apparari vel distributio sollemnium sportularum, anxia deliberatione tractatur an exceptis " +
+                "his quibus vicissitudo debetur, peregrinum invitari conveniet", Color.ORANGE, paragraphFont, false);
+        BufferedImage paragraphBufferedImage = paragraph.paintText();
         paragraph.setPosition("150:100", frame.getImgWidth(), frame.getImgHeight(), paragraphBufferedImage);
         g.drawImage(paragraphBufferedImage, paragraph.getPositionX(), paragraph.getPositionY(), null);
 
-        // Generate the compass image
+        // paint the compass image
         Compass compass = new Compass("data/img/Rose_des_vents.svg");
-        BufferedImage compassBufIma = compass.paintCompass();
-        CoordinateReferenceSystem crs = map.getViewport().getBounds().getCoordinateReferenceSystem();
+        BufferedImage compassBufIma = compass.paintCompass(50);
+        //CoordinateReferenceSystem crs = map.getViewport().getBounds().getCoordinateReferenceSystem();
         compass.setPosition("bottomLeft", frame.getImgWidth(), frame.getImgHeight(), compassBufIma);
         g.drawImage(compassBufIma, compass.getPositionX(), compass.getPositionY(), null);
 
-        // Generate the map scale
+        // paint the map scale
         Scale mapScale = new Scale(map,frame.getImgWidth());
+        mapScale.setStrokeWidth(10);
+        mapScale.setFont(new Font("Serif", Font.PLAIN, 16));
         BufferedImage scaleBufferedImage = mapScale.paintMapScale("thickHorizontalBar");
         mapScale.setPosition("bottom", frame.getImgWidth(), frame.getImgHeight(), scaleBufferedImage);
         g.drawImage(scaleBufferedImage, mapScale.getPositionX(), mapScale.getPositionY(), null);
@@ -297,9 +300,14 @@ public class BufferedImageLegendGraphicBuilderTest extends TestCase {
         g.dispose();
 
         // Save as new image
-        //ImageIO.write(combined, "PNG", new File("data/legend/building_mapAndlegend.png"));
-        //ImageIO.write(combined, "PNG", new File("data/legend/rsu_indicators_mapAndlegend.png"));
-        ImageIO.write(frame.getBaseFrameBufferedImage(), "PNG", new File("data/legend/rsu_indicators_lineSize_mapAndlegend_bigger.png"));
+        //ImageIO.write(frame.getBaseFrameBufferedImage(), "PNG", new File("data/legend/building_mapAndlegend.png"));
+        ImageIO.write(frame.getBaseFrameBufferedImage(), "PNG", new File("data/legend/rsu_indicators_mapAndlegend.png"));
+        //ImageIO.write(frame.getBaseFrameBufferedImage(), "PNG", new File("data/legend/rsu_indicators_lineSize_mapAndlegend_bigger.png"));
+    }
+
+    public void testReadJsonAndProduceMap() throws Exception {
+        JsonCartoReader jsonCartoReader = new JsonCartoReader();
+        jsonCartoReader.readAndBuildMap("data/json/test.json");
     }
 
 }

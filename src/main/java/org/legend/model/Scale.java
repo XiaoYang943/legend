@@ -35,6 +35,8 @@ public class Scale extends Item{
 
     double worldWidth;
     int imageWidth;
+    int strokeWidth = 5;
+    Font font;
 
     public Scale(MapContent mapContent, int imageWidth){
         this.worldWidth = mapContent.getViewport().getBounds().getWidth();
@@ -82,11 +84,12 @@ public class Scale extends Item{
             graph2d.drawString("1000", (int) marge + (int) pixelScaleFor1000m - 17, 30);
             graph2d.drawString("1500", (int) marge + (int) pixelScaleFor1000m + (int) pixelScaleFor500m  - 17, 30);
         } else if (bars.equalsIgnoreCase("thickHorizontalBar")) {
-            graph2d.drawRect((int) marge, 50, (int) pixelScaleFor500m, 5);
-            graph2d.fillRect((int) marge, 50, (int) pixelScaleFor500m, 5);
-            graph2d.drawRect((int) marge + (int) pixelScaleFor500m, 50, (int) pixelScaleFor500m, 5);
-            graph2d.drawRect((int) marge + (int) pixelScaleFor500m + (int) pixelScaleFor500m, 50, (int) pixelScaleFor500m, 5);
-            graph2d.fillRect((int) marge + (int) pixelScaleFor500m + (int) pixelScaleFor500m, 50, (int) pixelScaleFor500m, 5);
+            graph2d.drawRect((int) marge, 50, (int) pixelScaleFor500m, strokeWidth);
+            graph2d.fillRect((int) marge, 50, (int) pixelScaleFor500m, strokeWidth);
+            graph2d.drawRect((int) marge + (int) pixelScaleFor500m, 50, (int) pixelScaleFor500m, strokeWidth);
+            graph2d.drawRect((int) marge + (int) pixelScaleFor500m + (int) pixelScaleFor500m, 50, (int) pixelScaleFor500m, strokeWidth);
+            graph2d.fillRect((int) marge + (int) pixelScaleFor500m + (int) pixelScaleFor500m, 50, (int) pixelScaleFor500m, strokeWidth);
+            graph2d.setFont(font);
             graph2d.drawString("0", (int) marge-3, 40);
             graph2d.drawString("500", (int) marge + (int) pixelScaleFor500m - 12, 40);
             graph2d.drawString("1000", (int) marge + (int) pixelScaleFor1000m - 17, 40);
@@ -95,4 +98,11 @@ public class Scale extends Item{
         return scaleBufferedImage;
     }
 
+    public void setStrokeWidth(int strokeWidth) {
+        this.strokeWidth = strokeWidth;
+    }
+
+    public void setFont(Font font) {
+        this.font = font;
+    }
 }

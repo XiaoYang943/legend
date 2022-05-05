@@ -21,6 +21,7 @@
 package org.legend.model;
 
 import org.geotools.geometry.jts.ReferencedEnvelope;
+import org.geotools.map.FeatureLayer;
 import org.geotools.map.MapContent;
 import org.geotools.renderer.GTRenderer;
 import org.geotools.renderer.label.LabelCacheImpl;
@@ -35,11 +36,11 @@ import java.util.HashMap;
  *
  * @author Adrien Bessy
  */
-public class Map {
+public class MapItem {
 
     MapContent map;
 
-    public Map(MapContent map){
+    public MapItem(MapContent map){
         this.map = map;
     }
 
@@ -67,8 +68,7 @@ public class Map {
         try {
             mapBounds = map.getMaxBounds();
             double heightToWidth = mapBounds.getSpan(1) / mapBounds.getSpan(0);
-            imageBounds = new Rectangle(
-                    0, 0, 1000, (int) Math.round(1000 * heightToWidth));
+            imageBounds = new Rectangle(0, 0, 1000 + 20, (int) Math.round(1000 * heightToWidth) + 20);
         } catch (Exception e) {
             // failed to access map layers
             throw new RuntimeException(e);

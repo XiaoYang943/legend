@@ -31,19 +31,15 @@ import java.awt.image.BufferedImage;
  */
 public class TextItem extends Item{
 
-    String title;
+    private final Font font;
+    String content;
     Color titleColor;
-    int titleFont;
-    int titleSize;
-    String titleFontName;
     boolean underlined;
 
-    public TextItem(String title, Color titleColor, int titleFont, int titleSize, String titleFontName, boolean underlined){
-        this.title = title;
+    public TextItem(String content, Color titleColor, Font font, boolean underlined){
+        this.content = content;
         this.titleColor = titleColor;
-        this.titleFont = titleFont;
-        this.titleSize = titleSize;
-        this.titleFontName = titleFontName;
+        this.font = font;
         this.underlined = underlined;
     }
 
@@ -51,43 +47,43 @@ public class TextItem extends Item{
      * Paint a title and return a buffered image
      * @return the buffered image
      */
-    public BufferedImage paintTitle(){
-        BufferedImage titleBufferedImage = new BufferedImage(title.length()*3 + 200, 200, BufferedImage.TYPE_INT_ARGB);
+    public BufferedImage paintText(){
+        BufferedImage titleBufferedImage = new BufferedImage(content.length()*3 + 200, font.getSize() + 200, BufferedImage.TYPE_INT_ARGB);
         Graphics2D graph2d = titleBufferedImage.createGraphics();
         graph2d.setComposite(AlphaComposite.Clear);
-        graph2d.fillRect(0, 0, title.length()*3 + 200, 200);
+        graph2d.fillRect(0, 0, content.length()*3 + 200, font.getSize() + 200);
         graph2d.setComposite(AlphaComposite.Src);
         graph2d.setPaint(titleColor);
-        graph2d.setFont(new Font(titleFontName, titleFont, titleSize));
+        graph2d.setFont(font);
         graph2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        int titleWidth = graph2d.getFontMetrics().stringWidth(title);
-        if(title.length()>100){
+        int titleWidth = graph2d.getFontMetrics().stringWidth(content);
+        if(content.length()>100){
             int i = 0;
             int y = 0;
             int sup = 0;
-            while(i < title.length()){
+            while(i < content.length()){
                 i = sup;
                 sup = 75 + sup;
-                if(sup > title.length()){
-                    sup = title.length();
+                if(sup > content.length()){
+                    sup = content.length();
                 }
                 else {
                     for (int l = 0; l < 10; l++) {
-                        if (title.substring(sup - 1 + l, sup + l).equals(" ")) {
+                        if (content.substring(sup - 1 + l, sup + l).equals(" ")) {
                             sup = sup + l;
                             break;
                         }
                     }
                 }
-                graph2d.drawString(title.substring(i, sup), 0 , 20 + y);
+                graph2d.drawString(content.substring(i, sup), 0 , 20 + y);
                 y = y + 20;
             }
         }
         else {
-            graph2d.drawString(title, titleBufferedImage.getWidth() / 3 - titleWidth / 2, 20);
+            graph2d.drawString(content, titleBufferedImage.getWidth() / 3 - titleWidth / 2, font.getSize()/2 + 20);
         }
         if(underlined){
-            graph2d.draw( new Line2D.Double( (double) titleBufferedImage.getWidth()/3 - (double) titleWidth/2, 30, (double) titleBufferedImage.getWidth()/3 + (double) titleWidth/2, 30 ) );
+            graph2d.draw( new Line2D.Double( (double) titleBufferedImage.getWidth()/3 - (double) titleWidth/2, font.getSize()/2.0 + 30, (double) titleBufferedImage.getWidth()/3 + (double) titleWidth/2, font.getSize()/2.0 + 30 ) );
         }
         return titleBufferedImage;
     }

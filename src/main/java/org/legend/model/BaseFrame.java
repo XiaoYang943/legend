@@ -36,13 +36,22 @@ public class BaseFrame {
     private int margin;
     private BufferedImage baseFrameBufferedImage;
 
-    public void setBaseFrameSize(BufferedImage mapImage,int margin) {
+    /**
+     * Set the size of the base image.
+     * @param mapImage the map image
+     * @param margin the margin
+     */
+    public void setBaseFrameSize(BufferedImage mapImage, int margin) {
         this.mapImage = mapImage;
         this.imgWidth = mapImage.getWidth() + margin;
         this.imgHeight = mapImage.getHeight() + margin;
         this.margin = margin;
     }
 
+    /**
+     * Set the format of the base image.
+     * @param landscape the format name
+     */
     public void setBufferedImage(String landscape){
         switch (landscape) {
             case "LETTER_LANDSCAPE":

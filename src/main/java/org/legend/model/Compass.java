@@ -51,8 +51,8 @@ public class Compass extends Item{
      * Create a bufferedImage, paint a compass, then return the bufferedImage.
      * @return the buffered image
      */
-    public BufferedImage paintCompass() throws IOException {
-        return rasterize(new File(filePath));
+    public BufferedImage paintCompass(int size) throws IOException {
+        return rasterize(new File(filePath), size);
     }
 
     /**
@@ -60,7 +60,7 @@ public class Compass extends Item{
      * @param svgFile the svg file
      * @return the buffered image
      */
-    public static BufferedImage rasterize(File svgFile) throws IOException {
+    public static BufferedImage rasterize(File svgFile, int size) throws IOException {
         final BufferedImage[] imagePointer = new BufferedImage[1];
         // Rendering hints can't be set programatically, so
         // we override defaults with a temporary stylesheet.
@@ -84,8 +84,8 @@ public class Compass extends Item{
                 SVGConstants.SVG_NAMESPACE_URI);
         transcoderHints.put(ImageTranscoder.KEY_DOCUMENT_ELEMENT, "svg");
         transcoderHints.put(ImageTranscoder.KEY_USER_STYLESHEET_URI, cssFile.toURI().toString());
-        transcoderHints.put(ImageTranscoder.KEY_WIDTH, (float) 150);
-        transcoderHints.put(ImageTranscoder.KEY_HEIGHT, (float) 150);
+        transcoderHints.put(ImageTranscoder.KEY_WIDTH, (float) 150 + size);
+        transcoderHints.put(ImageTranscoder.KEY_HEIGHT, (float) 150 + size);
 
         try {
             TranscoderInput input = new TranscoderInput(Files.newInputStream(svgFile.toPath()));

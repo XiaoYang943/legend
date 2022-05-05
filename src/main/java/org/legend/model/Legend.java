@@ -20,8 +20,6 @@
 
 package org.legend.model;
 
-import java.awt.image.BufferedImage;
-
 /**
  * Provides methods to build a legend buffered image.
  *
