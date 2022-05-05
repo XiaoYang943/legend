@@ -1,28 +1,60 @@
 {
-  "map" : [
+  "mapDocument" : [
     {
-      "layers": "/home/adrien/data/geoserver/bdtopo_v2_Redon/rsu_indicators.geojson",
-      "sld" : "data/sld/rsu_indicators_filter_color_byid.sld",
-      "position" : "center",
       "landscape" : "LETTER_PORTRAIT",
       "margin" : 100
     }
   ],
 
+  "map" : [
+    {
+      "layers": "/home/adrien/data/geoserver/bdtopo_v2_Redon/rsu_indicators.geojson",
+      "sld" : "data/sld/rsu_indicators_linesize_byid.sld",
+      "position" : "center",
+      "size" : 1000
+    },
+    {
+      "layers": "/home/adrien/data/geoserver/bdtopo_v2_Redon/rsu_indicators.geojson",
+      "sld" : "data/sld/rsu_indicators_filter_color_byid.sld",
+      "position" : "[825:975]",
+      "size" : 250
+    }
+  ],
+
   "legend" : [
     {
+      "layers": "/home/adrien/data/geoserver/bdtopo_v2_Redon/rsu_indicators.geojson",
+      "sld" : "data/sld/rsu_indicators_filter_color_byid.sld",
       "transparent": "on",
       "bgColor": "#33ccff",
       "ruleLabelMargin" : 0,
       "verticalRuleMargin" : 5,
       "horizontalRuleMargin" : 5,
+      "layout" : "VERTICAL",
       "verticalMarginBetweenLayers" : 25,
       "horizontalMarginBetweenLayers" : 25,
       "fontName" : "TimesRoman",
       "fontStyle" : "bold",
       "fontColor" : "blue",
-      "fontSize" : "16",
+      "fontSize" : 16,
       "position" : "bottomRight"
+    },
+    {
+      "layers": "/home/adrien/data/geoserver/bdtopo_v2_Redon/rsu_indicators.geojson",
+      "sld" : "data/sld/rsu_indicators_linesize_byid.sld",
+      "transparent": "on",
+      "bgColor": "#33ccff",
+      "ruleLabelMargin" : 0,
+      "verticalRuleMargin" : 5,
+      "horizontalRuleMargin" : 5,
+      "layout" : "VERTICAL",
+      "verticalMarginBetweenLayers" : 25,
+      "horizontalMarginBetweenLayers" : 25,
+      "fontName" : "TimesRoman",
+      "fontStyle" : "bold",
+      "fontColor" : "blue",
+      "fontSize" : 16,
+      "position" : "[500:900]"
     }
   ],
 
@@ -57,6 +89,8 @@
 
   "scale" : [
     {
+      "layers": "/home/adrien/data/geoserver/bdtopo_v2_Redon/rsu_indicators.geojson",
+      "sld" : "data/sld/rsu_indicators_filter_color_byid.sld",
       "fontName" : "Serif",
       "fontStyle" : "plain",
       "fontSize" : 16,

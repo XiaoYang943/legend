@@ -228,14 +228,14 @@ public class BufferedImageLegendGraphicBuilderTest extends TestCase {
         MapContent map = new MapContent();
         map.addLayer(layer);
         org.legend.model.MapItem modelMap = new org.legend.model.MapItem(map);
-        BufferedImage mapBufferedImage = modelMap.paintMap();
+        BufferedImage mapBufferedImage = modelMap.paintMap(1000);
         ImageIO.write(mapBufferedImage, "png", new FileOutputStream("data/legend/building_map.png"));
 
         // create the base frame and paint the map on it
         BaseFrame frame = new BaseFrame();
-        frame.setBaseFrameSize(mapBufferedImage,100);
+        frame.setBaseFrameSize(mapBufferedImage.getWidth(), mapBufferedImage.getHeight(), 100);
         frame.setBufferedImage("LETTER_PORTRAIT");
-        Graphics2D g = frame.paintMapOnBaseFrame("center");
+        Graphics2D g = frame.paintMapOnBaseFrame("center", mapBufferedImage, null);
 
         // create the bufferedImage for the legend
         List<FeatureLayer> layerList = new ArrayList<>();

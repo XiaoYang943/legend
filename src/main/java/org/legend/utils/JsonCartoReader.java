@@ -41,11 +41,8 @@ import java.util.List;
  */
 public class JsonCartoReader {
 
-    BufferedImage mapBufferedImage;
-    FeatureLayer layer;
     Graphics2D g;
     BaseFrame frame;
-    MapContent mapContent;
 
     /**
      * Read a json file describing map and decoration parameters, and build a map and its decorations.
@@ -55,39 +52,65 @@ public class JsonCartoReader {
 
         ObjectMapper mapper = new ObjectMapper();
 
-        JsonNode mapArrayNode = mapper.readTree(new File(jsonFilePath)).get("map");
-        this.layer = LayerUtils.buildLayer(mapArrayNode.findValue("layers").toString().replace("\"",""), mapArrayNode.findValue("sld").toString().replace("\"",""));
-        this.mapContent = new MapContent();
-        mapContent.addLayer(layer);
-        org.legend.model.MapItem modelMap = new org.legend.model.MapItem(mapContent);
-        this.mapBufferedImage = modelMap.paintMap();
+        JsonNode mapDocumentArrayNode = mapper.readTree(new File(jsonFilePath)).get("mapDocument");
         this.frame = new BaseFrame();
-        frame.setBaseFrameSize(mapBufferedImage, Integer.parseInt(mapArrayNode.findValue("margin").toString().replace("\"","")));
-        frame.setBufferedImage(mapArrayNode.findValue("landscape").toString().replace("\"",""));
-        this.g = frame.paintMapOnBaseFrame(mapArrayNode.findValue("position").toString().replace("\"",""));
+        JsonNode mapArrayNode = mapper.readTree(new File(jsonFilePath)).get("map");
+        int mapBufferedImageMaxWidth = 0;
+        int mapBufferedImageMaxHeight = 0;
+        for (JsonNode jsonNode : mapArrayNode) {
+            FeatureLayer layer = LayerUtils.buildLayer(jsonNode.get("layers").toString().replace("\"", ""), jsonNode.get("sld").toString().replace("\"", ""));
+            MapContent mapContent = new MapContent();
+            mapContent.addLayer(layer);
+            org.legend.model.MapItem modelMap = new org.legend.model.MapItem(mapContent);
+            BufferedImage mapBufferedImage = modelMap.paintMap(Integer.parseInt(jsonNode.get("size").toString().replace("\"", "")));
+            mapBufferedImageMaxWidth = java.lang.Math.max(mapBufferedImage.getWidth(), mapBufferedImageMaxWidth);
+            mapBufferedImageMaxHeight = java.lang.Math.max(mapBufferedImage.getHeight(), mapBufferedImageMaxHeight);
+            mapContent.dispose();
+        }
+        frame.setBaseFrameSize(mapBufferedImageMaxWidth, mapBufferedImageMaxHeight, Integer.parseInt(mapDocumentArrayNode.findValue("margin").toString().replace("\"", "")));
+        frame.setBufferedImage(mapDocumentArrayNode.findValue("landscape").toString().replace("\"", ""));
+
+        for (JsonNode jsonNode : mapArrayNode) {
+            FeatureLayer layer = LayerUtils.buildLayer(jsonNode.get("layers").toString().replace("\"", ""), jsonNode.get("sld").toString().replace("\"", ""));
+            MapContent mapContent = new MapContent();
+            mapContent.addLayer(layer);
+            org.legend.model.MapItem modelMap = new org.legend.model.MapItem(mapContent);
+            BufferedImage mapBufferedImage = modelMap.paintMap(Integer.parseInt(jsonNode.get("size").toString().replace("\"", "")));
+            this.g = frame.paintMapOnBaseFrame(jsonNode.findValue("position").toString().replace("[","").replace("]","").replace("\"", ""), mapBufferedImage, g);
+            mapContent.dispose();
+        }
 
         JsonNode legendArrayNode = mapper.readTree(new File(jsonFilePath)).get("legend");
         for (JsonNode jsonNode : legendArrayNode) {
             List<FeatureLayer> layerList = new ArrayList<>();
+            FeatureLayer layer = LayerUtils.buildLayer(jsonNode.get("layers").toString().replace("\"", ""), jsonNode.get("sld").toString().replace("\"", ""));
             layerList.add(layer);
             Map legendOptions = new HashMap<>();
             legendOptions.put("transparent", jsonNode.get("transparent").toString().replace("\"","")); // default is off
-            legendOptions.put("bgColor", jsonNode.get("bgColor").toString().replace("\"","")); // default is Color.WHITE;
+            Object bgColor;
+            if(!jsonNode.get("bgColor").toString().replace("\"","").contains("#")) {
+                Field bgColorField = Class.forName("java.awt.Color").getField(jsonNode.get("bgColor").toString().replace("\"", ""));
+                bgColor = bgColorField.get(null);
+            }else{
+                bgColor = jsonNode.get("bgColor").toString().replace("\"","");
+            }
+            legendOptions.put("bgColor", bgColor); // default is Color.WHITE;
             legendOptions.put("ruleLabelMargin", Integer.parseInt(jsonNode.get("ruleLabelMargin").toString().replace("\"",""))); //default is 3;
             legendOptions.put("verticalRuleMargin", Integer.parseInt(jsonNode.get("verticalRuleMargin").toString().replace("\"",""))); //default is 0;
             legendOptions.put("horizontalRuleMargin", Integer.parseInt(jsonNode.get("horizontalRuleMargin").toString().replace("\"",""))); //default is 0;
+            legendOptions.put("layout", jsonNode.get("layout").toString().replace("\"","")); //default is VERTICAL;
             legendOptions.put("verticalMarginBetweenLayers", Integer.parseInt(jsonNode.get("verticalMarginBetweenLayers").toString().replace("\"",""))); //default is 0;
             legendOptions.put("horizontalMarginBetweenLayers", Integer.parseInt(jsonNode.get("horizontalMarginBetweenLayers").toString().replace("\"",""))); //default is 0;
             legendOptions.put("fontName", jsonNode.get("fontName").toString().replace("\"","")); //default is "Sans-Serif"
             legendOptions.put("fontStyle", jsonNode.get("fontStyle").toString().replace("\"",""));
-            Field field = Class.forName("java.awt.Color").getField(jsonNode.get("fontColor").toString().replace("\"",""));
-            Color color = (Color) field.get(null);
-            legendOptions.put("fontColor", color); // default is Color.BLACK;
+            Field fontColorField = Class.forName("java.awt.Color").getField(jsonNode.get("fontColor").toString().replace("\"",""));
+            Color fontColor = (Color) fontColorField.get(null);
+            legendOptions.put("fontColor", fontColor); // default is Color.BLACK;
             legendOptions.put("fontSize", jsonNode.get("fontSize").toString().replace("\"","")); // default is 12;
             BufferedImageLegendGraphicBuilder builder = new BufferedImageLegendGraphicBuilder();
             BufferedImage legendBufferedImage = builder.buildLegendGraphic(layerList, legendOptions);
             Legend modelLegend = new Legend();
-            modelLegend.setPosition(jsonNode.get("position").toString().replace("\"",""), frame.getImgWidth(), frame.getImgHeight(), legendBufferedImage);
+            modelLegend.setPosition(jsonNode.get("position").toString().replace("[","").replace("]","").replace("\"",""), frame.getImgWidth(), frame.getImgHeight(), legendBufferedImage);
             g.drawImage(legendBufferedImage, modelLegend.getPositionX(), modelLegend.getPositionY(), null);
         }
 
@@ -114,12 +137,16 @@ public class JsonCartoReader {
 
         JsonNode scaleArrayNode = mapper.readTree(new File(jsonFilePath)).get("scale");
         for (JsonNode jsonNode : scaleArrayNode) {
+            FeatureLayer layer = LayerUtils.buildLayer(jsonNode.get("layers").toString().replace("\"", ""), mapArrayNode.findValue("sld").toString().replace("\"", ""));
+            MapContent mapContent = new MapContent();
+            mapContent.addLayer(layer);
             Scale mapScale = new Scale(mapContent, frame.getImgWidth());
             mapScale.setStrokeWidth(Integer.parseInt(jsonNode.get("strokeWidth").toString().replace("\"","")));
             mapScale.setFont(new Font(jsonNode.get("fontName").toString().replace("\"",""), setFontStyle(jsonNode.get("fontStyle").toString().replace("\"","")), Integer.parseInt(jsonNode.get("fontSize").toString().replace("\"",""))));
             BufferedImage scaleBufferedImage = mapScale.paintMapScale(jsonNode.get("bars").toString().replace("\"",""));
             mapScale.setPosition(jsonNode.get("position").toString().replace("\"",""), frame.getImgWidth(), frame.getImgHeight(), scaleBufferedImage);
             g.drawImage(scaleBufferedImage, mapScale.getPositionX(), mapScale.getPositionY(), null);
+            mapContent.dispose();
         }
         g.dispose();
         JsonNode outputArrayNode = mapper.readTree(new File(jsonFilePath)).get("output");

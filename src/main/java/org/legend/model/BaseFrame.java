@@ -30,7 +30,6 @@ import java.awt.image.BufferedImage;
  */
 public class BaseFrame {
 
-    BufferedImage mapImage;
     int imgWidth;
     int imgHeight;
     private int margin;
@@ -38,13 +37,13 @@ public class BaseFrame {
 
     /**
      * Set the size of the base image.
-     * @param mapImage the map image
+     * @param minWidth the minimal width
+     * @param minHeight the minimal height
      * @param margin the margin
      */
-    public void setBaseFrameSize(BufferedImage mapImage, int margin) {
-        this.mapImage = mapImage;
-        this.imgWidth = mapImage.getWidth() + margin;
-        this.imgHeight = mapImage.getHeight() + margin;
+    public void setBaseFrameSize(int minWidth, int minHeight, int margin) {
+        this.imgWidth = minWidth + margin;
+        this.imgHeight = minHeight + margin;
         this.margin = margin;
     }
 
@@ -111,10 +110,12 @@ public class BaseFrame {
      * @param position the position (can be absolute position like "[40:10]")
      * @return the graphics2D
      */
-    public Graphics2D paintMapOnBaseFrame(String position) {
-        Graphics2D g = (Graphics2D) baseFrameBufferedImage.getGraphics();
-        g.setPaint(Color.WHITE);
-        g.fillRect(0,0, imgWidth, imgHeight);
+    public Graphics2D paintMapOnBaseFrame(String position, BufferedImage mapImage, Graphics2D g) {
+        if (g == null) {
+            g = (Graphics2D) baseFrameBufferedImage.getGraphics();
+            g.setPaint(Color.WHITE);
+            g.fillRect(0, 0, imgWidth, imgHeight);
+        }
         if(margin>0) {
             switch (position) {
                 case "bottom":

@@ -48,7 +48,7 @@ public class MapItem {
      * Paint a map and return a buffered image
      * @return the buffered image
      */
-    public BufferedImage paintMap(){
+    public BufferedImage paintMap(int size){
         GTRenderer renderer = new StreamingRenderer();
         RenderingHints hints = new RenderingHints(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         hints.add(new RenderingHints(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON));
@@ -68,7 +68,7 @@ public class MapItem {
         try {
             mapBounds = map.getMaxBounds();
             double heightToWidth = mapBounds.getSpan(1) / mapBounds.getSpan(0);
-            imageBounds = new Rectangle(0, 0, 1000 + 20, (int) Math.round(1000 * heightToWidth) + 20);
+            imageBounds = new Rectangle(0, 0, size + 20, (int) Math.round(size * heightToWidth) + 20);
         } catch (Exception e) {
             // failed to access map layers
             throw new RuntimeException(e);
