@@ -48,7 +48,7 @@ public class MapItem {
      * Paint a map and return a buffered image
      * @return the buffered image
      */
-    public BufferedImage paintMap(int size){
+    public BufferedImage paintMap(int size, boolean frame){
         GTRenderer renderer = new StreamingRenderer();
         RenderingHints hints = new RenderingHints(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         hints.add(new RenderingHints(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON));
@@ -68,16 +68,26 @@ public class MapItem {
         try {
             mapBounds = map.getMaxBounds();
             double heightToWidth = mapBounds.getSpan(1) / mapBounds.getSpan(0);
-            imageBounds = new Rectangle(0, 0, size + 20, (int) Math.round(size * heightToWidth) + 20);
+            imageBounds = new Rectangle(5, 5, size + 20, (int) Math.round(size * heightToWidth) + 20);
         } catch (Exception e) {
             // failed to access map layers
             throw new RuntimeException(e);
         }
-        BufferedImage mapBufferedImage = new BufferedImage(imageBounds.width, imageBounds.height, BufferedImage.TYPE_INT_RGB);
+        BufferedImage mapBufferedImage = new BufferedImage(imageBounds.width + 10, imageBounds.height + 10, BufferedImage.TYPE_INT_ARGB);
 
         Graphics2D gr = mapBufferedImage.createGraphics();
         gr.setPaint(Color.WHITE);
+        gr.setComposite(AlphaComposite.Clear);
+        gr.fillRect(0, 0, imageBounds.width + 10 , imageBounds.height + 10);
+        gr.setComposite(AlphaComposite.Src);
+        if(frame) {
+            gr.setPaint(Color.BLACK);
+            gr.drawRect(1, 1, imageBounds.width + 8, imageBounds.height + 8);
+        }
+        gr.setPaint(Color.WHITE);
+        gr.setComposite(AlphaComposite.Clear);
         gr.fill(imageBounds);
+        gr.setComposite(AlphaComposite.Src);
         renderer.paint(gr, imageBounds, mapBounds);
         return mapBufferedImage;
     }

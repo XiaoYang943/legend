@@ -29,7 +29,7 @@ import java.util.List;
  *
  * @author Adrien Bessy
  */
-public class BaseFrame {
+public class MapDocument {
 
     int imgWidth;
     int imgHeight;
@@ -42,7 +42,7 @@ public class BaseFrame {
      * @param minHeight the minimal height
      * @param margin the margin
      */
-    public void setBaseFrameSize(int minWidth, int minHeight, int margin) {
+    public void setSize(int minWidth, int minHeight, int margin) {
         this.imgWidth = minWidth + margin;
         this.imgHeight = minHeight + margin;
         this.margin = margin;
@@ -113,27 +113,27 @@ public class BaseFrame {
      * @param g the graphics 2d
      * @return the graphics2D
      */
-    public Graphics2D paintMapOnBaseFrame(String position, BufferedImage mapImage, Graphics2D g) {
+    public Graphics2D paintMap(String position, BufferedImage mapImage, Graphics2D g, Object bgColor) {
         if (g == null) {
             g = (Graphics2D) baseFrameBufferedImage.getGraphics();
-            g.setPaint(Color.WHITE);
+            g.setPaint((Paint) bgColor);
             g.fillRect(0, 0, imgWidth, imgHeight);
         }
         if(margin>0) {
             switch (position) {
                 case "bottom":
-                    g.drawImage(mapImage, margin / 2, margin, null);
+                    g.drawImage(mapImage, (imgWidth - mapImage.getWidth())/2, imgHeight - mapImage.getHeight() - imgHeight/60, null);
                     break;
                 case "right":
-                    g.drawImage(mapImage, margin, margin / 2, null);
+                    g.drawImage(mapImage, imgWidth - mapImage.getWidth() - imgWidth/60, (imgHeight - mapImage.getHeight())/2, null);
                     break;
                 case "top":
-                    g.drawImage(mapImage, margin / 2, 0, null);
+                    g.drawImage(mapImage, margin / 2, imgHeight/60, null);
                     break;
                 case "left":
-                    g.drawImage(mapImage, 0, margin / 2, null);
+                    g.drawImage(mapImage, imgWidth/60, (imgHeight - mapImage.getHeight())/2, null);
                     break;
-                default:
+                default: //center
                     g.drawImage(mapImage, (imgWidth - mapImage.getWidth())/2, (imgHeight - mapImage.getHeight())/2, null);
             }
         }else{
@@ -149,10 +149,11 @@ public class BaseFrame {
      * @param g the graphics 2d
      * @return the graphics2D
      */
-    public Graphics2D paintMapOnMapDocument(List<Integer> positionList, BufferedImage mapImage, Graphics2D g) {
+    public Graphics2D paintMapOnMapDocument(List<Integer> positionList, BufferedImage mapImage, Graphics2D g, Object bgColor) {
         if (g == null) {
             g = (Graphics2D) baseFrameBufferedImage.getGraphics();
-            g.setPaint(Color.WHITE);
+
+            g.setPaint((Paint) bgColor);
             g.fillRect(0, 0, imgWidth, imgHeight);
         }
         if(margin>0) {

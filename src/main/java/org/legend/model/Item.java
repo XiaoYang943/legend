@@ -20,10 +20,7 @@
 
 package org.legend.model;
 
-import com.fasterxml.jackson.databind.JsonNode;
-
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
 import java.util.List;
 
 abstract public class Item {
@@ -33,7 +30,7 @@ abstract public class Item {
 
     /**
      * Set position of the item on the base frame
-     * @param position the position (can be absolute position like "[40:10]")
+     * @param position the position
      * @param baseFrameWidth the width of the base frame
      * @param baseFrameHeight the height of the base frame
      * @param bufferedImage the buffered image of the item
@@ -64,15 +61,16 @@ abstract public class Item {
                 positionY = baseFrameHeight/20;
                 positionX = baseFrameWidth - bufferedImage.getWidth() - baseFrameWidth/60;
                 break;
-            default:
-                positionX = Integer.parseInt(position.split(":")[0]);
-                positionY = Integer.parseInt(position.split(":")[1]);
         }
     }
 
-    public void setPosition(List<Integer> positionList) {
-        positionX = positionList.get(0);
-        positionY = positionList.get(1);
+    /**
+     * Set position of the item on the base frame
+     * @param coordinates coordinates like [40,10]
+     */
+    public void setPosition(List<Integer> coordinates) {
+        positionX = coordinates.get(0);
+        positionY = coordinates.get(1);
     }
 
     public int getPositionX() {

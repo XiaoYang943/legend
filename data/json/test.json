@@ -2,7 +2,8 @@
   "mapDocument" : [
     {
       "landscape" : "LETTER_PORTRAIT",
-      "margin" : 100
+      "margin" : 100,
+      "bgColor" : "white"
     }
   ],
 
@@ -11,13 +12,17 @@
       "layers": "/home/adrien/data/geoserver/bdtopo_v2_Redon/rsu_indicators.geojson",
       "sld" : "data/sld/rsu_indicators_linesize_byid.sld",
       "position" : "center",
-      "size" : 1000
+      "size" : 1000,
+      "frame" : false,
+      "mapSuperposition" : false
     },
     {
       "layers": "/home/adrien/data/geoserver/bdtopo_v2_Redon/rsu_indicators.geojson",
       "sld" : "data/sld/rsu_indicators_filter_color_byid.sld",
       "position" : [825,975],
-      "size" : 250
+      "size" : 250,
+      "frame" : true,
+      "mapSuperposition" : false
     }
   ],
 
@@ -54,7 +59,7 @@
       "fontStyle" : "bold",
       "fontColor" : "blue",
       "fontSize" : 16,
-      "position" : [500,900]
+      "position" : [500,1000]
     }
   ],
 
@@ -103,7 +108,7 @@
   "output" : [
     {
       "fileType" : "png",
-      "fileName" : "sortie",
+      "fileName" : "sortie2",
       "filePath" : "data/legend/"
     }
   ]

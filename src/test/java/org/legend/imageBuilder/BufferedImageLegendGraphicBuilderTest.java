@@ -7,10 +7,17 @@ import org.geotools.data.FeatureSource;
 import org.geotools.data.geojson.GeoJSONDataStoreFactory;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.geometry.jts.Geometries;
+import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.map.FeatureLayer;
 import org.geotools.map.MapContent;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.styling.*;
 import org.geotools.styling.Stroke;
+import org.geotools.tile.TileService;
+import org.geotools.tile.impl.bing.BingService;
+import org.geotools.tile.impl.osm.OSMService;
+import org.geotools.tile.util.AsyncTileLayer;
+import org.geotools.tile.util.TileLayer;
 import org.geotools.util.URLs;
 import org.geotools.xml.styling.SLDParser;
 import org.legend.model.*;
@@ -221,21 +228,48 @@ public class BufferedImageLegendGraphicBuilderTest extends TestCase {
 
     public void testProduceMapWithLegend() throws Exception {
         //FeatureLayer layer = LayerUtils.buildLayer("/home/adrien/data/geoserver/bdtopo_v2_Redon/building.geojson","data/sld/pop_grid_intervals.sld");
-        FeatureLayer layer = LayerUtils.buildLayer("/home/adrien/data/geoserver/bdtopo_v2_Redon/rsu_indicators.geojson","data/sld/rsu_indicators_filter_color_byid.sld");
+        //FeatureLayer layer = LayerUtils.buildLayer("/home/adrien/data/geoserver/bdtopo_v2_Redon/rsu_indicators.geojson","data/sld/rsu_indicators_filter_color_byid.sld");
         //FeatureLayer layer = LayerUtils.buildLayer("/home/adrien/data/geoserver/bdtopo_v2_Redon/rsu_indicators.geojson","data/sld/rsu_indicators_linesize_byid.sld");
+        FeatureLayer layer = LayerUtils.buildLayer("/home/adrien/data/geojson/localisation_zone.geojson","data/sld/sld_zone_EDIT.sld");
+        /*FeatureLayer layer = LayerUtils.buildLayer("/home/adrien/data/geojson/johanna/Redon_cycle_ways.geojson","data/sld/johanna/cycle_way.sld");
+        FeatureLayer layer2 = LayerUtils.buildLayer("/home/adrien/data/geojson/johanna/Redon_cycle_equipment.geojson","data/sld/johanna/cycle_equipements.sld");
+        */
 
         // create the bufferedImage for the map
-        MapContent map = new MapContent();
-        map.addLayer(layer);
-        org.legend.model.MapItem modelMap = new org.legend.model.MapItem(map);
-        BufferedImage mapBufferedImage = modelMap.paintMap(1000);
-        ImageIO.write(mapBufferedImage, "png", new FileOutputStream("data/legend/building_map.png"));
+        MapContent mapContent = new MapContent();
+        mapContent.addLayer(layer);
+        //map.addLayer(layer2);
+
+        ReferencedEnvelope re = layer.getBounds();
+        //ReferencedEnvelope re = map.getViewport().getBounds();
+        CoordinateReferenceSystem crs = layer.getBounds().getCoordinateReferenceSystem();
+
+        String baseURL = "https://tile.openstreetmap.org/";
+        //TileService service = new OSMService("OSM", baseURL);
+        //map.addLayer(new TileLayer(service));
+        mapContent.addLayer(new AsyncTileLayer(new OSMService("Mapnik", "http://tile.openstreetmap.org/")));
+        mapContent.getViewport().setBounds(layer.getBounds());
+        //map.getViewport().setBounds(re);
+
+/*
+        map.getViewport().setBounds(re);
+        String baseURL =
+                "http://ak.dynamic.t2.tiles.virtualearth.net/comp/ch/${code}?mkt=de-de&it=G,VE,BX,L,LA&shading=hill&og=78&n=z";
+        map.addLayer(new TileLayer(new BingService("Road", baseURL)));
+        map.addLayer(
+                new AsyncTileLayer(new OSMService("Mapnik", "http://tile.openstreetmap.org/")));
+        map.addLayer(new TileLayer(new BingService("Road", baseURL)));
+*/
+
+        org.legend.model.MapItem modelMap = new org.legend.model.MapItem(mapContent);
+        BufferedImage mapBufferedImage = modelMap.paintMap(1000, false);
+        //ImageIO.write(mapBufferedImage, "png", new FileOutputStream("data/legend/building_map.png"));
 
         // create the base frame and paint the map on it
-        BaseFrame frame = new BaseFrame();
-        frame.setBaseFrameSize(mapBufferedImage.getWidth(), mapBufferedImage.getHeight(), 100);
+        MapDocument frame = new MapDocument();
+        frame.setSize(mapBufferedImage.getWidth(), mapBufferedImage.getHeight(), 100);
         frame.setBufferedImage("LETTER_PORTRAIT");
-        Graphics2D g = frame.paintMapOnBaseFrame("center", mapBufferedImage, null);
+        Graphics2D g = frame.paintMap("center", mapBufferedImage, null, Color.white);
 
         // create the bufferedImage for the legend
         List<FeatureLayer> layerList = new ArrayList<>();
@@ -257,57 +291,60 @@ public class BufferedImageLegendGraphicBuilderTest extends TestCase {
         legendOptions.put("fontStyle", "bold");
         legendOptions.put("fontColor", Color.BLUE); // default is Color.BLACK;
         legendOptions.put("fontSize", "16"); // default is 12;
-        BufferedImageLegendGraphicBuilder builder = new BufferedImageLegendGraphicBuilder();
+        /*BufferedImageLegendGraphicBuilder builder = new BufferedImageLegendGraphicBuilder();
         BufferedImage legendBufferedImage = builder.buildLegendGraphic(layerList,legendOptions);
-        ImageIO.write(legendBufferedImage,"png",new FileOutputStream("data/legend/building_legend.png"));
+        ImageIO.write(legendBufferedImage,"png",new FileOutputStream("data/legend/building_legend.png"));*/
 
         // paint the legend
-        Legend modelLegend = new Legend();
+        /*Legend modelLegend = new Legend();
         modelLegend.setPosition("bottomRight", frame.getImgWidth(), frame.getImgHeight(), legendBufferedImage);
-        g.drawImage(legendBufferedImage, modelLegend.getPositionX(), modelLegend.getPositionY(), null);
+        g.drawImage(legendBufferedImage, modelLegend.getPositionX(), modelLegend.getPositionY(), null);*/
 
         // paint the title
-        Font titleFont = new Font("Arial", Font.BOLD, 30);
+        /*Font titleFont = new Font("Arial", Font.BOLD, 30);
         TextItem title = new TextItem("Great title", Color.black, titleFont, true);
         BufferedImage titleBufferedImage = title.paintText();
         title.setPosition("0:10", frame.getImgWidth(), frame.getImgHeight(), titleBufferedImage);
-        g.drawImage(titleBufferedImage, title.getPositionX(), title.getPositionY(), null);
+        g.drawImage(titleBufferedImage, title.getPositionX(), title.getPositionY(), null);*/
 
         // paint a paragraph
-        Font paragraphFont = new Font("default", Font.ITALIC, 18);
+        /*Font paragraphFont = new Font("default", Font.ITALIC, 18);
         TextItem paragraph = new TextItem("Cum autem commodis intervallata temporibus convivia longa et noxia " +
                 "coeperint apparari vel distributio sollemnium sportularum, anxia deliberatione tractatur an exceptis " +
                 "his quibus vicissitudo debetur, peregrinum invitari conveniet", Color.ORANGE, paragraphFont, false);
         BufferedImage paragraphBufferedImage = paragraph.paintText();
         paragraph.setPosition("150:100", frame.getImgWidth(), frame.getImgHeight(), paragraphBufferedImage);
-        g.drawImage(paragraphBufferedImage, paragraph.getPositionX(), paragraph.getPositionY(), null);
+        g.drawImage(paragraphBufferedImage, paragraph.getPositionX(), paragraph.getPositionY(), null);*/
 
         // paint the compass image
-        Compass compass = new Compass("data/img/Rose_des_vents.svg");
+        /*Compass compass = new Compass("data/img/Rose_des_vents.svg");
         BufferedImage compassBufIma = compass.paintCompass(50);
         //CoordinateReferenceSystem crs = map.getViewport().getBounds().getCoordinateReferenceSystem();
         compass.setPosition("bottomLeft", frame.getImgWidth(), frame.getImgHeight(), compassBufIma);
-        g.drawImage(compassBufIma, compass.getPositionX(), compass.getPositionY(), null);
+        g.drawImage(compassBufIma, compass.getPositionX(), compass.getPositionY(), null);*/
 
         // paint the map scale
-        Scale mapScale = new Scale(map,frame.getImgWidth());
+        /*Scale mapScale = new Scale(mapContent,frame.getImgWidth());
         mapScale.setStrokeWidth(10);
         mapScale.setFont(new Font("Serif", Font.PLAIN, 16));
         BufferedImage scaleBufferedImage = mapScale.paintMapScale("thickHorizontalBar");
         mapScale.setPosition("bottom", frame.getImgWidth(), frame.getImgHeight(), scaleBufferedImage);
-        g.drawImage(scaleBufferedImage, mapScale.getPositionX(), mapScale.getPositionY(), null);
+        g.drawImage(scaleBufferedImage, mapScale.getPositionX(), mapScale.getPositionY(), null);*/
 
         g.dispose();
 
         // Save as new image
         //ImageIO.write(frame.getBaseFrameBufferedImage(), "PNG", new File("data/legend/building_mapAndlegend.png"));
-        ImageIO.write(frame.getBaseFrameBufferedImage(), "PNG", new File("data/legend/rsu_indicators_mapAndlegend.png"));
+        //ImageIO.write(frame.getBaseFrameBufferedImage(), "PNG", new File("data/legend/rsu_indicators_mapAndlegend.png"));
         //ImageIO.write(frame.getBaseFrameBufferedImage(), "PNG", new File("data/legend/rsu_indicators_lineSize_mapAndlegend_bigger.png"));
+        ImageIO.write(frame.getBaseFrameBufferedImage(), "PNG", new File("data/legend/localisation_zone.png"));
+        //ImageIO.write(frame.getBaseFrameBufferedImage(), "PNG", new File("data/legend/cycle_way.png"));
     }
 
     public void testReadJsonAndProduceMap() throws Exception {
         JsonCartoReader jsonCartoReader = new JsonCartoReader();
         jsonCartoReader.readAndBuildMap("data/json/test.json");
+        //jsonCartoReader.readAndBuildMap("data/json/johanna.json");
     }
 
 }

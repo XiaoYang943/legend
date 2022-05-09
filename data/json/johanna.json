@@ -1,0 +1,83 @@
+{
+  "mapDocument" : [
+    {
+      "landscape" : "LETTER_PORTRAIT",
+      "margin" : 100,
+      "bgColor" : "white"
+    }
+  ],
+
+  "map" : [
+    {
+      "layers": ["/home/adrien/data/geojson/johanna/Redon_boundary.geojson", "/home/adrien/data/geojson/johanna/Redon_cycle_ways.geojson", "/home/adrien/data/geojson/johanna/Redon_cycle_equipment.geojson"],
+      "sld" : ["data/sld/johanna/redon_boundary.sld", "data/sld/johanna/cycle_way.sld", "data/sld/johanna/cycle_equipements.sld"],
+      "position" : "center",
+      "size" : 1000,
+      "frame" : true,
+      "mapSuperposition" : true
+    }
+  ],
+
+  "legend" : [
+    {
+      "layers": "/home/adrien/data/geojson/johanna/Redon_cycle_ways.geojson",
+      "sld" : "data/sld/johanna/cycle_way.sld",
+      "transparent": "on",
+      "bgColor": "#33ccff",
+      "ruleLabelMargin" : 0,
+      "verticalRuleMargin" : 5,
+      "horizontalRuleMargin" : 5,
+      "layout" : "VERTICAL",
+      "verticalMarginBetweenLayers" : 25,
+      "horizontalMarginBetweenLayers" : 25,
+      "fontName" : "TimesRoman",
+      "fontStyle" : "bold",
+      "fontColor" : "blue",
+      "fontSize" : 16,
+      "position" : "bottomRight"
+    },
+    {
+      "layers": "/home/adrien/data/geojson/johanna/Redon_cycle_equipment.geojson",
+      "sld" : "data/sld/johanna/cycle_equipements.sld",
+      "transparent": "on",
+      "bgColor": "#33ccff",
+      "ruleLabelMargin" : 0,
+      "verticalRuleMargin" : 5,
+      "horizontalRuleMargin" : 5,
+      "layout" : "VERTICAL",
+      "verticalMarginBetweenLayers" : 25,
+      "horizontalMarginBetweenLayers" : 25,
+      "fontName" : "TimesRoman",
+      "fontStyle" : "bold",
+      "fontColor" : "blue",
+      "fontSize" : 16,
+      "position" : "bottomLeft"
+    },
+    {
+      "layers": "/home/adrien/data/geojson/johanna/Redon_boundary.geojson",
+      "sld" : "data/sld/johanna/redon_boundary.sld",
+      "transparent": "on",
+      "bgColor": "#33ccff",
+      "ruleLabelMargin" : 0,
+      "verticalRuleMargin" : 5,
+      "horizontalRuleMargin" : 5,
+      "layout" : "VERTICAL",
+      "verticalMarginBetweenLayers" : 25,
+      "horizontalMarginBetweenLayers" : 25,
+      "fontName" : "TimesRoman",
+      "fontStyle" : "bold",
+      "fontColor" : "blue",
+      "fontSize" : 16,
+      "position" : "bottom"
+    }
+  ],
+
+  "output" : [
+    {
+      "fileType" : "png",
+      "fileName" : "cycle_way",
+      "filePath" : "data/legend/"
+    }
+  ]
+
+}
