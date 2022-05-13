@@ -1,9 +1,11 @@
 {
   "mapDocument" : [
     {
-      "landscape" : "LETTER_PORTRAIT",
+      "landscape" : "LETTER_LANDSCAPE",
       "margin" : 100,
-      "bgColor" : "white"
+      "bgColor" : "white",
+      "extraHeight" : 250,
+      "extraWidth" : 650
     }
   ],
 
@@ -11,10 +13,44 @@
     {
       "layers": ["/home/adrien/data/geojson/johanna/Redon_boundary.geojson", "/home/adrien/data/geojson/johanna/Redon_cycle_ways.geojson", "/home/adrien/data/geojson/johanna/Redon_cycle_equipment.geojson"],
       "sld" : ["data/sld/johanna/redon_boundary.sld", "data/sld/johanna/cycle_way.sld", "data/sld/johanna/cycle_equipements.sld"],
-      "position" : "center",
+      "position" : [70, 100],
       "size" : 1000,
       "frame" : true,
-      "mapSuperposition" : true
+      "frameRightExtension" : 330
+    },
+    {
+      "layers": "/home/adrien/data/geojson/localisation_zone.geojson",
+      "sld" : "data/sld/sld_zone_EDIT.sld",
+      "position" : [1100, 100],
+      "size" : 300,
+      "frame" : true,
+      "frameRightExtension" : 0
+    }
+  ],
+
+  "compass" : [
+    {
+      "svg" : "data/img/Rose_des_vents.svg",
+      "size" : 40,
+      "position" : [1485, 100]
+    },
+    {
+      "svg" : "data/img/UndoBlue.svg",
+      "size" : 25,
+      "position" : [950, 50]
+    }
+  ],
+
+  "scale" : [
+    {
+      "layers": "/home/adrien/data/geojson/johanna/Redon_cycle_ways.geojson",
+      "sld" : "data/sld/johanna/cycle_way.sld",
+      "fontName" : "Serif",
+      "fontStyle" : "plain",
+      "fontSize" : 13,
+      "strokeWidth" : 10,
+      "bars" : "thickHorizontalBar",
+      "position" : [1340, 700]
     }
   ],
 
@@ -23,7 +59,7 @@
       "layers": "/home/adrien/data/geojson/johanna/Redon_cycle_ways.geojson",
       "sld" : "data/sld/johanna/cycle_way.sld",
       "transparent": "on",
-      "bgColor": "#33ccff",
+      "bgColor": "white",
       "ruleLabelMargin" : 0,
       "verticalRuleMargin" : 5,
       "horizontalRuleMargin" : 5,
@@ -32,32 +68,36 @@
       "horizontalMarginBetweenLayers" : 25,
       "fontName" : "TimesRoman",
       "fontStyle" : "bold",
-      "fontColor" : "blue",
+      "fontColor" : "black",
       "fontSize" : 16,
-      "position" : "bottomRight"
+      "position" : "bottomLeft",
+      "labelXposition" : 20,
+      "labelXOffset" : -10
     },
     {
       "layers": "/home/adrien/data/geojson/johanna/Redon_cycle_equipment.geojson",
       "sld" : "data/sld/johanna/cycle_equipements.sld",
       "transparent": "on",
-      "bgColor": "#33ccff",
+      "bgColor": "white",
       "ruleLabelMargin" : 0,
-      "verticalRuleMargin" : 5,
-      "horizontalRuleMargin" : 5,
+      "verticalRuleMargin" : 0,
+      "horizontalRuleMargin" : 0,
       "layout" : "VERTICAL",
       "verticalMarginBetweenLayers" : 25,
       "horizontalMarginBetweenLayers" : 25,
       "fontName" : "TimesRoman",
       "fontStyle" : "bold",
-      "fontColor" : "blue",
+      "fontColor" : "black",
       "fontSize" : 16,
-      "position" : "bottomLeft"
+      "position" : "bottom",
+      "labelXposition" : 20,
+      "labelXOffset" : -20
     },
     {
       "layers": "/home/adrien/data/geojson/johanna/Redon_boundary.geojson",
       "sld" : "data/sld/johanna/redon_boundary.sld",
       "transparent": "on",
-      "bgColor": "#33ccff",
+      "bgColor": "white",
       "ruleLabelMargin" : 0,
       "verticalRuleMargin" : 5,
       "horizontalRuleMargin" : 5,
@@ -66,11 +106,46 @@
       "horizontalMarginBetweenLayers" : 25,
       "fontName" : "TimesRoman",
       "fontStyle" : "bold",
-      "fontColor" : "blue",
+      "fontColor" : "black",
       "fontSize" : 16,
-      "position" : "bottom"
+      "position" : "bottomRight",
+      "labelXposition" : 20,
+      "labelXOffset" : -15
     }
   ],
+
+  "text" : [
+  {
+    "fontName" : "Arial",
+    "fontStyle" : "plain",
+    "fontSize" : 40,
+    "content" : "Titre",
+    "underlined" : true,
+    "fontColor" : "black",
+    "position" : [300, 25],
+    "vertical" : false
+  },
+    {
+      "fontName" : "Arial",
+      "fontStyle" : "plain",
+      "fontSize" : 25,
+      "content" : "Sources",
+      "underlined" : false,
+      "fontColor" : "black",
+      "position" : [10, 400],
+      "vertical" : true
+    },
+    {
+      "fontName" : "Arial",
+      "fontStyle" : "plain",
+      "fontSize" : 30,
+      "content" : "Légende",
+      "underlined" : true,
+      "fontColor" : "black",
+      "position" : [0, 900],
+      "vertical" : false
+    }
+],
 
   "output" : [
     {

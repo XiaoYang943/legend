@@ -26,8 +26,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import org.geotools.map.FeatureLayer;
 import org.geotools.map.MapContent;
+import org.geotools.renderer.lite.RendererUtilities;
 import org.legend.imageBuilder.BufferedImageLegendGraphicBuilder;
 import org.legend.model.*;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -63,7 +65,7 @@ public class JsonCartoReader {
         int mapBufferedImageMaxHeight = 0;
         // Look for the minimal size (so the size of the biggest map) to build the mapDocument
         for (JsonNode jsonNode : mapArrayNode) {
-            if(Boolean.parseBoolean(jsonNode.get("mapSuperposition").toString().replace("\"", ""))) {
+            if(jsonNode.get("layers").toString().replace("\"", "").contains("[")) {
                 MapContent mapContent = new MapContent();
                 ObjectReader listReader = mapper.readerFor(new TypeReference<List<String>>() {
                 });
@@ -74,7 +76,7 @@ public class JsonCartoReader {
                     mapContent.addLayer(layer);
                 }
                 org.legend.model.MapItem modelMap = new org.legend.model.MapItem(mapContent);
-                BufferedImage mapBufferedImage = modelMap.paintMap(Integer.parseInt(jsonNode.get("size").toString().replace("\"", "")), Boolean.parseBoolean(jsonNode.get("frame").toString()));
+                BufferedImage mapBufferedImage = modelMap.paintMap(Integer.parseInt(jsonNode.get("size").toString().replace("\"", "")), Boolean.parseBoolean(jsonNode.get("frame").toString()),Integer.parseInt(jsonNode.get("frameRightExtension").toString().replace("\"", "")));
                 mapBufferedImageMaxWidth = java.lang.Math.max(mapBufferedImage.getWidth(), mapBufferedImageMaxWidth);
                 mapBufferedImageMaxHeight = java.lang.Math.max(mapBufferedImage.getHeight(), mapBufferedImageMaxHeight);
                 mapContent.dispose();
@@ -83,18 +85,18 @@ public class JsonCartoReader {
                 MapContent mapContent = new MapContent();
                 mapContent.addLayer(layer);
                 org.legend.model.MapItem modelMap = new org.legend.model.MapItem(mapContent);
-                BufferedImage mapBufferedImage = modelMap.paintMap(Integer.parseInt(jsonNode.get("size").toString().replace("\"", "")), Boolean.parseBoolean(jsonNode.get("frame").toString()));
+                BufferedImage mapBufferedImage = modelMap.paintMap(Integer.parseInt(jsonNode.get("size").toString().replace("\"", "")), Boolean.parseBoolean(jsonNode.get("frame").toString()),Integer.parseInt(jsonNode.get("frameRightExtension").toString().replace("\"", "")));
                 mapBufferedImageMaxWidth = java.lang.Math.max(mapBufferedImage.getWidth(), mapBufferedImageMaxWidth);
                 mapBufferedImageMaxHeight = java.lang.Math.max(mapBufferedImage.getHeight(), mapBufferedImageMaxHeight);
                 mapContent.dispose();
             }
         }
         frame.setSize(mapBufferedImageMaxWidth, mapBufferedImageMaxHeight, Integer.parseInt(mapDocumentArrayNode.findValue("margin").toString().replace("\"", "")));
-        frame.setBufferedImage(mapDocumentArrayNode.findValue("landscape").toString().replace("\"", ""));
+        frame.setBufferedImage(mapDocumentArrayNode.findValue("landscape").toString().replace("\"", ""), Integer.parseInt(mapDocumentArrayNode.findValue("extraHeight").toString().replace("\"", "")), Integer.parseInt(mapDocumentArrayNode.findValue("extraWidth").toString().replace("\"", "")));
 
         MapContent mapContent2 = new MapContent();
         for (JsonNode jsonNode : mapArrayNode) {
-            if(Boolean.parseBoolean(jsonNode.get("mapSuperposition").toString().replace("\"", ""))) {
+            if(jsonNode.get("layers").toString().replace("\"", "").contains("[")) {
                 ObjectReader listReader = mapper.readerFor(new TypeReference<List<String>>() {
                 });
                 List<String> layerList = listReader.readValue(jsonNode.get("layers"));
@@ -104,15 +106,19 @@ public class JsonCartoReader {
                     mapContent2.addLayer(layer);
                 }
                 org.legend.model.MapItem modelMap = new org.legend.model.MapItem(mapContent2);
-                BufferedImage mapBufferedImage = modelMap.paintMap(1000, true);
-                this.g = frame.paintMap(jsonNode.get("position").toString().replace("\"", ""), mapBufferedImage, g, getColor(mapDocumentArrayNode.findValue("bgColor").toString().replace("\"", "")));
+                BufferedImage mapBufferedImage = modelMap.paintMap(1000, true,Integer.parseInt(jsonNode.get("frameRightExtension").toString().replace("\"", "")));
+                if (jsonNode.get("position").isArray()) {
+                    this.g = frame.paintMapOnMapDocument(reader.readValue(jsonNode.get("position")), mapBufferedImage, g, getColor(mapDocumentArrayNode.findValue("bgColor").toString().replace("\"", "")));
+                } else {
+                    this.g = frame.paintMap(jsonNode.findValue("position").toString().replace("[", "").replace("]", "").replace("\"", ""), mapBufferedImage, g, getColor(mapDocumentArrayNode.findValue("bgColor").toString().replace("\"", "")));
+                }
                 mapContent2.dispose();
             } else {
                 FeatureLayer layer = LayerUtils.buildLayer(jsonNode.get("layers").toString().replace("\"", ""), jsonNode.get("sld").toString().replace("\"", ""));
                 MapContent mapContent3 = new MapContent();
                 mapContent3.addLayer(layer);
                 org.legend.model.MapItem modelMap = new org.legend.model.MapItem(mapContent3);
-                BufferedImage mapBufferedImage = modelMap.paintMap(Integer.parseInt(jsonNode.get("size").toString().replace("\"", "")), Boolean.parseBoolean(jsonNode.get("frame").toString()));
+                BufferedImage mapBufferedImage = modelMap.paintMap(Integer.parseInt(jsonNode.get("size").toString().replace("\"", "")), Boolean.parseBoolean(jsonNode.get("frame").toString()),Integer.parseInt(jsonNode.get("frameRightExtension").toString().replace("\"", "")));
                 if (jsonNode.get("position").isArray()) {
                     this.g = frame.paintMapOnMapDocument(reader.readValue(jsonNode.get("position")), mapBufferedImage, g, getColor(mapDocumentArrayNode.findValue("bgColor").toString().replace("\"", "")));
                 } else {
@@ -140,6 +146,8 @@ public class JsonCartoReader {
             legendOptions.put("fontStyle", jsonNode.get("fontStyle").toString().replace("\"",""));
             legendOptions.put("fontColor", getColor(jsonNode.get("fontColor").toString().replace("\"",""))); // default is Color.BLACK;
             legendOptions.put("fontSize", jsonNode.get("fontSize").toString().replace("\"","")); // default is 12;
+            legendOptions.put("labelXposition", Integer.parseInt(jsonNode.get("labelXposition").toString().replace("\"","")));
+            legendOptions.put("labelXOffset", Integer.parseInt(jsonNode.get("labelXOffset").toString().replace("\"","")));
             BufferedImageLegendGraphicBuilder builder = new BufferedImageLegendGraphicBuilder();
             BufferedImage legendBufferedImage = builder.buildLegendGraphic(layerList, legendOptions);
             Legend modelLegend = new Legend();
@@ -159,7 +167,7 @@ public class JsonCartoReader {
                 Field field = Class.forName("java.awt.Color").getField(color1);
                 Color color = (Color) field.get(null);
                 TextItem textItem = new TextItem(jsonNode.get("content").toString().replace("\"", ""), color, titleFont, Boolean.parseBoolean(jsonNode.get("underlined").toString()));
-                BufferedImage titleBufferedImage = textItem.paintText();
+                BufferedImage titleBufferedImage = textItem.paintText(Boolean.parseBoolean(jsonNode.get("vertical").toString()));
                 if (jsonNode.get("position").isArray()) {
                     textItem.setPosition(reader.readValue(jsonNode.get("position")));
                 } else {
@@ -186,10 +194,8 @@ public class JsonCartoReader {
         JsonNode scaleArrayNode = mapper.readTree(new File(jsonFilePath)).get("scale");
         if(scaleArrayNode != null) {
             for (JsonNode jsonNode : scaleArrayNode) {
-                FeatureLayer layer = LayerUtils.buildLayer(jsonNode.get("layers").toString().replace("\"", ""), mapArrayNode.findValue("sld").toString().replace("\"", ""));
-                MapContent mapContent3 = new MapContent();
-                mapContent3.addLayer(layer);
-                Scale mapScale = new Scale(mapContent3, frame.getImgWidth());
+                FeatureLayer layer = LayerUtils.buildLayer(jsonNode.get("layers").toString().replace("\"", ""), jsonNode.get("sld").toString().replace("\"", ""));
+                Scale mapScale = new Scale(layer, frame.getImgWidth());
                 mapScale.setStrokeWidth(Integer.parseInt(jsonNode.get("strokeWidth").toString().replace("\"", "")));
                 mapScale.setFont(new Font(jsonNode.get("fontName").toString().replace("\"", ""), getFontStyle(jsonNode.get("fontStyle").toString().replace("\"", "")), Integer.parseInt(jsonNode.get("fontSize").toString().replace("\"", ""))));
                 BufferedImage scaleBufferedImage = mapScale.paintMapScale(jsonNode.get("bars").toString().replace("\"", ""));
@@ -199,7 +205,6 @@ public class JsonCartoReader {
                     mapScale.setPosition(jsonNode.get("position").toString().replace("\"", ""), frame.getImgWidth(), frame.getImgHeight(), scaleBufferedImage);
                 }
                 g.drawImage(scaleBufferedImage, mapScale.getPositionX(), mapScale.getPositionY(), null);
-                mapContent3.dispose();
             }
         }
         g.dispose();

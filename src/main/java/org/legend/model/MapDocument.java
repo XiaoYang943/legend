@@ -52,54 +52,60 @@ public class MapDocument {
      * Set the format of the base image.
      * @param landscape the format name
      */
-    public void setBufferedImage(String landscape){
+    public void setBufferedImage(String landscape, int extraHeight, int extraWidth){
         switch (landscape) {
             case "LETTER_LANDSCAPE":
                 if (imgHeight < 612) {
-                    this.imgHeight = 612;
-                    this.imgWidth = 792;
+                    this.imgHeight = 612 + extraHeight;
+                    this.imgWidth = 792 + extraWidth;
                 } else {
-                    this.imgWidth = imgHeight * 792 / 612;
+                    this.imgWidth = imgHeight * 792 / 612 + extraWidth;
+                    this.imgHeight = imgHeight + extraHeight;
                 }
                 break;
             case "TABLOID_LANDSCAPE":
                 if (imgHeight < 792) {
-                    this.imgHeight = 792;
-                    this.imgWidth = 1224;
+                    this.imgHeight = 792 + extraHeight;
+                    this.imgWidth = 1224 + extraWidth;
                 } else {
-                    this.imgWidth = imgHeight * 1224 / 792;
+                    this.imgWidth = imgHeight * 1224 / 792 + extraWidth;
+                    this.imgHeight = imgHeight + extraHeight;
                 }
                 break;
             case "C_LANDSCAPE":
                 if (imgHeight < 1224) {
-                    this.imgHeight = 1224;
-                    this.imgWidth = 1584;
+                    this.imgHeight = 1224 + extraHeight;
+                    this.imgWidth = 1584 + extraWidth;
                 } else {
-                    this.imgWidth = imgHeight * 1584 / 1224;
+                    this.imgWidth = imgHeight * 1584 / 1224 + extraWidth;
+                    this.imgHeight = imgHeight + extraHeight;
                 }
                 break;
             case "D_LANDSCAPE":
                 if (imgHeight < 1584) {
-                    this.imgHeight = 1584;
-                    this.imgWidth = 2448;
+                    this.imgHeight = 1584 + extraHeight;
+                    this.imgWidth = 2448 + extraWidth;
                 } else {
-                    this.imgWidth = imgHeight * 2448 / 1584;
+                    this.imgWidth = imgHeight * 2448 / 1584 + extraWidth;
+                    this.imgHeight = imgHeight + extraHeight;
                 }
                 break;
             case "LETTER_PORTRAIT":
                 if (imgWidth < 612) {
-                    this.imgHeight = 792;
-                    this.imgWidth = 612;
+                    this.imgHeight = 792 + extraHeight;
+                    this.imgWidth = 612 + extraWidth;
                 } else {
-                    this.imgHeight = imgWidth * 792 / 612;
+                    this.imgHeight = imgWidth * 792 / 612 + extraHeight;
+                    this.imgWidth = imgWidth + extraWidth;
                 }
                 break;
             case "TABLOID_PORTRAIT":
                 if (imgWidth < 792) {
-                    this.imgHeight = 1224;
-                    this.imgWidth = 792;
+                    this.imgHeight = 1224 + extraHeight;
+                    this.imgWidth = 792 + extraWidth;
                 } else {
-                    this.imgHeight = imgWidth * 1224 / 792;
+                    this.imgHeight = imgWidth * 1224 / 792 + extraHeight;
+                    this.imgWidth = imgWidth + extraWidth;
                 }
                 break;
         }
@@ -119,7 +125,7 @@ public class MapDocument {
             g.setPaint((Paint) bgColor);
             g.fillRect(0, 0, imgWidth, imgHeight);
         }
-        if(margin>0) {
+        if(margin > 0) {
             switch (position) {
                 case "bottom":
                     g.drawImage(mapImage, (imgWidth - mapImage.getWidth())/2, imgHeight - mapImage.getHeight() - imgHeight/60, null);

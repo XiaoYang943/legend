@@ -28,7 +28,21 @@ import org.apache.batik.transcoder.TranscodingHints;
 import org.apache.batik.transcoder.image.ImageTranscoder;
 import org.apache.batik.util.SVGConstants;
 import org.apache.commons.io.FileUtils;
+import org.geotools.geometry.jts.JTS;
+import org.geotools.geometry.jts.ReferencedEnvelope;
+import org.geotools.map.MapContent;
+import org.geotools.referencing.CRS;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Envelope;
+import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.operation.MathTransform;
+import org.opengis.referencing.operation.TransformException;
 
+import java.awt.*;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -40,6 +54,15 @@ import java.nio.file.Files;
  * @author Adrien Bessy
  */
 public class Compass extends Item{
+
+    static CoordinateReferenceSystem GROUND;
+    static {
+        try {
+            GROUND = CRS.decode("EPSG:4326"); //$NON-NLS-1$
+        } catch (FactoryException e) {
+            GROUND = DefaultGeographicCRS.WGS84;
+        }
+    }
 
     String filePath;
 
@@ -109,6 +132,96 @@ public class Compass extends Item{
             throw new IOException("Couldn't convert " + svgFile);
         }
         return imagePointer[0];
+    }
+
+    public void setNorth(MapContent mapContent, int width, int height){
+        Coordinate worldStart = pixelToWorld(width, height, mapContent.getMaxBounds(), mapContent.getViewport().getScreenArea().getSize());
+        Coordinate groundStart = toGround( mapContent, worldStart );
+        Coordinate groundNorth = moveNorth( groundStart );
+        Coordinate worldNorth = fromGround( mapContent, groundNorth );
+        double theta = theta( worldStart, worldNorth );
+        System.out.println("theta : " + theta);
+    }
+
+
+    public static AffineTransform worldToScreenTransform(Envelope mapExtent,
+                                                         Dimension screenSize) {
+        double scaleX = screenSize.getWidth() / mapExtent.getWidth();
+        double scaleY = screenSize.getHeight() / mapExtent.getHeight();
+
+        double tx = -mapExtent.getMinX() * scaleX;
+        double ty = (mapExtent.getMinY() * scaleY) + screenSize.getHeight();
+
+        AffineTransform at = new AffineTransform(scaleX, 0.0d, 0.0d, -scaleY,
+                tx, ty);
+
+        return at;
+    }
+
+    public static Coordinate pixelToWorld(double x, double y,
+                                          ReferencedEnvelope extent, Dimension displaySize) {
+        // set up the affine transform and calculate scale values
+        AffineTransform at = worldToScreenTransform(extent, displaySize);
+
+        try {
+            Point2D result = at.inverseTransform(
+                    new java.awt.geom.Point2D.Double(x, y),
+                    new java.awt.geom.Point2D.Double());
+            Coordinate c = new Coordinate(result.getX(), result.getY());
+
+            return c;
+        } catch (Exception e) {
+        }
+
+        return null;
+    }
+
+    /** Will transform there into ground WGS84 coordinates or die (ie null) trying */
+    private Coordinate toGround(MapContent context, Coordinate there) {
+
+        if( GROUND.equals( context.getViewport().getCoordinateReferenceSystem()) ){
+            return there;
+        }
+        try {
+            MathTransform transform = CRS.findMathTransform( context.getViewport().getCoordinateReferenceSystem(), GROUND );
+            return JTS.transform( there, null, transform );
+        } catch (FactoryException e) {
+            e.printStackTrace();
+            return null;
+        } catch (TransformException e) {
+            // yes I do
+            return null;
+        }
+    }
+
+    /** A coordinate that is slightly north please */
+    private Coordinate moveNorth(Coordinate ground) {
+        double up = ground.y+0.1;
+        if( up > 90.0 ){
+            return new Coordinate( ground.x, 90.0 );
+        }
+        return new Coordinate( ground.x, up);
+    }
+
+    private Coordinate fromGround(MapContent context, Coordinate ground) {
+
+        if( GROUND.equals( context.getViewport().getCoordinateReferenceSystem()) ){
+            return ground;
+        }
+        try {
+            MathTransform transform = CRS.findMathTransform( GROUND, context.getViewport().getCoordinateReferenceSystem() );
+            return JTS.transform( ground, null, transform );
+        } catch (FactoryException e) {
+            // I hate you
+            return null;
+        } catch (TransformException e) {
+            // yes I do
+            return null;
+        }
+    }
+
+    private double theta(Coordinate ground, Coordinate north) {
+        return Math.atan2(Math.abs(north.y - ground.y), Math.abs(north.x - ground.x));
     }
 
 }

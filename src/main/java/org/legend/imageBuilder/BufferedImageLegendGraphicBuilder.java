@@ -30,8 +30,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-import org.apache.commons.lang3.StringUtils;
-import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.geometry.jts.LiteShape2;
 import org.geotools.map.FeatureLayer;
 import org.geotools.renderer.lite.MetaBufferEstimator;
@@ -39,17 +37,13 @@ import org.geotools.renderer.lite.StyledShapePainter;
 import org.geotools.renderer.style.SLDStyleFactory;
 import org.geotools.renderer.style.Style2D;
 import org.geotools.styling.*;
-import org.geotools.styling.Stroke;
 import org.geotools.styling.visitor.RescaleStyleVisitor;
 import org.geotools.util.NumberRange;
 import org.legend.utils.*;
 import org.opengis.feature.Feature;
 import org.opengis.feature.type.FeatureType;
-import org.opengis.filter.FilterFactory2;
 import org.opengis.filter.expression.Expression;
 import org.opengis.filter.expression.Literal;
-
-import javax.measure.quantity.Length;
 
 /**
  * Template based on <a
@@ -265,7 +259,7 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
         }
 
         LegendMerger.MergeOptions options = LegendMerger.MergeOptions.createFromOptions(legendsStack,
-                horizontalRuleMargin, verticalRuleMargin, 10, labelMargin, legendOptions, forceLabelsOn,
+                horizontalRuleMargin, verticalRuleMargin, 0, labelMargin, legendOptions, forceLabelsOn,
                 forceLabelsOff);
         if (ruleCount > 0) {
             BufferedImage image = LegendMerger.mergeLegends(applicableRules, legendOptions, options);

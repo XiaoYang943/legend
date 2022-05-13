@@ -21,6 +21,7 @@
 package org.legend.model;
 
 import java.awt.*;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Line2D;
 import java.awt.image.BufferedImage;
 
@@ -47,7 +48,7 @@ public class TextItem extends Item{
      * Paint a title and return a buffered image
      * @return the buffered image
      */
-    public BufferedImage paintText(){
+    public BufferedImage paintText(boolean vertical){
         BufferedImage titleBufferedImage = new BufferedImage(content.length()*3 + 200, font.getSize() + 200, BufferedImage.TYPE_INT_ARGB);
         Graphics2D graph2d = titleBufferedImage.createGraphics();
         graph2d.setComposite(AlphaComposite.Clear);
@@ -80,9 +81,16 @@ public class TextItem extends Item{
             }
         }
         else {
-            graph2d.drawString(content, titleBufferedImage.getWidth() / 3 - titleWidth / 2, font.getSize()/2 + 20);
+            if(vertical) {
+                AffineTransform at = AffineTransform.getQuadrantRotateInstance(3);
+                graph2d.setTransform(at);
+                graph2d.drawString(content, -titleBufferedImage.getWidth() / 3 - titleWidth / 2, font.getSize() / 2 + 20);
+            } else{
+                graph2d.drawString(content, titleBufferedImage.getWidth() / 3 - titleWidth / 2, font.getSize() / 2 + 20);
+            }
         }
         if(underlined){
+            graph2d.setStroke(new BasicStroke((float) font.getSize()/10));
             graph2d.draw( new Line2D.Double( (double) titleBufferedImage.getWidth()/3 - (double) titleWidth/2, font.getSize()/2.0 + 30, (double) titleBufferedImage.getWidth()/3 + (double) titleWidth/2, font.getSize()/2.0 + 30 ) );
         }
         return titleBufferedImage;

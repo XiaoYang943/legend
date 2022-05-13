@@ -48,7 +48,7 @@ public class MapItem {
      * Paint a map and return a buffered image
      * @return the buffered image
      */
-    public BufferedImage paintMap(int size, boolean frame){
+    public BufferedImage paintMap(int size, boolean frame, int frameRightExtension){
         GTRenderer renderer = new StreamingRenderer();
         RenderingHints hints = new RenderingHints(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         hints.add(new RenderingHints(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON));
@@ -73,7 +73,13 @@ public class MapItem {
             // failed to access map layers
             throw new RuntimeException(e);
         }
-        BufferedImage mapBufferedImage = new BufferedImage(imageBounds.width + 10, imageBounds.height + 10, BufferedImage.TYPE_INT_ARGB);
+        //map.getViewport().setScreenArea(imageBounds);
+        BufferedImage mapBufferedImage;
+        if(frameRightExtension == 0) {
+            mapBufferedImage = new BufferedImage(imageBounds.width + 10, imageBounds.height + 10, BufferedImage.TYPE_INT_ARGB);
+        } else{
+            mapBufferedImage = new BufferedImage(imageBounds.width + 10 + frameRightExtension, imageBounds.height + 10, BufferedImage.TYPE_INT_ARGB);
+        }
 
         Graphics2D gr = mapBufferedImage.createGraphics();
         gr.setPaint(Color.WHITE);
@@ -82,7 +88,12 @@ public class MapItem {
         gr.setComposite(AlphaComposite.Src);
         if(frame) {
             gr.setPaint(Color.BLACK);
-            gr.drawRect(1, 1, imageBounds.width + 8, imageBounds.height + 8);
+            if(frameRightExtension == 0) {
+                gr.drawRect(1, 1, imageBounds.width + 8, imageBounds.height + 8);
+            }
+            else{
+                gr.drawRect(1, 1, imageBounds.width + 8 + frameRightExtension, imageBounds.height + 8);
+            }
         }
         gr.setPaint(Color.WHITE);
         gr.setComposite(AlphaComposite.Clear);

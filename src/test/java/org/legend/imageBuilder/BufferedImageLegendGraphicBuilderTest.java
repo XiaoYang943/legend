@@ -10,12 +10,17 @@ import org.geotools.geometry.jts.Geometries;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.map.FeatureLayer;
 import org.geotools.map.MapContent;
+import org.geotools.map.MapViewport;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.styling.*;
 import org.geotools.styling.Stroke;
+import org.geotools.tile.Tile;
 import org.geotools.tile.TileService;
+import org.geotools.tile.impl.WebMercatorZoomLevel;
 import org.geotools.tile.impl.bing.BingService;
 import org.geotools.tile.impl.osm.OSMService;
+import org.geotools.tile.impl.osm.OSMTile;
+import org.geotools.tile.impl.osm.OSMTileIdentifier;
 import org.geotools.tile.util.AsyncTileLayer;
 import org.geotools.tile.util.TileLayer;
 import org.geotools.util.URLs;
@@ -232,23 +237,33 @@ public class BufferedImageLegendGraphicBuilderTest extends TestCase {
         //FeatureLayer layer = LayerUtils.buildLayer("/home/adrien/data/geoserver/bdtopo_v2_Redon/rsu_indicators.geojson","data/sld/rsu_indicators_linesize_byid.sld");
         FeatureLayer layer = LayerUtils.buildLayer("/home/adrien/data/geojson/localisation_zone.geojson","data/sld/sld_zone_EDIT.sld");
         /*FeatureLayer layer = LayerUtils.buildLayer("/home/adrien/data/geojson/johanna/Redon_cycle_ways.geojson","data/sld/johanna/cycle_way.sld");
-        FeatureLayer layer2 = LayerUtils.buildLayer("/home/adrien/data/geojson/johanna/Redon_cycle_equipment.geojson","data/sld/johanna/cycle_equipements.sld");
-        */
+        FeatureLayer layer2 = LayerUtils.buildLayer("/home/adrien/data/geojson/johanna/Redon_cycle_equipment.geojson","data/sld/johanna/cycle_equipements.sld");*/
+
 
         // create the bufferedImage for the map
         MapContent mapContent = new MapContent();
         mapContent.addLayer(layer);
-        //map.addLayer(layer2);
+        //mapContent.addLayer(layer2);
 
         ReferencedEnvelope re = layer.getBounds();
         //ReferencedEnvelope re = map.getViewport().getBounds();
         CoordinateReferenceSystem crs = layer.getBounds().getCoordinateReferenceSystem();
 
-        String baseURL = "https://tile.openstreetmap.org/";
-        //TileService service = new OSMService("OSM", baseURL);
-        //map.addLayer(new TileLayer(service));
-        mapContent.addLayer(new AsyncTileLayer(new OSMService("Mapnik", "http://tile.openstreetmap.org/")));
+        /*String baseURL = "https://tile.openstreetmap.org/";
+        TileService service = new OSMService("OSM", baseURL);*/
+        /*Tile t = new OSMTile(
+                new OSMTileIdentifier(38596, 49269, new WebMercatorZoomLevel(17), service.getName()),
+                service);
+        // retrieve the image!
+        BufferedImage image = t.loadImageTileImage(t);
+        ImageIO.write(image, "png", new FileOutputStream("data/legend/tileImage.png"));*/
+        //mapContent.addLayer(new TileLayer(service));
+
+        //mapContent.addLayer(new AsyncTileLayer(new OSMService("Mapnik", "http://tile.openstreetmap.org/")));
+
         mapContent.getViewport().setBounds(layer.getBounds());
+        /*MapViewport mapViewport = new MapViewport();
+        mapContent.setViewport(mapViewport);*/
         //map.getViewport().setBounds(re);
 
 /*
@@ -262,13 +277,13 @@ public class BufferedImageLegendGraphicBuilderTest extends TestCase {
 */
 
         org.legend.model.MapItem modelMap = new org.legend.model.MapItem(mapContent);
-        BufferedImage mapBufferedImage = modelMap.paintMap(1000, false);
+        BufferedImage mapBufferedImage = modelMap.paintMap(1000, false,0);
         //ImageIO.write(mapBufferedImage, "png", new FileOutputStream("data/legend/building_map.png"));
 
         // create the base frame and paint the map on it
         MapDocument frame = new MapDocument();
         frame.setSize(mapBufferedImage.getWidth(), mapBufferedImage.getHeight(), 100);
-        frame.setBufferedImage("LETTER_PORTRAIT");
+        frame.setBufferedImage("LETTER_PORTRAIT", 0, 0);
         Graphics2D g = frame.paintMap("center", mapBufferedImage, null, Color.white);
 
         // create the bufferedImage for the legend
@@ -317,11 +332,12 @@ public class BufferedImageLegendGraphicBuilderTest extends TestCase {
         g.drawImage(paragraphBufferedImage, paragraph.getPositionX(), paragraph.getPositionY(), null);*/
 
         // paint the compass image
-        /*Compass compass = new Compass("data/img/Rose_des_vents.svg");
+        Compass compass = new Compass("data/img/Rose_des_vents.svg");
+        compass.setNorth(mapContent,frame.getImgWidth(), frame.getImgHeight());
         BufferedImage compassBufIma = compass.paintCompass(50);
         //CoordinateReferenceSystem crs = map.getViewport().getBounds().getCoordinateReferenceSystem();
         compass.setPosition("bottomLeft", frame.getImgWidth(), frame.getImgHeight(), compassBufIma);
-        g.drawImage(compassBufIma, compass.getPositionX(), compass.getPositionY(), null);*/
+        g.drawImage(compassBufIma, compass.getPositionX(), compass.getPositionY(), null);
 
         // paint the map scale
         /*Scale mapScale = new Scale(mapContent,frame.getImgWidth());
@@ -343,8 +359,8 @@ public class BufferedImageLegendGraphicBuilderTest extends TestCase {
 
     public void testReadJsonAndProduceMap() throws Exception {
         JsonCartoReader jsonCartoReader = new JsonCartoReader();
-        jsonCartoReader.readAndBuildMap("data/json/test.json");
-        //jsonCartoReader.readAndBuildMap("data/json/johanna.json");
+        //jsonCartoReader.readAndBuildMap("data/json/test.json");
+        jsonCartoReader.readAndBuildMap("data/json/johanna.json");
     }
 
 }

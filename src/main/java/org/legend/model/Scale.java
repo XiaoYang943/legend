@@ -20,7 +20,10 @@
 
 package org.legend.model;
 
+import org.geotools.map.FeatureLayer;
 import org.geotools.map.MapContent;
+import org.geotools.renderer.lite.RendererUtilities;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import java.awt.*;
 import java.awt.geom.Line2D;
@@ -38,8 +41,10 @@ public class Scale extends Item{
     int strokeWidth = 5;
     Font font;
 
-    public Scale(MapContent mapContent, int imageWidth){
-        this.worldWidth = mapContent.getViewport().getBounds().getWidth();
+    public Scale(FeatureLayer layer, int imageWidth){
+        double re = layer.getBounds().getWidth();
+        CoordinateReferenceSystem crs = layer.getBounds().getCoordinateReferenceSystem();
+        this.worldWidth = RendererUtilities.toMeters(re, crs);
         this.imageWidth = imageWidth;
     }
 

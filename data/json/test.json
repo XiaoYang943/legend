@@ -3,7 +3,9 @@
     {
       "landscape" : "LETTER_PORTRAIT",
       "margin" : 100,
-      "bgColor" : "white"
+      "bgColor" : "white",
+      "extraHeight" : 0,
+      "extraWidth" : 0
     }
   ],
 
@@ -14,7 +16,7 @@
       "position" : "center",
       "size" : 1000,
       "frame" : false,
-      "mapSuperposition" : false
+      "frameRightExtension" : 0
     },
     {
       "layers": "/home/adrien/data/geoserver/bdtopo_v2_Redon/rsu_indicators.geojson",
@@ -22,7 +24,7 @@
       "position" : [825,975],
       "size" : 250,
       "frame" : true,
-      "mapSuperposition" : false
+      "frameRightExtension" : 0
     }
   ],
 
@@ -42,7 +44,8 @@
       "fontStyle" : "bold",
       "fontColor" : "blue",
       "fontSize" : 16,
-      "position" : "bottomRight"
+      "position" : "bottomRight",
+      "labelXposition" : 0
     },
     {
       "layers": "/home/adrien/data/geoserver/bdtopo_v2_Redon/rsu_indicators.geojson",
@@ -59,7 +62,8 @@
       "fontStyle" : "bold",
       "fontColor" : "blue",
       "fontSize" : 16,
-      "position" : [500,1000]
+      "position" : [500,1000],
+      "labelXposition" : 0
     }
   ],
 
@@ -71,7 +75,8 @@
       "content" : "Great title",
       "underlined" : true,
       "fontColor" : "black",
-      "position" : [0,10]
+      "position" : [0,10],
+      "vertical" : false
     },
     {
       "fontName" : "default",
@@ -80,7 +85,8 @@
       "content" : "Cum autem commodis intervallata temporibus convivia longa et noxia coeperint apparari vel distributio sollemnium sportularum, anxia deliberatione tractatur an exceptis his quibus vicissitudo debetur, peregrinum invitari conveniet",
       "underlined" : false,
       "fontColor" : "orange",
-      "position" : [150,100]
+      "position" : [100,50],
+      "vertical" : false
     }
   ],
 

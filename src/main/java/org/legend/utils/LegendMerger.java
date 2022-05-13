@@ -282,7 +282,7 @@ public class LegendMerger {
                                         mergeOptions.isAntialias(),
                                         mergeOptions.isTransparent(),
                                         mergeOptions.getBackgroundColor(),
-                                        mergeOptions.getLabelMargin());
+                                (Integer) legendOptionsParam.get("labelXOffset"));
                     }
                     nodes.add(img);
                 } else {

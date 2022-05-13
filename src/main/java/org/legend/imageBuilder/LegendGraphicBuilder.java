@@ -60,7 +60,7 @@ public abstract class LegendGraphicBuilder {
     boolean forceLabelsOff = false;
     boolean forceTitlesOff = false; // layer title otherwise style title
     boolean isTransparent = false;
-    int labelMargin = 3; //the space between the image and the rule label
+    int labelMargin = -50; //the space between the image and the rule label
     int verticalRuleMargin = 0; //the space between the legend item of different rules of the same style/layer
     int horizontalRuleMargin = 0;
     int verticalMarginBetweenLayers = 0;
@@ -141,8 +141,8 @@ public abstract class LegendGraphicBuilder {
         if (symbolizer instanceof LineSymbolizer) {
             if (this.sampleLine == null) {
                 Coordinate[] coords = {
-                        new Coordinate(hpad, rescaledLegendHeight - vpad - 1),
-                        new Coordinate(rescaledLegendWidth - hpad - 1, vpad)
+                        new Coordinate(20, 25),
+                        new Coordinate(40, 25)
                 };
                 LineString geom = geomFac.createLineString(coords);
                 try {
@@ -154,14 +154,14 @@ public abstract class LegendGraphicBuilder {
             sampleShape = this.sampleLine;
 
         } else if ((symbolizer instanceof PolygonSymbolizer) || (symbolizer instanceof RasterSymbolizer)) {
-            final float w = legendWidth - (2 * hpad) - 1;
-            final float h = legendHeight - (2 * vpad) - 1;
+            final float w = legendWidth - (2 * hpad) - 8;
+            final float h = legendHeight - (2 * vpad) - 8;
             Coordinate[] coords = {
-                    new Coordinate(hpad, vpad),
-                    new Coordinate(hpad, vpad + h),
-                    new Coordinate(hpad + w, vpad + h),
-                    new Coordinate(hpad + w, vpad),
-                    new Coordinate(hpad, vpad)
+                    new Coordinate(hpad, vpad + 2.5),
+                    new Coordinate(hpad, vpad + h + 2.5),
+                    new Coordinate(hpad + w, vpad + h + 2.5),
+                    new Coordinate(hpad + w, vpad + 2.5),
+                    new Coordinate(hpad, vpad + 2.5)
             };
             LinearRing shell = geomFac.createLinearRing(coords);
             Polygon geom = geomFac.createPolygon(shell, null);
