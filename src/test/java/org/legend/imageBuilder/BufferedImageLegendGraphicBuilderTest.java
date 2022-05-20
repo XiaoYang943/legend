@@ -10,22 +10,12 @@ import org.geotools.geometry.jts.Geometries;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.map.FeatureLayer;
 import org.geotools.map.MapContent;
-import org.geotools.map.MapViewport;
-import org.geotools.referencing.crs.DefaultGeographicCRS;
-import org.geotools.styling.*;
 import org.geotools.styling.Stroke;
-import org.geotools.tile.Tile;
-import org.geotools.tile.TileService;
-import org.geotools.tile.impl.WebMercatorZoomLevel;
-import org.geotools.tile.impl.bing.BingService;
-import org.geotools.tile.impl.osm.OSMService;
-import org.geotools.tile.impl.osm.OSMTile;
-import org.geotools.tile.impl.osm.OSMTileIdentifier;
-import org.geotools.tile.util.AsyncTileLayer;
-import org.geotools.tile.util.TileLayer;
+import org.geotools.styling.*;
 import org.geotools.util.URLs;
 import org.geotools.xml.styling.SLDParser;
-import org.legend.model.*;
+import org.legend.model.Compass;
+import org.legend.model.MapDocument;
 import org.legend.utils.JsonCartoReader;
 import org.legend.utils.LayerUtils;
 import org.locationtech.jts.geom.Geometry;
@@ -33,13 +23,14 @@ import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.GeometryDescriptor;
 import org.opengis.filter.FilterFactory2;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
-import java.awt.Font;
 import java.awt.image.BufferedImage;
-import java.io.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -239,7 +230,6 @@ public class BufferedImageLegendGraphicBuilderTest extends TestCase {
         /*FeatureLayer layer = LayerUtils.buildLayer("/home/adrien/data/geojson/johanna/Redon_cycle_ways.geojson","data/sld/johanna/cycle_way.sld");
         FeatureLayer layer2 = LayerUtils.buildLayer("/home/adrien/data/geojson/johanna/Redon_cycle_equipment.geojson","data/sld/johanna/cycle_equipements.sld");*/
 
-
         // create the bufferedImage for the map
         MapContent mapContent = new MapContent();
         mapContent.addLayer(layer);
@@ -247,7 +237,7 @@ public class BufferedImageLegendGraphicBuilderTest extends TestCase {
 
         ReferencedEnvelope re = layer.getBounds();
         //ReferencedEnvelope re = map.getViewport().getBounds();
-        CoordinateReferenceSystem crs = layer.getBounds().getCoordinateReferenceSystem();
+        //CoordinateReferenceSystem crs = layer.getBounds().getCoordinateReferenceSystem();
 
         /*String baseURL = "https://tile.openstreetmap.org/";
         TileService service = new OSMService("OSM", baseURL);*/
@@ -261,7 +251,25 @@ public class BufferedImageLegendGraphicBuilderTest extends TestCase {
 
         //mapContent.addLayer(new AsyncTileLayer(new OSMService("Mapnik", "http://tile.openstreetmap.org/")));
 
-        mapContent.getViewport().setBounds(layer.getBounds());
+        /*CoordinateReferenceSystem worldCRS = CRS.decode("EPSG:4326", true);
+        CoordinateReferenceSystem dataCRS = re.getCoordinateReferenceSystem();
+        boolean lenient = true; // allow for some error due to different datums
+        MathTransform transform = CRS.findMathTransform(dataCRS, worldCRS, lenient);
+        Envelope targetGeometry = JTS.transform(re, transform);
+        ReferencedEnvelope envelope = new ReferencedEnvelope(targetGeometry, worldCRS);*/
+
+        /*CoordinateReferenceSystem crs = CRS.decode("EPSG:3857", true);
+        ReferencedEnvelope envelope = new ReferencedEnvelope(566516.1128181651, 571832.3519307065, 5275726.889218023, 5281104.067690026, crs);*/
+
+        /*CoordinateReferenceSystem source = CRS.decode("EPSG:25832");
+        CoordinateReferenceSystem target = CRS.decode("EPSG:4326");
+        MathTransform transform2 = CRS.findMathTransform(source, target, true);
+        Envelope targetGeometry2 = JTS.transform(re, transform2);
+        ReferencedEnvelope envelope3 = new ReferencedEnvelope(targetGeometry2, target);
+
+        mapContent.getViewport().setBounds(envelope3);*/
+
+        //mapContent.getViewport().setBounds(layer.getBounds());
         /*MapViewport mapViewport = new MapViewport();
         mapContent.setViewport(mapViewport);*/
         //map.getViewport().setBounds(re);
@@ -333,11 +341,11 @@ public class BufferedImageLegendGraphicBuilderTest extends TestCase {
 
         // paint the compass image
         Compass compass = new Compass("data/img/Rose_des_vents.svg");
-        compass.setNorth(mapContent,frame.getImgWidth(), frame.getImgHeight());
         BufferedImage compassBufIma = compass.paintCompass(50);
-        //CoordinateReferenceSystem crs = map.getViewport().getBounds().getCoordinateReferenceSystem();
-        compass.setPosition("bottomLeft", frame.getImgWidth(), frame.getImgHeight(), compassBufIma);
-        g.drawImage(compassBufIma, compass.getPositionX(), compass.getPositionY(), null);
+        double angle = compass.getRotationToNorth(mapContent, frame.getImgWidth(), frame.getImgHeight());
+        BufferedImage rotatedCompassBufIma = Compass.rotate(compassBufIma, angle);
+        compass.setPosition("bottomLeft", frame.getImgWidth(), frame.getImgHeight(), rotatedCompassBufIma);
+        g.drawImage(rotatedCompassBufIma, compass.getPositionX(), compass.getPositionY(), null);
 
         // paint the map scale
         /*Scale mapScale = new Scale(mapContent,frame.getImgWidth());
@@ -353,7 +361,7 @@ public class BufferedImageLegendGraphicBuilderTest extends TestCase {
         //ImageIO.write(frame.getBaseFrameBufferedImage(), "PNG", new File("data/legend/building_mapAndlegend.png"));
         //ImageIO.write(frame.getBaseFrameBufferedImage(), "PNG", new File("data/legend/rsu_indicators_mapAndlegend.png"));
         //ImageIO.write(frame.getBaseFrameBufferedImage(), "PNG", new File("data/legend/rsu_indicators_lineSize_mapAndlegend_bigger.png"));
-        ImageIO.write(frame.getBaseFrameBufferedImage(), "PNG", new File("data/legend/localisation_zone.png"));
+        ImageIO.write(frame.getBaseFrameBufferedImage(), "PNG", new File("data/legend/localisation_zone1.png"));
         //ImageIO.write(frame.getBaseFrameBufferedImage(), "PNG", new File("data/legend/cycle_way.png"));
     }
 

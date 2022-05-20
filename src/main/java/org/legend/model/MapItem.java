@@ -73,14 +73,14 @@ public class MapItem {
             // failed to access map layers
             throw new RuntimeException(e);
         }
-        //map.getViewport().setScreenArea(imageBounds);
+
         BufferedImage mapBufferedImage;
         if(frameRightExtension == 0) {
             mapBufferedImage = new BufferedImage(imageBounds.width + 10, imageBounds.height + 10, BufferedImage.TYPE_INT_ARGB);
         } else{
             mapBufferedImage = new BufferedImage(imageBounds.width + 10 + frameRightExtension, imageBounds.height + 10, BufferedImage.TYPE_INT_ARGB);
         }
-
+        map.getViewport().setScreenArea(imageBounds);
         Graphics2D gr = mapBufferedImage.createGraphics();
         gr.setPaint(Color.WHITE);
         gr.setComposite(AlphaComposite.Clear);

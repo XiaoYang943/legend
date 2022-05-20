@@ -31,6 +31,7 @@ import java.util.logging.Logger;
 /**
  * Provides utility methods for the shared handling of images by the raster map and legend
  * producers.
+ * Comes from the package org.geoserver.wms.map
  *
  * @author Adrien Bessy (entirely based on what Gabriel Roldan and Simone Giannecchini did with GeoServer)
  */

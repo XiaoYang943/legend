@@ -21,7 +21,6 @@
 package org.legend.model;
 
 import org.geotools.map.FeatureLayer;
-import org.geotools.map.MapContent;
 import org.geotools.renderer.lite.RendererUtilities;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
@@ -98,7 +97,7 @@ public class Scale extends Item{
             graph2d.drawString("0", (int) marge-3, 40);
             graph2d.drawString("500", (int) marge + (int) pixelScaleFor500m - 12, 40);
             graph2d.drawString("1000", (int) marge + (int) pixelScaleFor1000m - 17, 40);
-            graph2d.drawString("1500", (int) marge + (int) pixelScaleFor1000m + (int) pixelScaleFor500m  - 17, 40);
+            graph2d.drawString("1500 m", (int) marge + (int) pixelScaleFor1000m + (int) pixelScaleFor500m  - 17, 40);
         }
         return scaleBufferedImage;
     }

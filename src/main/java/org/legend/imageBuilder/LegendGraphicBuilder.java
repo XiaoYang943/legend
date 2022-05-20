@@ -20,12 +20,9 @@
 
 package org.legend.imageBuilder;
 
-import java.util.Map;
-
 import org.geotools.data.DataUtilities;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.geometry.jts.LiteShape2;
-
 import org.geotools.renderer.lite.MetaBufferEstimator;
 import org.geotools.styling.*;
 import org.geotools.styling.visitor.RescaleStyleVisitor;
@@ -40,7 +37,12 @@ import org.opengis.feature.type.GeometryDescriptor;
 import org.opengis.filter.expression.Expression;
 import org.opengis.filter.expression.Literal;
 
-/** @author ian */
+import java.util.Map;
+
+/**
+ * Comes from the package org.geoserver.wms.legendgraphic
+ * @author Adrien Bessy, (entirely based on what ian did with GeoServer)
+ */
 public abstract class LegendGraphicBuilder {
 
     /** used to create sample point shapes with LiteShape (not lines nor polygons) */

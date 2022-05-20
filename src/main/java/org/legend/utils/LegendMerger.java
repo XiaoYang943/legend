@@ -20,23 +20,22 @@
 
 package org.legend.utils;
 
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
+import org.geotools.styling.Rule;
+
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.geotools.styling.Rule;
 
 /**
  * Utility class containing static methods for merging single legend elements into a final output,
  * following a set of given layout options / constraints.
+ * Comes from the package org.geoserver.wms.legendgraphic
  *
- * @author mauro.bartolomeoli@geo-solutions.it
+ * @author @author Adrien Bessy (entirely based on what mauro.bartolomeoli@geo-solutions.it did with geoserver)
  */
 public class LegendMerger {
 

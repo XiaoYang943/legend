@@ -26,10 +26,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import org.geotools.map.FeatureLayer;
 import org.geotools.map.MapContent;
-import org.geotools.renderer.lite.RendererUtilities;
 import org.legend.imageBuilder.BufferedImageLegendGraphicBuilder;
 import org.legend.model.*;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -177,17 +175,19 @@ public class JsonCartoReader {
             }
         }
 
-        JsonNode compassArrayNode = mapper.readTree(new File(jsonFilePath)).get("compass");
-        if(compassArrayNode != null) {
-            for (JsonNode jsonNode : compassArrayNode) {
+        JsonNode imageArrayNode = mapper.readTree(new File(jsonFilePath)).get("image");
+        if(imageArrayNode != null) {
+            for (JsonNode jsonNode : imageArrayNode) {
                 Compass compass = new Compass(jsonNode.get("svg").toString().replace("\"", ""));
                 BufferedImage compassBufIma = compass.paintCompass(Integer.parseInt(jsonNode.get("size").toString().replace("\"", "")));
+                double angle = compass.getRotationToNorth(mapContent2, frame.getImgWidth(), frame.getImgHeight());
+                BufferedImage rotatedCompassBufIma = Compass.rotate(compassBufIma, angle);
                 if (jsonNode.get("position").isArray()) {
                     compass.setPosition(reader.readValue(jsonNode.get("position")));
                 } else {
-                    compass.setPosition(jsonNode.get("position").toString().replace("\"", ""), frame.getImgWidth(), frame.getImgHeight(), compassBufIma);
+                    compass.setPosition(jsonNode.get("position").toString().replace("\"", ""), frame.getImgWidth(), frame.getImgHeight(), rotatedCompassBufIma);
                 }
-                g.drawImage(compassBufIma, compass.getPositionX(), compass.getPositionY(), null);
+                g.drawImage(rotatedCompassBufIma, compass.getPositionX(), compass.getPositionY(), null);
             }
         }
 

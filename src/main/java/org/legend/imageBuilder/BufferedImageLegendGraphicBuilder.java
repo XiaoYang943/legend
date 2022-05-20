@@ -59,6 +59,7 @@ import org.opengis.filter.expression.Literal;
  * specified width, but with as many stacked graphics as applicable rules were found, providing by
  * this way a representative enough legend.
  *
+ * Comes from the package org.geoserver.wms.legendgraphic
  * @author Adrien Bessy (entirely based on what Gabriel Roldan and Simone Giannecchini did with GeoServer)
  */
 public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {

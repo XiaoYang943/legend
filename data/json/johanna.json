@@ -5,7 +5,7 @@
       "margin" : 100,
       "bgColor" : "white",
       "extraHeight" : 250,
-      "extraWidth" : 650
+      "extraWidth" : 675
     }
   ],
 
@@ -28,16 +28,11 @@
     }
   ],
 
-  "compass" : [
+  "image" : [
     {
       "svg" : "data/img/Rose_des_vents.svg",
-      "size" : 40,
+      "size" : 45,
       "position" : [1485, 100]
-    },
-    {
-      "svg" : "data/img/UndoBlue.svg",
-      "size" : 25,
-      "position" : [950, 50]
     }
   ],
 
@@ -109,7 +104,7 @@
       "fontColor" : "black",
       "fontSize" : 16,
       "position" : "bottomRight",
-      "labelXposition" : 20,
+      "labelXposition" : 10,
       "labelXOffset" : -15
     }
   ],
@@ -150,7 +145,7 @@
   "output" : [
     {
       "fileType" : "png",
-      "fileName" : "cycle_way",
+      "fileName" : "cycle_way2",
       "filePath" : "data/legend/"
     }
   ]

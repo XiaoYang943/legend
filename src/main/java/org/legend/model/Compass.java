@@ -20,14 +20,6 @@
 
 package org.legend.model;
 
-import org.apache.batik.anim.dom.SVGDOMImplementation;
-import org.apache.batik.transcoder.TranscoderException;
-import org.apache.batik.transcoder.TranscoderInput;
-import org.apache.batik.transcoder.TranscoderOutput;
-import org.apache.batik.transcoder.TranscodingHints;
-import org.apache.batik.transcoder.image.ImageTranscoder;
-import org.apache.batik.util.SVGConstants;
-import org.apache.commons.io.FileUtils;
 import org.geotools.geometry.jts.JTS;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.map.MapContent;
@@ -43,17 +35,13 @@ import org.opengis.referencing.operation.TransformException;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 
 /**
  * Provides methods to build a compass buffered image.
  *
  * @author Adrien Bessy
  */
-public class Compass extends Item{
+public class Compass extends ImageItem{
 
     static CoordinateReferenceSystem GROUND;
     static {
@@ -64,119 +52,84 @@ public class Compass extends Item{
         }
     }
 
-    String filePath;
-
     public Compass(String filePath){
         this.filePath = filePath;
     }
 
     /**
-     * Create a bufferedImage, paint a compass, then return the bufferedImage.
-     * @return the buffered image
+     * Get the angle allowing to the raw or compass to point the north
+     * @param mapContent the map content
+     * @param width the width of the map document
+     * @param height the height of the map document
+     * @return the angle
      */
-    public BufferedImage paintCompass(int size) throws IOException {
-        return rasterize(new File(filePath), size);
+    public double getRotationToNorth(MapContent mapContent, int width, int height){
+        Coordinate worldStart = pixelToWorld(width, height, mapContent.getMaxBounds(), mapContent.getViewport().getScreenArea().getSize());
+        Coordinate groundStart = toGround( mapContent, worldStart );
+        assert groundStart != null;
+        Coordinate groundNorth = moveNorth( groundStart );
+        Coordinate worldNorth = fromGround( mapContent, groundNorth );
+        assert worldStart != null;
+        assert worldNorth != null;
+        return theta( worldStart, worldNorth );
     }
 
     /**
-     * Transform svg file to png file
-     * @param svgFile the svg file
-     * @return the buffered image
+     * Get the angle between both coordinates
+     * @param north the north coordinates
+     * @param ground the coordinates
+     * @return the angle
+     * */
+    private double theta(Coordinate ground, Coordinate north) {
+        return Math.atan2(Math.abs(north.y - ground.y), Math.abs(north.x - ground.x));
+    }
+
+    /**
+     * Get the affineTransform
+     * @param mapExtent the mapExtent
+     * @param screenSize the screen size
+     * @return the affine transform
      */
-    public static BufferedImage rasterize(File svgFile, int size) throws IOException {
-        final BufferedImage[] imagePointer = new BufferedImage[1];
-        // Rendering hints can't be set programatically, so
-        // we override defaults with a temporary stylesheet.
-        // These defaults emphasize quality and precision, and
-        // are more similar to the defaults of other SVG viewers.
-        // SVG documents can still override these defaults.
-        String css = "svg {" +
-                "shape-rendering: geometricPrecision;" +
-                "text-rendering:  geometricPrecision;" +
-                "color-rendering: optimizeQuality;" +
-                "image-rendering: optimizeQuality;" +
-                "}";
-        File cssFile = File.createTempFile("batik-default-override-", ".css");
-        FileUtils.writeStringToFile(cssFile, css);
-
-        TranscodingHints transcoderHints = new TranscodingHints();
-        transcoderHints.put(ImageTranscoder.KEY_XML_PARSER_VALIDATING, Boolean.FALSE);
-        transcoderHints.put(ImageTranscoder.KEY_DOM_IMPLEMENTATION,
-                SVGDOMImplementation.getDOMImplementation());
-        transcoderHints.put(ImageTranscoder.KEY_DOCUMENT_ELEMENT_NAMESPACE_URI,
-                SVGConstants.SVG_NAMESPACE_URI);
-        transcoderHints.put(ImageTranscoder.KEY_DOCUMENT_ELEMENT, "svg");
-        transcoderHints.put(ImageTranscoder.KEY_USER_STYLESHEET_URI, cssFile.toURI().toString());
-        transcoderHints.put(ImageTranscoder.KEY_WIDTH, (float) 150 + size);
-        transcoderHints.put(ImageTranscoder.KEY_HEIGHT, (float) 150 + size);
-
-        try {
-            TranscoderInput input = new TranscoderInput(Files.newInputStream(svgFile.toPath()));
-            ImageTranscoder t = new ImageTranscoder() {
-                @Override
-                public BufferedImage createImage(int w, int h) {
-                    return new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
-                }
-
-                @Override
-                public void writeImage(BufferedImage image, TranscoderOutput out) {
-                    imagePointer[0] = image;
-                }
-            };
-            t.setTranscodingHints(transcoderHints);
-            t.transcode(input, null);
-        }
-        catch (TranscoderException ex) {
-            // Requires Java 6
-            ex.printStackTrace();
-            throw new IOException("Couldn't convert " + svgFile);
-        }
-        return imagePointer[0];
-    }
-
-    public void setNorth(MapContent mapContent, int width, int height){
-        Coordinate worldStart = pixelToWorld(width, height, mapContent.getMaxBounds(), mapContent.getViewport().getScreenArea().getSize());
-        Coordinate groundStart = toGround( mapContent, worldStart );
-        Coordinate groundNorth = moveNorth( groundStart );
-        Coordinate worldNorth = fromGround( mapContent, groundNorth );
-        double theta = theta( worldStart, worldNorth );
-        System.out.println("theta : " + theta);
-    }
-
-
-    public static AffineTransform worldToScreenTransform(Envelope mapExtent,
-                                                         Dimension screenSize) {
+    public static AffineTransform worldToScreenTransform(Envelope mapExtent, Dimension screenSize) {
         double scaleX = screenSize.getWidth() / mapExtent.getWidth();
         double scaleY = screenSize.getHeight() / mapExtent.getHeight();
 
         double tx = -mapExtent.getMinX() * scaleX;
         double ty = (mapExtent.getMinY() * scaleY) + screenSize.getHeight();
 
-        AffineTransform at = new AffineTransform(scaleX, 0.0d, 0.0d, -scaleY,
+        return new AffineTransform(scaleX, 0.0d, 0.0d, -scaleY,
                 tx, ty);
-
-        return at;
     }
 
-    public static Coordinate pixelToWorld(double x, double y,
-                                          ReferencedEnvelope extent, Dimension displaySize) {
+    /**
+     * Get the coordinates
+     * @param x the x
+     * @param y the y
+     * @param extent the envelope
+     * @param displaySize the display size
+     * @return the coordinates
+     */
+    public static Coordinate pixelToWorld(double x, double y, ReferencedEnvelope extent, Dimension displaySize) {
         // set up the affine transform and calculate scale values
         AffineTransform at = worldToScreenTransform(extent, displaySize);
-
         try {
             Point2D result = at.inverseTransform(
                     new java.awt.geom.Point2D.Double(x, y),
                     new java.awt.geom.Point2D.Double());
-            Coordinate c = new Coordinate(result.getX(), result.getY());
 
-            return c;
-        } catch (Exception e) {
+            return new Coordinate(result.getX(), result.getY());
+        } catch (Exception ignored) {
         }
 
         return null;
     }
 
-    /** Will transform there into ground WGS84 coordinates or die (ie null) trying */
+    /**
+     * Will transform there into ground WGS84 coordinates or die (ie null) trying
+     * @param context the map content
+     * @param there the coordinates
+     * @return the coordinates
+     * */
     private Coordinate toGround(MapContent context, Coordinate there) {
 
         if( GROUND.equals( context.getViewport().getCoordinateReferenceSystem()) ){
@@ -194,7 +147,11 @@ public class Compass extends Item{
         }
     }
 
-    /** A coordinate that is slightly north please */
+    /**
+     * Get a coordinate that is slightly north
+     * @param ground the coordinates
+     * @return the coordinates
+     * */
     private Coordinate moveNorth(Coordinate ground) {
         double up = ground.y+0.1;
         if( up > 90.0 ){
@@ -203,8 +160,13 @@ public class Compass extends Item{
         return new Coordinate( ground.x, up);
     }
 
+    /**
+     * Get the coordinates from ground
+     * @param context the map content
+     * @param ground the coordinates
+     * @return the coordinates
+     * */
     private Coordinate fromGround(MapContent context, Coordinate ground) {
-
         if( GROUND.equals( context.getViewport().getCoordinateReferenceSystem()) ){
             return ground;
         }
@@ -218,10 +180,6 @@ public class Compass extends Item{
             // yes I do
             return null;
         }
-    }
-
-    private double theta(Coordinate ground, Coordinate north) {
-        return Math.atan2(Math.abs(north.y - ground.y), Math.abs(north.x - ground.x));
     }
 
 }

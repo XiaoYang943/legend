@@ -42,8 +42,9 @@ import java.util.logging.Logger;
  *
  * <p>I am not preventing people from subclassing this method so that they could add their own
  * utility methods.
+ *  Comes from the package org.geoserver.wms.legendgraphic
  *
- * @author Simone Giannecchini, GeoSolutions SAS
+ * @author Adrien Bessy (entirely based on what Simone Giannecchini, GeoSolutions SAS did with GeoServer)
  */
 public class LegendUtils {
     /**
