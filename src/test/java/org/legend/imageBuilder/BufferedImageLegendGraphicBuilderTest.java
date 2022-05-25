@@ -7,22 +7,31 @@ import org.geotools.data.FeatureSource;
 import org.geotools.data.geojson.GeoJSONDataStoreFactory;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.geometry.jts.Geometries;
+import org.geotools.geometry.jts.JTS;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.map.FeatureLayer;
 import org.geotools.map.MapContent;
+import org.geotools.map.MapViewport;
+import org.geotools.referencing.CRS;
+import org.geotools.renderer.lite.StreamingRenderer;
 import org.geotools.styling.Stroke;
 import org.geotools.styling.*;
+import org.geotools.tile.impl.osm.OSMService;
+import org.geotools.tile.util.AsyncTileLayer;
 import org.geotools.util.URLs;
 import org.geotools.xml.styling.SLDParser;
 import org.legend.model.Compass;
 import org.legend.model.MapDocument;
 import org.legend.utils.JsonCartoReader;
 import org.legend.utils.LayerUtils;
+import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Geometry;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.GeometryDescriptor;
 import org.opengis.filter.FilterFactory2;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.operation.MathTransform;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -222,6 +231,36 @@ public class BufferedImageLegendGraphicBuilderTest extends TestCase {
         ImageIO.write(bufferedImage,"png",new FileOutputStream("data/legend/legend2.png"));
     }
 
+    public void testOsmProjection() throws Exception {
+        FeatureLayer layer = LayerUtils.buildLayer("/home/adrien/data/geojson/localisation_zone.geojson","data/sld/sld_zone_EDIT.sld");
+
+        int width = 200;
+        int height = 200;
+
+        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+
+        Graphics2D graphics = image.createGraphics();
+        Rectangle rectangle = new Rectangle(width, height);
+        System.out.println("layer.getBounds() : " + layer.getBounds());
+        CoordinateReferenceSystem crs = CRS.decode("EPSG:3857", true);
+        ReferencedEnvelope envelope = new ReferencedEnvelope(layer.getBounds(), crs);
+
+        MapContent mapContent = new MapContent();
+        mapContent.addLayer(layer);
+        mapContent.addLayer(new AsyncTileLayer(new OSMService("Mapnik", "http://tile.openstreetmap.org/")));
+
+        final MapViewport viewport = mapContent.getViewport();
+        viewport.setBounds(layer.getBounds().transform(crs, false));
+        //viewport.setBounds(envelope);
+        viewport.setScreenArea(rectangle);
+
+        StreamingRenderer renderer = new StreamingRenderer();
+        renderer.setMapContent(mapContent);
+        renderer.paint(graphics, rectangle, envelope);
+
+        ImageIO.write(image, "png", new File("data/legend/brandenWithData.png"));
+    }
+
     public void testProduceMapWithLegend() throws Exception {
         //FeatureLayer layer = LayerUtils.buildLayer("/home/adrien/data/geoserver/bdtopo_v2_Redon/building.geojson","data/sld/pop_grid_intervals.sld");
         //FeatureLayer layer = LayerUtils.buildLayer("/home/adrien/data/geoserver/bdtopo_v2_Redon/rsu_indicators.geojson","data/sld/rsu_indicators_filter_color_byid.sld");
@@ -249,7 +288,7 @@ public class BufferedImageLegendGraphicBuilderTest extends TestCase {
         ImageIO.write(image, "png", new FileOutputStream("data/legend/tileImage.png"));*/
         //mapContent.addLayer(new TileLayer(service));
 
-        //mapContent.addLayer(new AsyncTileLayer(new OSMService("Mapnik", "http://tile.openstreetmap.org/")));
+        mapContent.addLayer(new AsyncTileLayer(new OSMService("Mapnik", "http://tile.openstreetmap.org/")));
 
         /*CoordinateReferenceSystem worldCRS = CRS.decode("EPSG:4326", true);
         CoordinateReferenceSystem dataCRS = re.getCoordinateReferenceSystem();
@@ -261,13 +300,16 @@ public class BufferedImageLegendGraphicBuilderTest extends TestCase {
         /*CoordinateReferenceSystem crs = CRS.decode("EPSG:3857", true);
         ReferencedEnvelope envelope = new ReferencedEnvelope(566516.1128181651, 571832.3519307065, 5275726.889218023, 5281104.067690026, crs);*/
 
-        /*CoordinateReferenceSystem source = CRS.decode("EPSG:25832");
+        CoordinateReferenceSystem source = CRS.decode("EPSG:25832");
         CoordinateReferenceSystem target = CRS.decode("EPSG:4326");
         MathTransform transform2 = CRS.findMathTransform(source, target, true);
         Envelope targetGeometry2 = JTS.transform(re, transform2);
         ReferencedEnvelope envelope3 = new ReferencedEnvelope(targetGeometry2, target);
+        //ReferencedEnvelope envelope3 = new ReferencedEnvelope(10.0, 12.0, 59.0, 61.0, DefaultGeographicCRS.WGS84);
+        mapContent.getViewport().setBounds(envelope3);
 
-        mapContent.getViewport().setBounds(envelope3);*/
+        /*CoordinateReferenceSystem crs = CRS.decode("EPSG:3857", true);
+        mapContent.getViewport().setBounds(layer.getBounds().transform(crs, false));*/
 
         //mapContent.getViewport().setBounds(layer.getBounds());
         /*MapViewport mapViewport = new MapViewport();
