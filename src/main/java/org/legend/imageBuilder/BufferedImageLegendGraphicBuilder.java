@@ -30,6 +30,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
+import org.geotools.api.feature.Feature;
+import org.geotools.api.feature.type.FeatureType;
+import org.geotools.api.filter.expression.Expression;
+import org.geotools.api.filter.expression.Literal;
+import org.geotools.api.style.*;
 import org.geotools.geometry.jts.LiteShape2;
 import org.geotools.map.FeatureLayer;
 import org.geotools.renderer.lite.MetaBufferEstimator;
@@ -40,10 +45,6 @@ import org.geotools.styling.*;
 import org.geotools.styling.visitor.RescaleStyleVisitor;
 import org.geotools.util.NumberRange;
 import org.legend.utils.*;
-import org.opengis.feature.Feature;
-import org.opengis.feature.type.FeatureType;
-import org.opengis.filter.expression.Expression;
-import org.opengis.filter.expression.Literal;
 
 /**
  * Template based on <a

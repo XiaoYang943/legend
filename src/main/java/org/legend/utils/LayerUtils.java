@@ -20,19 +20,19 @@
 
 package org.legend.utils;
 
-import org.geotools.data.DataStore;
-import org.geotools.data.DataStoreFinder;
-import org.geotools.data.FeatureSource;
-import org.geotools.data.geojson.GeoJSONDataStoreFactory;
+import org.geotools.api.data.DataStore;
+import org.geotools.api.data.DataStoreFinder;
+import org.geotools.api.data.FeatureSource;
+import org.geotools.api.feature.simple.SimpleFeature;
+import org.geotools.api.feature.simple.SimpleFeatureType;
+import org.geotools.api.style.FeatureTypeStyle;
+import org.geotools.api.style.Style;
+import org.geotools.api.style.StyleFactory;
+import org.geotools.data.geojson.store.GeoJSONDataStoreFactory;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.map.FeatureLayer;
-import org.geotools.styling.FeatureTypeStyle;
-import org.geotools.styling.Style;
-import org.geotools.styling.StyleFactory;
 import org.geotools.util.URLs;
 import org.geotools.xml.styling.SLDParser;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 
 import java.io.File;
 import java.io.FileNotFoundException;

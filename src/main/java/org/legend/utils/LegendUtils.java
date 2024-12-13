@@ -21,14 +21,12 @@
 package org.legend.utils;
 
 import org.apache.commons.lang3.StringUtils;
+import org.geotools.api.filter.FilterFactory;
+import org.geotools.api.filter.expression.Expression;
+import org.geotools.api.style.*;
+import org.geotools.api.util.InternationalString;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.renderer.lite.RendererUtilities;
-import org.geotools.styling.*;
-import org.geotools.styling.Stroke;
-import org.opengis.filter.FilterFactory2;
-import org.opengis.filter.expression.Expression;
-import org.opengis.util.InternationalString;
-
 import java.awt.Font;
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
@@ -182,7 +180,7 @@ public class LegendUtils {
                         variable2 = variable.replace(operator, "").replace("[([", "").replace("]", "");
                         value = StringUtils.substringBetween(getColor, ", [", "])],");
                     }
-                    FilterFactory2 filterFactory2 = CommonFactoryFinder.getFilterFactory2();
+                    FilterFactory filterFactory2 = CommonFactoryFinder.getFilterFactory();
                     float LINE_WIDTH = 1.0f;
                     List<String> operatorList = new ArrayList<>();
                     assert operator != null;
@@ -196,23 +194,23 @@ public class LegendUtils {
                     }
                     for (int i = 0; i < 2; i++) {
                         Rule rule = styleFactory.createRule();
-                        Stroke stroke;
-                        if(getColor.contains("if_then_else")) {
-                            assert colors != null;
-                            stroke = styleFactory.createStroke(filterFactory2.literal("#" + colors[i]), filterFactory2.literal(LINE_WIDTH));
-                        }
-                        else{
-                            if(getWidth.toString().contains("if_then_else")){
-                                assert widthList != null;
-                                stroke = styleFactory.createStroke(filterFactory2.literal(getColor), filterFactory2.literal(widthList.get(i)));
-                            }
-                            else {
-                                stroke = styleFactory.createStroke(filterFactory2.literal(getColor), filterFactory2.literal(LINE_WIDTH));
-                            }
-                        }
-                        Symbolizer symbolizer = styleFactory.createLineSymbolizer(stroke, null);
-                        rule.symbolizers().add(symbolizer);
-                        rule.setName(variable2 + " " + operatorList.get(i) + " " + value);
+//                        Stroke stroke;
+//                        if(getColor.contains("if_then_else")) {
+//                            assert colors != null;
+//                            stroke = styleFactory.createStroke(filterFactory2.literal("#" + colors[i]), filterFactory2.literal(LINE_WIDTH));
+//                        }
+//                        else{
+//                            if(getWidth.toString().contains("if_then_else")){
+//                                assert widthList != null;
+//                                stroke = styleFactory.createStroke(filterFactory2.literal(getColor), filterFactory2.literal(widthList.get(i)));
+//                            }
+//                            else {
+//                                stroke = styleFactory.createStroke(filterFactory2.literal(getColor), filterFactory2.literal(LINE_WIDTH));
+//                            }
+//                        }
+//                        Symbolizer symbolizer = styleFactory.createLineSymbolizer(stroke, null);
+//                        rule.symbolizers().add(symbolizer);
+//                        rule.setName(variable2 + " " + operatorList.get(i) + " " + value);
                         ruleList.add(rule);
                     }
                 }

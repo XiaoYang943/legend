@@ -20,7 +20,8 @@
 
 package org.legend.utils;
 
-import org.geotools.styling.Rule;
+
+import org.geotools.api.style.Rule;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;

@@ -20,6 +20,15 @@
 
 package org.legend.imageBuilder;
 
+import org.geotools.api.feature.Feature;
+import org.geotools.api.feature.IllegalAttributeException;
+import org.geotools.api.feature.simple.SimpleFeatureType;
+import org.geotools.api.feature.type.AttributeDescriptor;
+import org.geotools.api.feature.type.FeatureType;
+import org.geotools.api.feature.type.GeometryDescriptor;
+import org.geotools.api.filter.expression.Expression;
+import org.geotools.api.filter.expression.Literal;
+import org.geotools.api.style.*;
 import org.geotools.data.DataUtilities;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.geometry.jts.LiteShape2;
@@ -28,14 +37,6 @@ import org.geotools.styling.*;
 import org.geotools.styling.visitor.RescaleStyleVisitor;
 import org.legend.utils.LegendUtils;
 import org.locationtech.jts.geom.*;
-import org.opengis.feature.Feature;
-import org.opengis.feature.IllegalAttributeException;
-import org.opengis.feature.simple.SimpleFeatureType;
-import org.opengis.feature.type.AttributeDescriptor;
-import org.opengis.feature.type.FeatureType;
-import org.opengis.feature.type.GeometryDescriptor;
-import org.opengis.filter.expression.Expression;
-import org.opengis.filter.expression.Literal;
 
 import java.util.Map;
 

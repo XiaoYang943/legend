@@ -20,9 +20,9 @@
 
 package org.legend.model;
 
+import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
 import org.geotools.map.FeatureLayer;
 import org.geotools.renderer.lite.RendererUtilities;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import java.awt.*;
 import java.awt.geom.Line2D;

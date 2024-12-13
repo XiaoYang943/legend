@@ -1,10 +1,17 @@
 package org.legend.imageBuilder;
 
 import junit.framework.TestCase;
-import org.geotools.data.DataStore;
-import org.geotools.data.DataStoreFinder;
-import org.geotools.data.FeatureSource;
-import org.geotools.data.geojson.GeoJSONDataStoreFactory;
+import org.geotools.api.data.DataStore;
+import org.geotools.api.data.DataStoreFinder;
+import org.geotools.api.data.FeatureSource;
+import org.geotools.api.feature.simple.SimpleFeature;
+import org.geotools.api.feature.simple.SimpleFeatureType;
+import org.geotools.api.feature.type.GeometryDescriptor;
+import org.geotools.api.filter.FilterFactory;
+import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
+import org.geotools.api.style.*;
+import org.geotools.api.style.Stroke;
+import org.geotools.data.geojson.store.GeoJSONDataStoreFactory;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.geometry.jts.Geometries;
 import org.geotools.geometry.jts.JTS;
@@ -14,10 +21,7 @@ import org.geotools.map.MapContent;
 import org.geotools.map.MapViewport;
 import org.geotools.referencing.CRS;
 import org.geotools.renderer.lite.StreamingRenderer;
-import org.geotools.styling.Stroke;
 import org.geotools.styling.*;
-import org.geotools.tile.impl.osm.OSMService;
-import org.geotools.tile.util.AsyncTileLayer;
 import org.geotools.util.URLs;
 import org.geotools.xml.styling.SLDParser;
 import org.legend.model.Compass;
@@ -26,13 +30,6 @@ import org.legend.utils.JsonCartoReader;
 import org.legend.utils.LayerUtils;
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Geometry;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
-import org.opengis.feature.type.GeometryDescriptor;
-import org.opengis.filter.FilterFactory2;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.operation.MathTransform;
-
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -110,7 +107,7 @@ public class BufferedImageLegendGraphicBuilderTest extends TestCase {
         // Factories that we use to create style and filter objects
         StyleFactory styleFactory = CommonFactoryFinder.getStyleFactory();
 
-        FilterFactory2 filterFactory2 = CommonFactoryFinder.getFilterFactory2();
+        FilterFactory filterFactory2 = CommonFactoryFinder.getFilterFactory();
 
         float LINE_WIDTH = 1.0f;
         Stroke stroke = styleFactory.createStroke(filterFactory2.literal(Color.green), filterFactory2.literal(LINE_WIDTH));
@@ -247,7 +244,7 @@ public class BufferedImageLegendGraphicBuilderTest extends TestCase {
 
         MapContent mapContent = new MapContent();
         mapContent.addLayer(layer);
-        mapContent.addLayer(new AsyncTileLayer(new OSMService("Mapnik", "http://tile.openstreetmap.org/")));
+//        mapContent.addLayer(new AsyncTileLayer(new OSMService("Mapnik", "http://tile.openstreetmap.org/")));
 
         final MapViewport viewport = mapContent.getViewport();
         viewport.setBounds(layer.getBounds().transform(crs, false));
@@ -288,7 +285,7 @@ public class BufferedImageLegendGraphicBuilderTest extends TestCase {
         ImageIO.write(image, "png", new FileOutputStream("data/legend/tileImage.png"));*/
         //mapContent.addLayer(new TileLayer(service));
 
-        mapContent.addLayer(new AsyncTileLayer(new OSMService("Mapnik", "http://tile.openstreetmap.org/")));
+//        mapContent.addLayer(new AsyncTileLayer(new OSMService("Mapnik", "http://tile.openstreetmap.org/")));
 
         /*CoordinateReferenceSystem worldCRS = CRS.decode("EPSG:4326", true);
         CoordinateReferenceSystem dataCRS = re.getCoordinateReferenceSystem();
@@ -302,11 +299,11 @@ public class BufferedImageLegendGraphicBuilderTest extends TestCase {
 
         CoordinateReferenceSystem source = CRS.decode("EPSG:25832");
         CoordinateReferenceSystem target = CRS.decode("EPSG:4326");
-        MathTransform transform2 = CRS.findMathTransform(source, target, true);
-        Envelope targetGeometry2 = JTS.transform(re, transform2);
-        ReferencedEnvelope envelope3 = new ReferencedEnvelope(targetGeometry2, target);
+//        MathTransform transform2 = CRS.findMathTransform(source, target, true);
+//        Envelope targetGeometry2 = JTS.transform(re, transform2);
+//        ReferencedEnvelope envelope3 = new ReferencedEnvelope(targetGeometry2, target);
         //ReferencedEnvelope envelope3 = new ReferencedEnvelope(10.0, 12.0, 59.0, 61.0, DefaultGeographicCRS.WGS84);
-        mapContent.getViewport().setBounds(envelope3);
+//        mapContent.getViewport().setBounds(envelope3);
 
         /*CoordinateReferenceSystem crs = CRS.decode("EPSG:3857", true);
         mapContent.getViewport().setBounds(layer.getBounds().transform(crs, false));*/
