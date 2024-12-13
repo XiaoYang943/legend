@@ -63,33 +63,33 @@ public class BufferedImageLegendGraphicBuilderTest extends TestCase {
         Style style2 = createStyle(featureSource2, "landcover2000");
         FeatureLayer layer2 = new FeatureLayer(featureSource2, style2);
 
-        // 2nd data source
-        File file = new File("data/shp/hedgerow/hedgerow.shp");
-        Map<String, String> connect = new HashMap();
-        connect.put("url", file.toURI().toString());
-        DataStore dataStore = DataStoreFinder.getDataStore(connect);
-        String[] typeNames = dataStore.getTypeNames();
-        String typeName = typeNames[0];
-        FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = dataStore.getFeatureSource(typeName);
-        Style style = createStyle(featureSource,"hedgerow\nanotherline");
-        FeatureLayer layer = new FeatureLayer(featureSource, style);
-
-        // 3rd data source
-        File inFile = new File("/home/adrien/data/geoserver/bdtopo_v2_Redon/building.geojson");
-        Map<String, Object> params = new HashMap<>();
-        params.put(GeoJSONDataStoreFactory.URL_PARAM.key, URLs.fileToUrl(inFile));
-        DataStore dataStore3 = DataStoreFinder.getDataStore(params);
-        String[] typeNames3 = dataStore3.getTypeNames();
-        String typeName3 = typeNames3[0];
-        FeatureSource<SimpleFeatureType, SimpleFeature> featureSource3 = dataStore3.getFeatureSource(typeName3);
-        Style sld = getSldStyle("data/sld/pop_grid_intervals.sld");
-        FeatureLayer layer3 = new FeatureLayer(featureSource3, sld);
-        //layer3.setTitle("population density");
+//        // 2nd data source
+//        File file = new File("data/shp/hedgerow/hedgerow.shp");
+//        Map<String, String> connect = new HashMap();
+//        connect.put("url", file.toURI().toString());
+//        DataStore dataStore = DataStoreFinder.getDataStore(connect);
+//        String[] typeNames = dataStore.getTypeNames();
+//        String typeName = typeNames[0];
+//        FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = dataStore.getFeatureSource(typeName);
+//        Style style = createStyle(featureSource,"hedgerow\nanotherline");
+//        FeatureLayer layer = new FeatureLayer(featureSource, style);
+//
+//        // 3rd data source
+//        File inFile = new File("/home/adrien/data/geoserver/bdtopo_v2_Redon/building.geojson");
+//        Map<String, Object> params = new HashMap<>();
+//        params.put(GeoJSONDataStoreFactory.URL_PARAM.key, URLs.fileToUrl(inFile));
+//        DataStore dataStore3 = DataStoreFinder.getDataStore(params);
+//        String[] typeNames3 = dataStore3.getTypeNames();
+//        String typeName3 = typeNames3[0];
+//        FeatureSource<SimpleFeatureType, SimpleFeature> featureSource3 = dataStore3.getFeatureSource(typeName3);
+//        Style sld = getSldStyle("data/sld/pop_grid_intervals.sld");
+//        FeatureLayer layer3 = new FeatureLayer(featureSource3, sld);
+//        //layer3.setTitle("population density");
 
         List<FeatureLayer> layerList = new ArrayList<>();
-        layerList.add(layer);
+//        layerList.add(layer);
         layerList.add(layer2);
-        layerList.add(layer3);
+//        layerList.add(layer3);
         return layerList;
     }
 
@@ -215,6 +215,8 @@ public class BufferedImageLegendGraphicBuilderTest extends TestCase {
         legendOptions.put("fontStyle", "bold");
         legendOptions.put("fontColor",Color.BLUE); // default is Color.BLACK;
         legendOptions.put("fontSize","14"); // default is 12;
+        legendOptions.put("labelXposition",0);
+        legendOptions.put("labelXOffset",0);
 
         BufferedImageLegendGraphicBuilder builder = new BufferedImageLegendGraphicBuilder();
         BufferedImage bufferedImage = builder.buildLegendGraphic(produceLayerList(),legendOptions);
@@ -225,7 +227,7 @@ public class BufferedImageLegendGraphicBuilderTest extends TestCase {
         Graphics2D g = (Graphics2D) newImage.getGraphics();
         g.drawImage(bufferedImage, padding, padding, null);
         g.dispose();
-        ImageIO.write(bufferedImage,"png",new FileOutputStream("data/legend/legend2.png"));
+        ImageIO.write(bufferedImage,"png",new FileOutputStream("data/legend/output/legend2.png"));
     }
 
     public void testOsmProjection() throws Exception {
