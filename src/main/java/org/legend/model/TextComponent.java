@@ -20,6 +20,8 @@
 
 package org.legend.model;
 
+import org.legend.model.base.BaseComponent;
+
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Line2D;
@@ -30,14 +32,14 @@ import java.awt.image.BufferedImage;
  *
  * @author Adrien Bessy
  */
-public class TextItem extends Item{
+public class TextComponent extends BaseComponent {
 
     private final Font font;
     String content;
     Color titleColor;
     boolean underlined;
 
-    public TextItem(String content, Color titleColor, Font font, boolean underlined){
+    public TextComponent(String content, Color titleColor, Font font, boolean underlined){
         this.content = content;
         this.titleColor = titleColor;
         this.font = font;

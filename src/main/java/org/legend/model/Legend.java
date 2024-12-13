@@ -20,11 +20,13 @@
 
 package org.legend.model;
 
+import org.legend.model.base.BaseComponent;
+
 /**
  * Provides methods to build a legend buffered image.
  *
  * @author Adrien Bessy
  */
-public class Legend extends Item{
+public class Legend extends BaseComponent {
 
 }

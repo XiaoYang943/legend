@@ -21,7 +21,6 @@
 package org.legend.model;
 
 import org.geotools.geometry.jts.ReferencedEnvelope;
-import org.geotools.map.FeatureLayer;
 import org.geotools.map.MapContent;
 import org.geotools.renderer.GTRenderer;
 import org.geotools.renderer.label.LabelCacheImpl;
@@ -36,11 +35,11 @@ import java.util.HashMap;
  *
  * @author Adrien Bessy
  */
-public class MapItem {
+public class MapComponent {
 
     MapContent map;
 
-    public MapItem(MapContent map){
+    public MapComponent(MapContent map){
         this.map = map;
     }
 

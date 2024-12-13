@@ -11,24 +11,20 @@ import org.geotools.api.filter.FilterFactory;
 import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
 import org.geotools.api.style.*;
 import org.geotools.api.style.Stroke;
-import org.geotools.data.geojson.store.GeoJSONDataStoreFactory;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.geometry.jts.Geometries;
-import org.geotools.geometry.jts.JTS;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.map.FeatureLayer;
 import org.geotools.map.MapContent;
 import org.geotools.map.MapViewport;
 import org.geotools.referencing.CRS;
 import org.geotools.renderer.lite.StreamingRenderer;
-import org.geotools.styling.*;
-import org.geotools.util.URLs;
 import org.geotools.xml.styling.SLDParser;
 import org.legend.model.Compass;
+import org.legend.model.MapComponent;
 import org.legend.model.MapDocument;
 import org.legend.utils.JsonCartoReader;
 import org.legend.utils.LayerUtils;
-import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Geometry;
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -325,7 +321,7 @@ public class BufferedImageLegendGraphicBuilderTest extends TestCase {
         map.addLayer(new TileLayer(new BingService("Road", baseURL)));
 */
 
-        org.legend.model.MapItem modelMap = new org.legend.model.MapItem(mapContent);
+        MapComponent modelMap = new MapComponent(mapContent);
         BufferedImage mapBufferedImage = modelMap.paintMap(1000, false,0);
         //ImageIO.write(mapBufferedImage, "png", new FileOutputStream("data/legend/building_map.png"));
 

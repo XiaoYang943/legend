@@ -23,6 +23,7 @@ package org.legend.model;
 import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
 import org.geotools.map.FeatureLayer;
 import org.geotools.renderer.lite.RendererUtilities;
+import org.legend.model.base.BaseComponent;
 
 import java.awt.*;
 import java.awt.geom.Line2D;
@@ -33,14 +34,14 @@ import java.awt.image.BufferedImage;
  *
  * @author Adrien Bessy
  */
-public class Scale extends Item{
+public class ScaleComponent extends BaseComponent {
 
     double worldWidth;
     int imageWidth;
     int strokeWidth = 5;
     Font font;
 
-    public Scale(FeatureLayer layer, int imageWidth){
+    public ScaleComponent(FeatureLayer layer, int imageWidth){
         double re = layer.getBounds().getWidth();
         CoordinateReferenceSystem crs = layer.getBounds().getCoordinateReferenceSystem();
         this.worldWidth = RendererUtilities.toMeters(re, crs);

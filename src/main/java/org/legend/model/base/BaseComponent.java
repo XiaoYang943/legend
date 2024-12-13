@@ -18,12 +18,12 @@
  *
  */
 
-package org.legend.model;
+package org.legend.model.base;
 
 import java.awt.image.BufferedImage;
 import java.util.List;
 
-abstract public class Item {
+abstract public class BaseComponent {
 
     int positionX;
     int positionY;

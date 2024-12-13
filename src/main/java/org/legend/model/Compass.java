@@ -41,7 +41,7 @@ import java.awt.geom.Point2D;
  *
  * @author Adrien Bessy
  */
-public class Compass extends ImageItem{
+public class Compass extends ImageComponent {
 
     static CoordinateReferenceSystem GROUND;
     static {

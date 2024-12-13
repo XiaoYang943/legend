@@ -28,6 +28,7 @@ import org.geotools.map.FeatureLayer;
 import org.geotools.map.MapContent;
 import org.legend.imageBuilder.BufferedImageLegendGraphicBuilder;
 import org.legend.model.*;
+import org.legend.model.TextComponent;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -73,7 +74,7 @@ public class JsonCartoReader {
                     FeatureLayer layer = LayerUtils.buildLayer(layerList.get(i), sldList.get(i));
                     mapContent.addLayer(layer);
                 }
-                org.legend.model.MapItem modelMap = new org.legend.model.MapItem(mapContent);
+                MapComponent modelMap = new MapComponent(mapContent);
                 BufferedImage mapBufferedImage = modelMap.paintMap(Integer.parseInt(jsonNode.get("size").toString().replace("\"", "")), Boolean.parseBoolean(jsonNode.get("frame").toString()),Integer.parseInt(jsonNode.get("frameRightExtension").toString().replace("\"", "")));
                 mapBufferedImageMaxWidth = java.lang.Math.max(mapBufferedImage.getWidth(), mapBufferedImageMaxWidth);
                 mapBufferedImageMaxHeight = java.lang.Math.max(mapBufferedImage.getHeight(), mapBufferedImageMaxHeight);
@@ -82,7 +83,7 @@ public class JsonCartoReader {
                 FeatureLayer layer = LayerUtils.buildLayer(jsonNode.get("layers").toString().replace("\"", ""), jsonNode.get("sld").toString().replace("\"", ""));
                 MapContent mapContent = new MapContent();
                 mapContent.addLayer(layer);
-                org.legend.model.MapItem modelMap = new org.legend.model.MapItem(mapContent);
+                MapComponent modelMap = new MapComponent(mapContent);
                 BufferedImage mapBufferedImage = modelMap.paintMap(Integer.parseInt(jsonNode.get("size").toString().replace("\"", "")), Boolean.parseBoolean(jsonNode.get("frame").toString()),Integer.parseInt(jsonNode.get("frameRightExtension").toString().replace("\"", "")));
                 mapBufferedImageMaxWidth = java.lang.Math.max(mapBufferedImage.getWidth(), mapBufferedImageMaxWidth);
                 mapBufferedImageMaxHeight = java.lang.Math.max(mapBufferedImage.getHeight(), mapBufferedImageMaxHeight);
@@ -103,7 +104,7 @@ public class JsonCartoReader {
                     FeatureLayer layer = LayerUtils.buildLayer(layerList.get(i), sldList.get(i));
                     mapContent2.addLayer(layer);
                 }
-                org.legend.model.MapItem modelMap = new org.legend.model.MapItem(mapContent2);
+                MapComponent modelMap = new MapComponent(mapContent2);
                 BufferedImage mapBufferedImage = modelMap.paintMap(1000, true,Integer.parseInt(jsonNode.get("frameRightExtension").toString().replace("\"", "")));
                 if (jsonNode.get("position").isArray()) {
                     this.g = frame.paintMapOnMapDocument(reader.readValue(jsonNode.get("position")), mapBufferedImage, g, getColor(mapDocumentArrayNode.findValue("bgColor").toString().replace("\"", "")));
@@ -115,7 +116,7 @@ public class JsonCartoReader {
                 FeatureLayer layer = LayerUtils.buildLayer(jsonNode.get("layers").toString().replace("\"", ""), jsonNode.get("sld").toString().replace("\"", ""));
                 MapContent mapContent3 = new MapContent();
                 mapContent3.addLayer(layer);
-                org.legend.model.MapItem modelMap = new org.legend.model.MapItem(mapContent3);
+                MapComponent modelMap = new MapComponent(mapContent3);
                 BufferedImage mapBufferedImage = modelMap.paintMap(Integer.parseInt(jsonNode.get("size").toString().replace("\"", "")), Boolean.parseBoolean(jsonNode.get("frame").toString()),Integer.parseInt(jsonNode.get("frameRightExtension").toString().replace("\"", "")));
                 if (jsonNode.get("position").isArray()) {
                     this.g = frame.paintMapOnMapDocument(reader.readValue(jsonNode.get("position")), mapBufferedImage, g, getColor(mapDocumentArrayNode.findValue("bgColor").toString().replace("\"", "")));
@@ -164,14 +165,14 @@ public class JsonCartoReader {
                 String color1 = jsonNode.get("fontColor").toString().replace("\"", "");
                 Field field = Class.forName("java.awt.Color").getField(color1);
                 Color color = (Color) field.get(null);
-                TextItem textItem = new TextItem(jsonNode.get("content").toString().replace("\"", ""), color, titleFont, Boolean.parseBoolean(jsonNode.get("underlined").toString()));
-                BufferedImage titleBufferedImage = textItem.paintText(Boolean.parseBoolean(jsonNode.get("vertical").toString()));
+                TextComponent textComponent = new TextComponent(jsonNode.get("content").toString().replace("\"", ""), color, titleFont, Boolean.parseBoolean(jsonNode.get("underlined").toString()));
+                BufferedImage titleBufferedImage = textComponent.paintText(Boolean.parseBoolean(jsonNode.get("vertical").toString()));
                 if (jsonNode.get("position").isArray()) {
-                    textItem.setPosition(reader.readValue(jsonNode.get("position")));
+                    textComponent.setPosition(reader.readValue(jsonNode.get("position")));
                 } else {
-                    textItem.setPosition(jsonNode.get("position").toString().replace("[", "").replace("]", "").replace("\"", ""), frame.getImgWidth(), frame.getImgHeight(), titleBufferedImage);
+                    textComponent.setPosition(jsonNode.get("position").toString().replace("[", "").replace("]", "").replace("\"", ""), frame.getImgWidth(), frame.getImgHeight(), titleBufferedImage);
                 }
-                g.drawImage(titleBufferedImage, textItem.getPositionX(), textItem.getPositionY(), null);
+                g.drawImage(titleBufferedImage, textComponent.getPositionX(), textComponent.getPositionY(), null);
             }
         }
 
@@ -195,16 +196,16 @@ public class JsonCartoReader {
         if(scaleArrayNode != null) {
             for (JsonNode jsonNode : scaleArrayNode) {
                 FeatureLayer layer = LayerUtils.buildLayer(jsonNode.get("layers").toString().replace("\"", ""), jsonNode.get("sld").toString().replace("\"", ""));
-                Scale mapScale = new Scale(layer, frame.getImgWidth());
-                mapScale.setStrokeWidth(Integer.parseInt(jsonNode.get("strokeWidth").toString().replace("\"", "")));
-                mapScale.setFont(new Font(jsonNode.get("fontName").toString().replace("\"", ""), getFontStyle(jsonNode.get("fontStyle").toString().replace("\"", "")), Integer.parseInt(jsonNode.get("fontSize").toString().replace("\"", ""))));
-                BufferedImage scaleBufferedImage = mapScale.paintMapScale(jsonNode.get("bars").toString().replace("\"", ""));
+                ScaleComponent mapScaleComponent = new ScaleComponent(layer, frame.getImgWidth());
+                mapScaleComponent.setStrokeWidth(Integer.parseInt(jsonNode.get("strokeWidth").toString().replace("\"", "")));
+                mapScaleComponent.setFont(new Font(jsonNode.get("fontName").toString().replace("\"", ""), getFontStyle(jsonNode.get("fontStyle").toString().replace("\"", "")), Integer.parseInt(jsonNode.get("fontSize").toString().replace("\"", ""))));
+                BufferedImage scaleBufferedImage = mapScaleComponent.paintMapScale(jsonNode.get("bars").toString().replace("\"", ""));
                 if (jsonNode.get("position").isArray()) {
-                    mapScale.setPosition(reader.readValue(jsonNode.get("position")));
+                    mapScaleComponent.setPosition(reader.readValue(jsonNode.get("position")));
                 } else {
-                    mapScale.setPosition(jsonNode.get("position").toString().replace("\"", ""), frame.getImgWidth(), frame.getImgHeight(), scaleBufferedImage);
+                    mapScaleComponent.setPosition(jsonNode.get("position").toString().replace("\"", ""), frame.getImgWidth(), frame.getImgHeight(), scaleBufferedImage);
                 }
-                g.drawImage(scaleBufferedImage, mapScale.getPositionX(), mapScale.getPositionY(), null);
+                g.drawImage(scaleBufferedImage, mapScaleComponent.getPositionX(), mapScaleComponent.getPositionY(), null);
             }
         }
         g.dispose();

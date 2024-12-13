@@ -8,6 +8,7 @@ import org.apache.batik.transcoder.TranscodingHints;
 import org.apache.batik.transcoder.image.ImageTranscoder;
 import org.apache.batik.util.SVGConstants;
 import org.apache.commons.io.FileUtils;
+import org.legend.model.base.BaseComponent;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -15,7 +16,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 
-public class ImageItem extends Item{
+public class ImageComponent extends BaseComponent {
     String filePath;
 
     /**
