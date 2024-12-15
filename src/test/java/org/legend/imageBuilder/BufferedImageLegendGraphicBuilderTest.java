@@ -6,24 +6,15 @@ import org.geotools.api.data.DataStoreFinder;
 import org.geotools.api.data.FeatureSource;
 import org.geotools.api.feature.simple.SimpleFeature;
 import org.geotools.api.feature.simple.SimpleFeatureType;
-import org.geotools.api.feature.type.GeometryDescriptor;
-import org.geotools.api.filter.FilterFactory;
-import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
-import org.geotools.api.style.*;
-import org.geotools.api.style.Stroke;
-import org.geotools.data.geojson.store.GeoJSONDataStoreFactory;
+import org.geotools.api.style.FeatureTypeStyle;
+import org.geotools.api.style.Style;
+import org.geotools.api.style.StyleFactory;
 import org.geotools.factory.CommonFactoryFinder;
-import org.geotools.geometry.jts.Geometries;
-import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.map.FeatureLayer;
-import org.geotools.map.MapContent;
-import org.geotools.map.MapViewport;
-import org.geotools.referencing.CRS;
-import org.geotools.renderer.lite.StreamingRenderer;
-import org.geotools.util.URLs;
 import org.geotools.xml.styling.SLDParser;
-import org.legend.utils.LayerUtils;
-import org.locationtech.jts.geom.Geometry;
+import org.legend.options.LegendOptions;
+import org.legend.utils.LegendUtils;
+
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -45,7 +36,7 @@ public class BufferedImageLegendGraphicBuilderTest extends TestCase {
 
 
     public List<FeatureLayer> produceLayerList() throws Exception {
-         File file2 = new File("D:\\data\\vector\\shp\\国土资源shp\\地类图斑_安康市.shp");
+        File file2 = new File("D:\\data\\vector\\shp\\国土资源shp\\地类图斑_安康市.shp");
         Map<String, String> connect2 = new HashMap<>();
         connect2.put("url", file2.toURI().toString());
         DataStore dataStore2 = DataStoreFinder.getDataStore(connect2);
@@ -59,8 +50,6 @@ public class BufferedImageLegendGraphicBuilderTest extends TestCase {
         layerList.add(layer4);
         return layerList;
     }
-
-
 
 
     /**
@@ -96,36 +85,57 @@ public class BufferedImageLegendGraphicBuilderTest extends TestCase {
      *
      */
     public void testBuildLegendGraphic() throws Exception {
-        Map legendOptions =new HashMap<>();
-        legendOptions.put("width",35); // default is 50
-        legendOptions.put("height",35); // default is 50
+
+        // TODO-hyy
+        LegendOptions legendOptionsNew = LegendOptions.builder()
+                .width(35)
+                .height(35)
+                .transparent(false)
+                .bgColor("bgColor")
+                .ruleLabelMargin(0)
+                .verticalRuleMargin(0)
+                .horizontalRuleMargin(20)
+                .layout(LegendUtils.LegendLayout.VERTICAL)
+                .verticalMarginBetweenLayers(0)
+                .horizontalMarginBetweenLayers(0)
+                .fontName("TimesRoman")
+                .fontStyle("bold")
+                .fontColor("fontColor")
+                .fontSize(14)
+                .labelXposition(0)
+                .labelXOffset(-50)
+                .build();
+
+        Map legendOptions = new HashMap<>();
+        legendOptions.put("width", 35); // default is 50
+        legendOptions.put("height", 35); // default is 50
         //legendOptions.put("forceRuleLabelsOff","on");
-        legendOptions.put("transparent","off"); // default is off
-        legendOptions.put("bgColor",Color.WHITE); // default is Color.WHITE;    // 背景色
+        legendOptions.put("transparent", "off"); // default is off
+        legendOptions.put("bgColor", Color.WHITE); // default is Color.WHITE;    // 背景色
         // Set the space between the image and the rule label
-        legendOptions.put("ruleLabelMargin",0); //default is 3;    // 没用
-        legendOptions.put("verticalRuleMargin",0); //default is 0; // rule垂直margin
-        legendOptions.put("horizontalRuleMargin",20); //default is 0;// rule水平margin
-        legendOptions.put("layout","VERTICAL"); //default is VERTICAL;(HORIZONTAL\VERTICAL)  // 布局方向
+        legendOptions.put("ruleLabelMargin", 0); //default is 3;    // 没用
+        legendOptions.put("verticalRuleMargin", 0); //default is 0; // rule垂直margin
+        legendOptions.put("horizontalRuleMargin", 20); //default is 0;// rule水平margin
+        legendOptions.put("layout", "VERTICAL"); //default is VERTICAL;(HORIZONTAL\VERTICAL)  // 布局方向
         legendOptions.put("verticalMarginBetweenLayers", 0); //default is 0;    // 没用
         legendOptions.put("horizontalMarginBetweenLayers", 0); //default is 0;  // 没用
         legendOptions.put("fontName", "TimesRoman"); //default is "Sans-Serif"
         legendOptions.put("fontStyle", "bold");
-        legendOptions.put("fontColor",Color.BLACK); // default is Color.BLACK;  // 字体颜色
-        legendOptions.put("fontSize","14"); // default is 12;   // 字体大小
-        legendOptions.put("labelXposition",0);  // 标题-margin-left
-        legendOptions.put("labelXOffset",-50);  // rule文字-margin-left
+        legendOptions.put("fontColor", Color.BLACK); // default is Color.BLACK;  // 字体颜色
+        legendOptions.put("fontSize", ""); // default is 12;   // 字体大小
+        legendOptions.put("labelXposition", 0);  // 标题-margin-left
+        legendOptions.put("labelXOffset", -50);  // rule文字-margin-left
 
-        legendOptions.put("test",50);  // rule文字-margin-left
+        legendOptions.put("test", 50);  // rule文字-margin-left
         BufferedImageLegendGraphicBuilder builder = new BufferedImageLegendGraphicBuilder();
-        BufferedImage bufferedImage = builder.buildLegendGraphic(produceLayerList(),legendOptions);
-        
+        BufferedImage bufferedImage = builder.buildLegendGraphic(produceLayerList(), legendOptions, legendOptionsNew);
+
         int padding = 100;
         BufferedImage newImage = new BufferedImage(bufferedImage.getWidth()
-                + padding *2, bufferedImage.getHeight() + padding *2, BufferedImage.TYPE_INT_ARGB);
+                + padding * 2, bufferedImage.getHeight() + padding * 2, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = (Graphics2D) newImage.getGraphics();
         g.drawImage(bufferedImage, padding, padding, null);
         g.dispose();
-        ImageIO.write(bufferedImage,"png",new FileOutputStream("data/legend/output/legend4.png"));
+        ImageIO.write(bufferedImage, "png", new FileOutputStream("data/legend/output/legend8.png"));
     }
 }

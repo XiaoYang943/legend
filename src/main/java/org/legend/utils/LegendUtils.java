@@ -26,7 +26,8 @@ import org.geotools.api.filter.expression.Expression;
 import org.geotools.api.style.*;
 import org.geotools.api.util.InternationalString;
 import org.geotools.factory.CommonFactoryFinder;
-import org.geotools.renderer.lite.RendererUtilities;
+import org.legend.options.LegendOptions;
+
 import java.awt.Font;
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
@@ -40,7 +41,7 @@ import java.util.logging.Logger;
  *
  * <p>I am not preventing people from subclassing this method so that they could add their own
  * utility methods.
- *  Comes from the package org.geoserver.wms.legendgraphic
+ * Comes from the package org.geoserver.wms.legendgraphic
  *
  * @author Adrien Bessy (entirely based on what Simone Giannecchini, GeoSolutions SAS did with GeoServer)
  */
@@ -62,63 +63,95 @@ public class LegendUtils {
      * <p>If it <code>null</code> it must throw a {@link NullPointerException}.
      *
      * @param argument argument to check for <code>null</code>.
-     * @param message leading message to print out in case the test fails.
+     * @param message  leading message to print out in case the test fails.
      */
     protected static void ensureNotNull(final Object argument, final String message) {
         if (message == null) throw new NullPointerException("Message cannot be null");
         if (argument == null) throw new NullPointerException(message + " cannot be null");
     }
 
-    /** Legend layouts */
+    /**
+     * Legend layouts
+     */
     public enum LegendLayout {
         HORIZONTAL,
         VERTICAL
     }
 
-    /** Default {@link Font} name for legends. */
+    /**
+     * Default {@link Font} name for legends.
+     */
     public static final String DEFAULT_FONT_NAME = "Sans-Serif";
 
-    /** Default {@link Font} for legends. */
+    /**
+     * Default {@link Font} for legends.
+     */
     public static final int DEFAULT_FONT_TYPE = Font.PLAIN;
 
-    /** Default {@link Font} for legends. */
+    /**
+     * Default {@link Font} for legends.
+     */
     public static final int DEFAULT_FONT_SIZE = 12;
 
-    /** Default {@link Font} for legends. */
+    /**
+     * Default {@link Font} for legends.
+     */
     public static final Font DEFAULT_FONT = new Font("Sans-Serif", Font.PLAIN, 12);
 
-    /** Default Legend graphics background color */
+    /**
+     * Default Legend graphics background color
+     */
     public static final Color DEFAULT_BG_COLOR = Color.WHITE;
-    /** Default label color */
+    /**
+     * Default label color
+     */
     public static final Color DEFAULT_FONT_COLOR = Color.BLACK;
 
-    /** padding percentage factor at both sides of the legend. */
+    /**
+     * padding percentage factor at both sides of the legend.
+     */
     public static final float hpaddingFactor = 0.15f;
-    /** top & bottom padding percentage factor for the legend */
+    /**
+     * top & bottom padding percentage factor for the legend
+     */
     public static final float vpaddingFactor = 0.15f;
 
-    /** padding percentage factor at both sides of the legend. */
+    /**
+     * padding percentage factor at both sides of the legend.
+     */
     public static final float marginFactor = 0.015f;
-    //private final double vMarginPercentage = LegendUtils.marginFactor;
-    //private final double hMarginPercentage = LegendUtils.marginFactor;
+    //public final double vMarginPercentage = LegendUtils.marginFactor;
+    //public final double hMarginPercentage = LegendUtils.marginFactor;
 
-    /** default legend graphic layout is vertical */
-    private static final LegendLayout DEFAULT_LAYOUT = LegendLayout.VERTICAL;
+    /**
+     * default legend graphic layout is vertical
+     */
+    public static final LegendLayout DEFAULT_LAYOUT = LegendLayout.VERTICAL;
 
-    /** default column height is not limited */
-    private static final int DEFAULT_COLUMN_HEIGHT = 0;
+    /**
+     * default column height is not limited
+     */
+    public static final int DEFAULT_COLUMN_HEIGHT = 0;
 
-    /** default row width is not limited */
-    private static final int DEFAULT_ROW_WIDTH = 0;
+    /**
+     * default row width is not limited
+     */
+    public static final int DEFAULT_ROW_WIDTH = 0;
 
-    /** default column number is not limited */
-    private static final int DEFAULT_COLUMNS = 0;
+    /**
+     * default column number is not limited
+     */
+    public static final int DEFAULT_COLUMNS = 0;
 
-    /** default row number is not limited */
-    private static final int DEFAULT_ROWS = 0;
+    /**
+     * default row number is not limited
+     */
+    public static final int DEFAULT_ROWS = 0;
 
-    /** shared package's logger */
-    private static final Logger LOGGER = org.geotools.util.logging.Logging.getLogger(LegendUtils.class.getPackage().getName());
+    /**
+     * shared package's logger
+     */
+    public static final Logger LOGGER = org.geotools.util.logging.Logging.getLogger(LegendUtils.class.getPackage().getName());
 
     /**
      * Tries to decode the provided {@link String} into an HEX color definition in RRGGBB, 0xRRGGBB
@@ -143,14 +176,15 @@ public class LegendUtils {
 
     /**
      * Finds the applicable Rules for the given scale denominator.
+     *
      * @param ftStyles a featureTypeStyle list.
      * @return an array of {@link Rule}s.
      */
     public static Rule[] getRules(final FeatureTypeStyle[] ftStyles) {
         ensureNotNull(ftStyles, "FeatureTypeStyle array is null");
         final List<Rule> ruleList = new ArrayList<>();
-        for (int j=0; j<ftStyles[0].rules().size();j++) {
-            if(ftStyles[0].rules().get(j).toString().contains("if_then_else")) {
+        for (int j = 0; j < ftStyles[0].rules().size(); j++) {
+            if (ftStyles[0].rules().get(j).toString().contains("if_then_else")) {
                 StyleFactory styleFactory = CommonFactoryFinder.getStyleFactory();
                 if (ftStyles[0].rules().get(0).symbolizers().get(0) instanceof LineSymbolizer) {
                     System.out.println("ftStyles[0].rules().get(0).symbolizers().get(0) : " + ftStyles[0].rules().get(0).symbolizers().get(0));
@@ -160,10 +194,10 @@ public class LegendUtils {
                     String variable2 = null;
                     String value = null;
                     List<String> widthList = null;
-                    if(getWidth.toString().contains("if_then_else")){
+                    if (getWidth.toString().contains("if_then_else")) {
                         String width1 = StringUtils.substringBetween(String.valueOf(getWidth), ")], [", "], [");
                         String width2 = StringUtils.substringsBetween(String.valueOf(getWidth), "], [", "])")[1];
-                        width2 = width2.replace(width1,"").replace("], [", "");
+                        width2 = width2.replace(width1, "").replace("], [", "");
                         widthList = new ArrayList<>();
                         widthList.add(width1);
                         widthList.add(width2);
@@ -173,7 +207,7 @@ public class LegendUtils {
                         value = StringUtils.substringBetween(String.valueOf(getWidth), ", [", "])],");
                     }
                     String[] colors = null;
-                    if(getColor.contains("if_then_else")){
+                    if (getColor.contains("if_then_else")) {
                         colors = StringUtils.substringsBetween(getColor, "#", "]");
                         String variable = Arrays.toString(StringUtils.substringsBetween(getColor, "([", "],"));
                         operator = StringUtils.substringBetween(getColor, "[", "(");
@@ -214,10 +248,9 @@ public class LegendUtils {
                         ruleList.add(rule);
                     }
                 }
+            } else {
+                ruleList.add(ftStyles[0].rules().get(j));
             }
-            else {
-                    ruleList.add(ftStyles[0].rules().get(j));
-                }
         }
         return ruleList.toArray(new Rule[0]);
     }
@@ -228,9 +261,8 @@ public class LegendUtils {
      * @param legendOptionsParam from which we should extract the background color.
      * @return the Color for the hexadecimal value passed by legendOptionsParam, or the default background color if no bgcolor were passed.
      */
-    public static Color getBackgroundColor(final Map<String, Object> legendOptionsParam) {
-        ensureNotNull(legendOptionsParam, "legendOptionsParam is null");
-        Object clr = legendOptionsParam.get("bgColor");
+    public static Color getBackgroundColor(LegendOptions legendOptionsNew) {
+        Object clr = legendOptionsNew.getBgColor();
         if (clr instanceof Color) {
             return (Color) clr;
         } else if (clr == null) {
@@ -274,9 +306,8 @@ public class LegendUtils {
      * @param legendOptionsParam the legendOptionsParam from which to extract label color information.
      * @return the Label font color extracted from the provided legendOptionsParam or a default font color.
      */
-    public static Color getLabelFontColor(final Map<String, Object> legendOptionsParam) {
-        ensureNotNull(legendOptionsParam, "legendOptionsParam is null");
-        Object clr = legendOptionsParam.get("fontColor");
+    public static Color getLabelFontColor(LegendOptions legendOptionsNew) {
+        Object clr = legendOptionsNew.getFontColor();
         if (clr instanceof Color) {
             return (Color) clr;
         } else if (clr == null) {
@@ -298,9 +329,9 @@ public class LegendUtils {
      * Retrieves row width of legend from the provided legendOptionsParam.
      *
      * @param legendOptionsParam a legendOptionsParam from which we should extract row width
-     *     information.
+     *                           information.
      * @return the row width specified in the provided legendOptionsParam or a default
-     *     DEFAULT_ROW_WIDTH.
+     * DEFAULT_ROW_WIDTH.
      */
     public static int getRowWidth(final Map<String, Object> legendOptionsParam) {
         ensureNotNull(legendOptionsParam, "legendOptionsParam is null");
@@ -315,7 +346,7 @@ public class LegendUtils {
      * Retrieves column height of legend from the provided legendOptionsParam.
      *
      * @param legendOptionsParam a legendOptionsParam from which we should extract column height
-     *     information.
+     *                           information.
      * @return the column height specified in the provided legendOptionsParam or a default DEFAULT_COLUMN_HEIGHT.
      */
     public static int getColumnHeight(final Map<String, Object> legendOptionsParam) {
@@ -331,9 +362,9 @@ public class LegendUtils {
      * Retrieves columns of legend from the provided legendOptionsParam.
      *
      * @param legendOptionsParam a legendOptionsParam from which we should extract columns
-     *     information.
+     *                           information.
      * @return the columns specified in the provided legendOptionsParam or a default
-     *     DEFAULT_COLUMNS.
+     * DEFAULT_COLUMNS.
      */
     public static int getColumns(final Map<String, Object> legendOptionsParam) {
         ensureNotNull(legendOptionsParam, "legendOptionsParam is null");
@@ -349,7 +380,7 @@ public class LegendUtils {
      *
      * @param legendOptionsParam a legendOptionsParam from which we should extract rows information.
      * @return the rows specified in the provided legendOptionsParam or a default
-     *     DEFAULT_ROWS.
+     * DEFAULT_ROWS.
      */
     public static int getRows(final Map<String, Object> legendOptionsParam) {
         ensureNotNull(legendOptionsParam, "legendOptionsParam is null");
@@ -364,12 +395,11 @@ public class LegendUtils {
      * Retrieves the legend layout from the provided legendOptionsParam.
      *
      * @param legendOptionsParam a legendOptionsParam from which we should extract the {@link
-     *     LegendLayout} information.
+     *                           LegendLayout} information.
      * @return the {@link LegendLayout} specified in the provided legendOptionsParam or
-     *     a default DEFAULT_LAYOUT.
+     * a default DEFAULT_LAYOUT.
      */
     public static LegendLayout getLayout(final Map<String, Object> legendOptionsParam) {
-        ensureNotNull(legendOptionsParam, "legendOptionsParam is null");
         LegendLayout layout = DEFAULT_LAYOUT;
         if (legendOptionsParam.get("layout") != null) {
             layout = LegendLayout.valueOf(((String) legendOptionsParam.get("layout")).toUpperCase());
@@ -383,20 +413,18 @@ public class LegendUtils {
      * '\n' character). This allows people to force line breaks in their labels by including the
      * character "\" followed by "n" in their label.
      *
-     * @param label - the label to render
-     * @param g - the Graphics2D that will be used to render this label
+     * @param label              - the label to render
+     * @param g                  - the Graphics2D that will be used to render this label
      * @param legendOptionsParam - the legend option param
      * @return a {@link BufferedImage} of the properly rendered label.
      */
-    public static BufferedImage renderLabel(String label, final Graphics2D g,
-                                            final Map<String, Object> legendOptionsParam) {
+    public static BufferedImage renderLabel(String label, final Graphics2D g, LegendOptions legendOptionsNew) {
         ensureNotNull(label);
         ensureNotNull(g);
-        ensureNotNull(legendOptionsParam);
         // We'll accept '/n' as a text string
         // to indicate a line break, as well as a traditional 'real' line-break in the XML.
         BufferedImage renderedLabel;
-        Color labelColor = getLabelFontColor(legendOptionsParam);
+        Color labelColor = getLabelFontColor(legendOptionsNew);
         if ((label.contains("\n")) || (label.contains("\\n"))) {
             // this is a label WITH line-breaks...we need to figure out it's height *and*
             // width, and then adjust the legend size accordingly
@@ -450,7 +478,7 @@ public class LegendUtils {
             // size and act accordingly.
             int height = (int) Math.ceil(g.getFontMetrics().getStringBounds(label, g).getHeight());
             int width = (int) Math.ceil(g.getFontMetrics().getStringBounds(label, g).getWidth());
-            renderedLabel = new BufferedImage(width + (Integer) legendOptionsParam.get("labelXposition"), height, BufferedImage.TYPE_INT_ARGB);
+            renderedLabel = new BufferedImage(width + legendOptionsNew.getLabelXposition(), height, BufferedImage.TYPE_INT_ARGB);
             Graphics2D rlg = renderedLabel.createGraphics();
             rlg.setColor(labelColor);
             rlg.setFont(g.getFont());
@@ -462,7 +490,7 @@ public class LegendUtils {
                         RenderingHints.KEY_FRACTIONALMETRICS,
                         g.getRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS));
             }
-            rlg.drawString(label, (Integer) legendOptionsParam.get("labelXposition"), height - rlg.getFontMetrics().getDescent());
+            rlg.drawString(label, legendOptionsNew.getLabelXposition(), height - rlg.getFontMetrics().getDescent());
             rlg.dispose();
         }
 
@@ -473,51 +501,30 @@ public class LegendUtils {
      * Retrieves the font from the provided legendOptionsParam.
      *
      * @param legendOptionsParam a legendOptionsParam from which we should extract the {@link Font}
-     *     information.
+     *                           information.
      * @return the {@link Font} specified in the provided legendOptionsParam or a
-     *     default {@link Font}.
+     * default {@link Font}.
      */
-    public static Font getLabelFont(final Map<String, Object> legendOptionsParam) {
-        ensureNotNull(legendOptionsParam, "legendOptionsParam is null");
-        String legendFontName = LegendUtils.DEFAULT_FONT_NAME;
-        if (legendOptionsParam.get("fontName") != null) {
-            legendFontName = (String) legendOptionsParam.get("fontName");
-        }
+    public static Font getLabelFont(LegendOptions legendOptionsNew) {
+
+        String legendFontName = legendOptionsNew.getFontName();
 
         int legendFontFamily = LegendUtils.DEFAULT_FONT_TYPE;
-        if (legendOptionsParam.get("fontStyle") != null) {
-            String legendFontFamily_ = (String) legendOptionsParam.get("fontStyle");
-            if (legendFontFamily_.equalsIgnoreCase("italic")) {
-                legendFontFamily = Font.ITALIC;
-            } else if (legendFontFamily_.equalsIgnoreCase("bold")) {
-                legendFontFamily = Font.BOLD;
-            }
+        String legendFontFamily_ = legendOptionsNew.getFontStyle();
+        if (legendFontFamily_.equalsIgnoreCase("italic")) {
+            legendFontFamily = Font.ITALIC;
+        } else if (legendFontFamily_.equalsIgnoreCase("bold")) {
+            legendFontFamily = Font.BOLD;
         }
 
-        int legendFontSize = LegendUtils.DEFAULT_FONT_SIZE;
-        if (legendOptionsParam.get("fontSize") != null) {
-            try {
-                legendFontSize = Integer.parseInt((String) legendOptionsParam.get("fontSize"));
-            } catch (NumberFormatException e) {
-                LOGGER.warning(
-                        "Error trying to interpret legendOption 'fontSize': "
-                                + legendOptionsParam.get("fontSize"));
-            }
-        }
-
-        double dpi = RendererUtilities.getDpi(legendOptionsParam);
-        double standardDpi = RendererUtilities.getDpi(Collections.emptyMap());
-        if (dpi != standardDpi) {
-            double scaleFactor = dpi / standardDpi;
-            legendFontSize = (int) Math.ceil(legendFontSize * scaleFactor);
-        }
+        int legendFontSize = legendOptionsNew.getFontSize();
 
         if (legendFontFamily == LegendUtils.DEFAULT_FONT_TYPE
                 && legendFontName.equalsIgnoreCase(LegendUtils.DEFAULT_FONT_NAME)
-                && (legendFontSize == LegendUtils.DEFAULT_FONT_SIZE || legendFontSize <= 0))
+                && (legendFontSize == LegendUtils.DEFAULT_FONT_SIZE || legendFontSize <= 0)) {
             return DEFAULT_FONT;
+        }
 
         return new Font(legendFontName, legendFontFamily, legendFontSize);
     }
-
 }

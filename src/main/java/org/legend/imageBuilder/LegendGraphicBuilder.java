@@ -33,20 +33,21 @@ import org.geotools.data.DataUtilities;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.geometry.jts.LiteShape2;
 import org.geotools.renderer.lite.MetaBufferEstimator;
-import org.geotools.styling.*;
 import org.geotools.styling.visitor.RescaleStyleVisitor;
+import org.legend.options.LegendOptions;
 import org.legend.utils.LegendUtils;
 import org.locationtech.jts.geom.*;
 
-import java.util.Map;
-
 /**
  * Comes from the package org.geoserver.wms.legendgraphic
+ *
  * @author Adrien Bessy, (entirely based on what ian did with GeoServer)
  */
 public abstract class LegendGraphicBuilder {
 
-    /** used to create sample point shapes with LiteShape (not lines nor polygons) */
+    /**
+     * used to create sample point shapes with LiteShape (not lines nor polygons)
+     */
     protected static final GeometryFactory geomFac = new GeometryFactory();
     /**
      * Just a holder to avoid creating many line shapes from inside <code>getSampleShape()</code>
@@ -70,70 +71,81 @@ public abstract class LegendGraphicBuilder {
     int horizontalMarginBetweenLayers = 0;
     int marge = 10;
 
-    /** */
+    /**
+     *
+     */
     public LegendGraphicBuilder() {
         super();
     }
 
-    public void setup(Map<String, Object> legendOptions) {
+    public void setup(LegendOptions legendOptionsNew) {
+        width = legendOptionsNew.getWidth();
+        height = legendOptionsNew.getHeight();
+        isTransparent = legendOptionsNew.isTransparent();
+        labelMargin = legendOptionsNew.getRuleLabelMargin();
+        verticalRuleMargin = legendOptionsNew.getVerticalRuleMargin();
+        horizontalRuleMargin = legendOptionsNew.getHorizontalRuleMargin();
+        verticalMarginBetweenLayers = legendOptionsNew.getVerticalMarginBetweenLayers();
+        horizontalMarginBetweenLayers = legendOptionsNew.getHorizontalMarginBetweenLayers();
 
-        if (legendOptions.containsKey("width")){
-            width = (int) legendOptions.get("width");
-        }
-        if (legendOptions.containsKey("height")){
-            height = (int) legendOptions.get("height");
-        }
-
-        if (legendOptions.get("forceRuleLabelsOff") instanceof String) {
-            String forceLabelsOpt = (String) legendOptions.get("forceRuleLabelsOff");
-            if (forceLabelsOpt.equalsIgnoreCase("on")) {
-                forceLabelsOn = false;
-                forceLabelsOff = true;
-            }
-        }
-
-        // specifies if the background of the legend graphic to return shall be transparent or not.
-        if(legendOptions.get("transparent") instanceof String){
-            String transparent = (String) legendOptions.get("transparent");
-            if (transparent.equalsIgnoreCase("on")) {
-                isTransparent = true;
-            } else if (transparent.equalsIgnoreCase("off")) {
-                isTransparent = false;
-            }
-        }
-
-        // specifies the horizontal space between the image and the rule label
-        if (legendOptions.containsKey("ruleLabelMargin")){
-            labelMargin = (int) legendOptions.get("ruleLabelMargin");
-        }
-
-        // specifies the vertical space between the legend items (different rules) of the same style
-        if (legendOptions.containsKey("verticalRuleMargin")){
-            verticalRuleMargin = (int) legendOptions.get("verticalRuleMargin");
-        }
-        if (legendOptions.containsKey("horizontalRuleMargin")){
-            horizontalRuleMargin = (int) legendOptions.get("horizontalRuleMargin");
-        }
-
-        if (legendOptions.containsKey("verticalMarginBetweenLayers")){
-            verticalMarginBetweenLayers = (int) legendOptions.get("verticalMarginBetweenLayers");
-        }
-        if (legendOptions.containsKey("horizontalMarginBetweenLayers")){
-            horizontalMarginBetweenLayers = (int) legendOptions.get("horizontalMarginBetweenLayers");
-        }
+//        // TODO-hyy
+//        if (legendOptions.containsKey("width")) {
+//            width = (int) legendOptions.get("width");
+//        }
+//        if (legendOptions.containsKey("height")) {
+//            height = (int) legendOptions.get("height");
+//        }
+//
+//        if (legendOptions.get("forceRuleLabelsOff") instanceof String) {
+//            String forceLabelsOpt = (String) legendOptions.get("forceRuleLabelsOff");
+//            if (forceLabelsOpt.equalsIgnoreCase("on")) {
+//                forceLabelsOn = false;
+//                forceLabelsOff = true;
+//            }
+//        }
+//
+//        // specifies if the background of the legend graphic to return shall be transparent or not.
+//        if (legendOptions.get("transparent") instanceof String) {
+//            String transparent = (String) legendOptions.get("transparent");
+//            if (transparent.equalsIgnoreCase("on")) {
+//                isTransparent = true;
+//            } else if (transparent.equalsIgnoreCase("off")) {
+//                isTransparent = false;
+//            }
+//        }
+//
+//        // specifies the horizontal space between the image and the rule label
+//        if (legendOptions.containsKey("ruleLabelMargin")) {
+//            labelMargin = (int) legendOptions.get("ruleLabelMargin");
+//        }
+//
+//        // specifies the vertical space between the legend items (different rules) of the same style
+//        if (legendOptions.containsKey("verticalRuleMargin")) {
+//            verticalRuleMargin = (int) legendOptions.get("verticalRuleMargin");
+//        }
+//        if (legendOptions.containsKey("horizontalRuleMargin")) {
+//            horizontalRuleMargin = (int) legendOptions.get("horizontalRuleMargin");
+//        }
+//
+//        if (legendOptions.containsKey("verticalMarginBetweenLayers")) {
+//            verticalMarginBetweenLayers = (int) legendOptions.get("verticalMarginBetweenLayers");
+//        }
+//        if (legendOptions.containsKey("horizontalMarginBetweenLayers")) {
+//            horizontalMarginBetweenLayers = (int) legendOptions.get("horizontalMarginBetweenLayers");
+//        }
     }
 
     /**
      * Returns a <code>java.awt.Shape</code> appropriate to render a legend graphic given the
      * symbolizer type and the legend dimensions.
      *
-     * @param symbolizer the Symbolizer for whose type a sample shape will be created
-     * @param rescaledLegendWidth the rescaled width, in output units, of the legend graphic for PolygonSymbolizer
+     * @param symbolizer           the Symbolizer for whose type a sample shape will be created
+     * @param rescaledLegendWidth  the rescaled width, in output units, of the legend graphic for PolygonSymbolizer
      * @param rescaledLegendHeight the rescaled height, in output units, of the legend graphic for PolygonSymbolizer
-     * @param legendWidth the requested width, in output units, of the legend graphic
-     * @param legendHeight the requested height, in output units, of the legend graphic
+     * @param legendWidth          the requested width, in output units, of the legend graphic
+     * @param legendHeight         the requested height, in output units, of the legend graphic
      * @return an appropiate Line2D, Rectangle2D or LiteShape(Point) for the symbolizer, either it
-     *     is a LineSymbolizer, a PolygonSymbolizer, or a Point ot Text Symbolizer
+     * is a LineSymbolizer, a PolygonSymbolizer, or a Point ot Text Symbolizer
      */
     protected LiteShape2 getSampleShape(Symbolizer symbolizer, int rescaledLegendWidth, int rescaledLegendHeight,
                                         int legendWidth, int legendHeight) {
@@ -196,26 +208,26 @@ public abstract class LegendGraphicBuilder {
      * Returns a rescaled symbolizer
      *
      * @param symbolizer the Symbolizer
-     * @param size the current size
-     * @param newSize the new size
+     * @param size       the current size
+     * @param newSize    the new size
      * @return a rescaled symbolizer
      */
     public Symbolizer rescaleSymbolizer(Symbolizer symbolizer, double size, double newSize) {
         // perform a unit-less rescale
         double scaleFactor = newSize / size;
         RescaleStyleVisitor rescaleVisitor = new RescaleStyleVisitor(scaleFactor) {
-                    @Override
-                    protected Expression rescale(Expression expr) {
-                        if (expr == null) {
-                            return null;
-                        } else if (expr instanceof Literal) {
-                            Double value = expr.evaluate(null, Double.class);
-                            return ff.literal(value * scaleFactor);
-                        } else {
-                            return ff.multiply(expr, ff.literal(scaleFactor));
-                        }
-                    }
-                };
+            @Override
+            protected Expression rescale(Expression expr) {
+                if (expr == null) {
+                    return null;
+                } else if (expr instanceof Literal) {
+                    Double value = expr.evaluate(null, Double.class);
+                    return ff.literal(value * scaleFactor);
+                } else {
+                    return ff.multiply(expr, ff.literal(scaleFactor));
+                }
+            }
+        };
         symbolizer.accept(rescaleVisitor);
         symbolizer = (Symbolizer) rescaleVisitor.getCopy();
         return symbolizer;
@@ -249,6 +261,7 @@ public abstract class LegendGraphicBuilder {
 
     /**
      * Checks if the given featureType contains a GeometryDescriptor that has a generic Geometry type.
+     *
      * @param featureType the featureType
      * @return true if it contains a GeometryDescriptor that has a generic Geometry type.
      */
@@ -263,9 +276,10 @@ public abstract class LegendGraphicBuilder {
 
     /**
      * Checks if the given AttributeDescriptor describes a generic Geometry.
+     *
      * @param attDesc the AttributeDescriptor
      * @return true if it describes a generic Geometry.
-     * */
+     */
     private boolean isMixedGeometry(AttributeDescriptor attDesc) {
         if (attDesc instanceof GeometryDescriptor && attDesc.getType().getBinding() == Geometry.class) {
             return true;
@@ -276,11 +290,12 @@ public abstract class LegendGraphicBuilder {
     /**
      * Calculates a global rescaling factor for all the symbols to be drawn in the given rules. This
      * is to be sure all symbols are drawn inside the given w x h box.
+     *
      * @param defaultMaxSize Math.min(w, h)
      * @param defaultMinSize Default minimum size for symbols rendering.
-     * @param feature Feature to be used for size extraction in expressions (if null a sample
-     *     Feature will be created from featureType)
-     * @param rules set of rules to scan for symbols
+     * @param feature        Feature to be used for size extraction in expressions (if null a sample
+     *                       Feature will be created from featureType)
+     * @param rules          set of rules to scan for symbols
      * @return a global rescaling factor.
      */
     protected double[] calcSymbolSize(double defaultMaxSize, double defaultMinSize,
@@ -305,13 +320,14 @@ public abstract class LegendGraphicBuilder {
                 }
             }
         }
-        return new double[] {minSize, maxSize};
+        return new double[]{minSize, maxSize};
     }
 
     /**
      * Gets a numeric value for the given PointSymbolizer
-     * @param estimator estimator
-     * @param symbolizer symbolizer
+     *
+     * @param estimator   estimator
+     * @param symbolizer  symbolizer
      * @param defaultSize size to use is none can be taken from the symbolizer
      * @return a numeric value for the given PointSymbolizer.
      */

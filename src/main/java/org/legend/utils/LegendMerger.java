@@ -22,6 +22,7 @@ package org.legend.utils;
 
 
 import org.geotools.api.style.Rule;
+import org.legend.options.LegendOptions;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -30,6 +31,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static org.legend.utils.LegendUtils.*;
 
 /**
  * Utility class containing static methods for merging single legend elements into a final output,
@@ -67,22 +70,22 @@ public class LegendMerger {
         /**
          * Build a new set of options, specifying each option.
          *
-         * @param imageStack images representing the icons to merge
-         * @param dx horizontal dimension for raster icons
-         * @param dy vertical dimension for raster icons
-         * @param margin margin between icons
-         * @param labelMargin margin between icon and label
+         * @param imageStack      images representing the icons to merge
+         * @param dx              horizontal dimension for raster icons
+         * @param dy              vertical dimension for raster icons
+         * @param margin          margin between icons
+         * @param labelMargin     margin between icon and label
          * @param backgroundColor background color for the merged image
-         * @param transparent using a transparent background
-         * @param antialias enable antialiasing of fonts in labels
-         * @param layout layout to be used (vertical, horizontal)
-         * @param rowWidth rowwidth parameter (for horizontal layout)
-         * @param rows # of rows (for horizontal layout)
-         * @param columnHeight columnheight parameter (for vertical layout)
-         * @param columns # of columns (for vertical layout)
-         * @param labelFont font to be used for labels
-         * @param forceLabelsOn force labels to be always rendered
-         * @param forceLabelsOff force labels to be never rendered
+         * @param transparent     using a transparent background
+         * @param antialias       enable antialiasing of fonts in labels
+         * @param layout          layout to be used (vertical, horizontal)
+         * @param rowWidth        rowwidth parameter (for horizontal layout)
+         * @param rows            # of rows (for horizontal layout)
+         * @param columnHeight    columnheight parameter (for vertical layout)
+         * @param columns         # of columns (for vertical layout)
+         * @param labelFont       font to be used for labels
+         * @param forceLabelsOn   force labels to be always rendered
+         * @param forceLabelsOff  force labels to be never rendered
          */
         public MergeOptions(
                 List<RenderedImage> imageStack,
@@ -100,7 +103,7 @@ public class LegendMerger {
                 int columns,
                 Font labelFont,
                 boolean forceLabelsOn,
-                boolean forceLabelsOff) {
+                boolean forceLabelsOff, LegendOptions legendOptionsNew) {
             super();
             this.imageStack = imageStack;
             this.dx = dx;
@@ -123,14 +126,13 @@ public class LegendMerger {
         /**
          * Build a new set of options, getting most of the options from a legendOptions map.
          *
-         * @param imageStack images representing the icons to merge
-         * @param dx horizontal dimension for raster icons
-         * @param dy vertical dimension for raster icons
-         * @param margin margin between icons
-         * @param legendOptions legendOptions map
-         * @param forceLabelsOn force labels to be always rendered
+         * @param imageStack     images representing the icons to merge
+         * @param dx             horizontal dimension for raster icons
+         * @param dy             vertical dimension for raster icons
+         * @param margin         margin between icons
+         * @param legendOptions  legendOptions map
+         * @param forceLabelsOn  force labels to be always rendered
          * @param forceLabelsOff force labels to be never rendered
-         *
          */
         public MergeOptions(
                 List<RenderedImage> imageStack,
@@ -140,24 +142,25 @@ public class LegendMerger {
                 int labelMargin,
                 Map<String, Object> legendOptions,
                 boolean forceLabelsOn,
-                boolean forceLabelsOff) {
+                boolean forceLabelsOff,
+                LegendOptions legendOptionsNew) {
             this(
                     imageStack,
                     dx,
                     dy,
                     margin,
                     labelMargin,
-                    LegendUtils.getBackgroundColor(legendOptions),
+                    LegendUtils.getBackgroundColor(legendOptionsNew),
                     false,
                     true,
-                    LegendUtils.getLayout(legendOptions),
-                    LegendUtils.getRowWidth(legendOptions),
-                    LegendUtils.getRows(legendOptions),
-                    LegendUtils.getColumnHeight(legendOptions),
-                    LegendUtils.getColumns(legendOptions),
-                    LegendUtils.getLabelFont(legendOptions),
+                    legendOptionsNew.getLayout(),
+                    DEFAULT_ROW_WIDTH,
+                    DEFAULT_ROWS,
+                    DEFAULT_COLUMN_HEIGHT,
+                    DEFAULT_COLUMNS,
+                    LegendUtils.getLabelFont(legendOptionsNew),
                     forceLabelsOn,
-                    forceLabelsOff);
+                    forceLabelsOff, legendOptionsNew);
         }
 
         public List<RenderedImage> getImageStack() {
@@ -236,7 +239,7 @@ public class LegendMerger {
                 int labelMargin,
                 Map<String, Object> legendOptions,
                 boolean forceLabelsOn,
-                boolean forceLabelsOff) {
+                boolean forceLabelsOff, LegendOptions legendOptionsNew) {
             return new LegendMerger.MergeOptions(
                     imageStack,
                     dx,
@@ -245,7 +248,7 @@ public class LegendMerger {
                     labelMargin,
                     legendOptions,
                     forceLabelsOn,
-                    forceLabelsOff);
+                    forceLabelsOff, legendOptionsNew);
         }
     }
 
@@ -254,13 +257,13 @@ public class LegendMerger {
      * produces a new one which holds all the images in <code>imageStack</code> one above the other,
      * handling labels.
      *
-     * @param rules The applicable rules, one for each image in the stack (if not null it's used to compute labels)
+     * @param rules              The applicable rules, one for each image in the stack (if not null it's used to compute labels)
      * @param legendOptionsParam The legend options.
-     * @param mergeOptions options to be used for merging
+     * @param mergeOptions       options to be used for merging
      * @return the image with all the images on the argument list.
      */
     public static BufferedImage mergeLegends(
-            Rule[] rules, Map<String, Object> legendOptionsParam, MergeOptions mergeOptions) throws Exception {
+            Rule[] rules, Map<String, Object> legendOptionsParam, MergeOptions mergeOptions, LegendOptions legendOptionsNew) throws Exception {
         List<RenderedImage> imageStack = mergeOptions.getImageStack();
 
         // Builds legend nodes (graphics + label)
@@ -273,16 +276,16 @@ public class LegendMerger {
             for (int i = 0; i < imgCount; i++) {
                 BufferedImage img = (BufferedImage) imageStack.get(i);
                 if (rules != null && rules[i] != null) {
-                    BufferedImage label = renderLabel(img, rules[i], legendOptionsParam, mergeOptions);
+                    BufferedImage label = renderLabel(img, rules[i], mergeOptions, legendOptionsNew);
                     if (label != null) {
                         img = joinBufferedImageHorizontally(
-                                        img,
-                                        label,
-                                        mergeOptions.getLabelFont(),
-                                        mergeOptions.isAntialias(),
-                                        mergeOptions.isTransparent(),
-                                        mergeOptions.getBackgroundColor(),
-                                (Integer) legendOptionsParam.get("labelXOffset"));
+                                img,
+                                label,
+                                mergeOptions.getLabelFont(),
+                                mergeOptions.isAntialias(),
+                                mergeOptions.isTransparent(),
+                                mergeOptions.getBackgroundColor(),
+                                legendOptionsNew.getLabelXOffset());
                     }
                     nodes.add(img);
                 } else {
@@ -306,7 +309,7 @@ public class LegendMerger {
                             mergeOptions.getColumnHeight(),
                             mergeOptions.getColumns(),
                             legendOptionsParam,
-                            true);
+                            true, legendOptionsNew);
             finalLegend = buildFinalVLegend(columns, mergeOptions);
         }
 
@@ -318,11 +321,11 @@ public class LegendMerger {
      * produces a new one which holds all the images in <code>imageStack</code> one above the other,
      * handling labels.
      *
-     * @param rules The applicable rules, one for each image in the stack (if not null it's used to compute labels)
+     * @param rules        The applicable rules, one for each image in the stack (if not null it's used to compute labels)
      * @param mergeOptions options to be used for merging
      * @return the image with all the images on the argument list.
      */
-    public static BufferedImage mergeGroups(Rule[] rules, MergeOptions mergeOptions) throws Exception {
+    public static BufferedImage mergeGroups(Rule[] rules, MergeOptions mergeOptions, LegendOptions legendOptionsNew) throws Exception {
         List<RenderedImage> imageStack = mergeOptions.getImageStack();
 
         final int imgCount = imageStack.size();
@@ -343,12 +346,12 @@ public class LegendMerger {
                 BufferedImage lbl = (BufferedImage) imageStack.get(i);
                 BufferedImage img = (BufferedImage) imageStack.get(i + 1);
                 img = joinBufferedImageVertically(
-                                lbl,
-                                img,
-                                mergeOptions.getLabelFont(),
-                                mergeOptions.isAntialias(),
-                                mergeOptions.isTransparent(),
-                                mergeOptions.getBackgroundColor());
+                        lbl,
+                        img,
+                        mergeOptions.getLabelFont(),
+                        mergeOptions.isAntialias(),
+                        mergeOptions.isTransparent(),
+                        mergeOptions.getBackgroundColor());
                 nodes.add(img);
             }
         }
@@ -362,14 +365,16 @@ public class LegendMerger {
         }
 
         if (layout == LegendUtils.LegendLayout.VERTICAL) {
-            Column[] columns = createColumns(nodes, 0, 0, null, false);
+            Column[] columns = createColumns(nodes, 0, 0, null, false, legendOptionsNew);
             finalLegend = buildFinalVLegend(columns, mergeOptions);
         }
 
         return finalLegend;
     }
 
-    /** Represents a column of legends images */
+    /**
+     * Represents a column of legends images
+     */
     private static class Column {
         private int width;
 
@@ -396,7 +401,9 @@ public class LegendMerger {
         }
     }
 
-    /** Represents a row of legends images */
+    /**
+     * Represents a row of legends images
+     */
     private static class Row {
         private int width;
 
@@ -427,15 +434,15 @@ public class LegendMerger {
      * Creates non-raster legend columns for vertical layout according to max height and max columns
      * limits
      *
-     * @param nodes legend images
-     * @param maxHeight maximum height of legend
-     * @param maxColumns maximum number of columns
+     * @param nodes              legend images
+     * @param maxHeight          maximum height of legend
+     * @param maxColumns         maximum number of columns
      * @param legendOptionsParam general mechanism for acquiring legend symbols
-     * @param checkColor check for presence of color in legend
+     * @param checkColor         check for presence of color in legend
      * @return column list
      */
     private static Column[] createColumns(List<BufferedImage> nodes, int maxHeight, int maxColumns,
-            Map<String, Object> legendOptionsParam, boolean checkColor) {
+                                          Map<String, Object> legendOptionsParam, boolean checkColor, LegendOptions legendOptionsNew) {
 
         Column[] legendMatrix;
         /*
@@ -485,7 +492,7 @@ public class LegendMerger {
                 if (rc < rowNumber) {
                     if (checkColor) {
                         // check for presence of colour (ie. non-empty legend row)
-                        colourPresent = checkColor(nodes.get(i), legendOptionsParam);
+                        colourPresent = checkColor(nodes.get(i), legendOptionsParam, legendOptionsNew);
                         if (colourPresent) {
                             legendMatrix[cn].addNode(nodes.get(i));
                             rc++;
@@ -509,17 +516,17 @@ public class LegendMerger {
     /**
      * Checks the pixels for presence of colour against legend background
      *
-     * @param img given row of the legend
+     * @param img                given row of the legend
      * @param legendOptionsParam general mechanism for acquiring legend symbols
      * @return false if no colours are detected
      */
-    public static boolean checkColor(BufferedImage img, Map<String, Object> legendOptionsParam) {
+    public static boolean checkColor(BufferedImage img, Map<String, Object> legendOptionsParam, LegendOptions legendOptionsNew) {
         int w = img.getWidth();
         int h = img.getHeight();
         boolean colourPresent = false;
         for (int j = 0; j < w; j++) {
             for (int k = 0; k < h; k++) {
-                if (img.getRGB(j, k) != LegendUtils.getBackgroundColor(legendOptionsParam).getRGB()) {
+                if (img.getRGB(j, k) != LegendUtils.getBackgroundColor(legendOptionsNew).getRGB()) {
                     colourPresent = true;
                 }
             }
@@ -530,9 +537,9 @@ public class LegendMerger {
     /**
      * Creates legends rows for horizontal layout according to max width and max rows limits
      *
-     * @param nodes legend images
+     * @param nodes    legend images
      * @param maxWidth maximum width of legend
-     * @param maxRows maximum number of rows
+     * @param maxRows  maximum number of rows
      * @return row list
      */
     private static Row[] createRows(List<BufferedImage> nodes, int maxWidth, int maxRows) {
@@ -624,10 +631,10 @@ public class LegendMerger {
         final BufferedImage finalLegend = ImageUtils.createImage(totalWidth, totalHeight, null, options.isTransparent());
         final Map<RenderingHints.Key, Object> hintsMap = new HashMap<>();
         Graphics2D finalGraphics = ImageUtils.prepareTransparency(
-                        options.isTransparent(),
-                        options.getBackgroundColor(),
-                        finalLegend,
-                        hintsMap);
+                options.isTransparent(),
+                options.getBackgroundColor(),
+                finalLegend,
+                hintsMap);
         // finalGraphics.setFont(labelFont);
         if (options.isAntialias()) {
             finalGraphics.setRenderingHint(
@@ -657,7 +664,7 @@ public class LegendMerger {
     /**
      * Renders legend rows and cut off the node that exceeds the maximum limits
      *
-     * @param rows list of rows to draw
+     * @param rows    list of rows to draw
      * @param options options to be used for merging
      * @return BufferedImage of legend
      */
@@ -717,11 +724,11 @@ public class LegendMerger {
     /**
      * Join image and label to create a single legend node image horizontally
      *
-     * @param img image of legend
-     * @param label label of legend
-     * @param labelFont font to use
-     * @param useAA if true applies anti aliasing
-     * @param transparent if true make legend transparent
+     * @param img             image of legend
+     * @param label           label of legend
+     * @param labelFont       font to use
+     * @param useAA           if true applies anti aliasing
+     * @param transparent     if true make legend transparent
      * @param backgroundColor background color of legend
      * @return BufferedImage of image and label side by side and vertically center
      */
@@ -761,11 +768,11 @@ public class LegendMerger {
     /**
      * Join image and label to create a single legend node image vertically
      *
-     * @param img image of legend
-     * @param label label of legend
-     * @param labelFont font to use
-     * @param useAA if true applies anti aliasing
-     * @param transparent if true make legend transparent
+     * @param img             image of legend
+     * @param label           label of legend
+     * @param labelFont       font to use
+     * @param useAA           if true applies anti aliasing
+     * @param transparent     if true make legend transparent
      * @param backgroundColor background color of legend
      * @return BufferedImage of image and label side by side and vertically center
      */
@@ -803,19 +810,19 @@ public class LegendMerger {
     /**
      * Renders the legend image label
      *
-     * @param img the BufferedImage
-     * @param rule the applicable rule for img, if rule is not null the label will be rendered
+     * @param img                the BufferedImage
+     * @param rule               the applicable rule for img, if rule is not null the label will be rendered
      * @param legendOptionsParam the legend options
-     * @param options options to be used for merging
+     * @param options            options to be used for merging
      * @return the BufferedImage of label
      */
     private static BufferedImage renderLabel(
-            RenderedImage img, Rule rule, Map<String, Object> legendOptionsParam, MergeOptions options) {
+            RenderedImage img, Rule rule, MergeOptions options, LegendOptions legendOptionsNew) {
         BufferedImage labelImg = null;
         if (!options.isForceLabelsOff() && rule != null) {
             String label = LegendUtils.getRuleLabel(rule);
             if (label != null && label.length() > 0) {
-                labelImg = getRenderedLabel((BufferedImage) img, label, legendOptionsParam);
+                labelImg = getRenderedLabel((BufferedImage) img, label, legendOptionsNew);
             }
         }
         return labelImg;
@@ -824,18 +831,18 @@ public class LegendMerger {
     /**
      * Renders a label on the given image, using parameters from the options for the rendering
      * style.
-     * @param image the BufferedImage
-     * @param label the label
+     *
+     * @param image              the BufferedImage
+     * @param label              the label
      * @param legendOptionsParam the legend options
      * @return a customized label image
      */
-    public static BufferedImage getRenderedLabel(BufferedImage image, String label,
-                                                 Map<String, Object> legendOptionsParam) {
+    public static BufferedImage getRenderedLabel(BufferedImage image, String label, LegendOptions legendOptionsNew) {
         final Graphics2D graphics = image.createGraphics();
-        Font labelFont = LegendUtils.getLabelFont(legendOptionsParam);
+        Font labelFont = LegendUtils.getLabelFont(legendOptionsNew);
         graphics.setFont(labelFont);
         graphics.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-        return LegendUtils.renderLabel(label, graphics, legendOptionsParam);
+        return LegendUtils.renderLabel(label, graphics, legendOptionsNew);
     }
 }
 

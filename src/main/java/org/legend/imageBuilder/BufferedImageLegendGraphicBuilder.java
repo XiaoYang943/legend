@@ -20,16 +20,6 @@
 
 package org.legend.imageBuilder;
 
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.awt.image.RenderedImage;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-
 import org.geotools.api.feature.Feature;
 import org.geotools.api.feature.type.FeatureType;
 import org.geotools.api.filter.expression.Expression;
@@ -41,10 +31,21 @@ import org.geotools.renderer.lite.MetaBufferEstimator;
 import org.geotools.renderer.lite.StyledShapePainter;
 import org.geotools.renderer.style.SLDStyleFactory;
 import org.geotools.renderer.style.Style2D;
-import org.geotools.styling.*;
 import org.geotools.styling.visitor.RescaleStyleVisitor;
 import org.geotools.util.NumberRange;
-import org.legend.utils.*;
+import org.legend.options.LegendOptions;
+import org.legend.utils.ImageUtils;
+import org.legend.utils.LegendMerger;
+import org.legend.utils.LegendUtils;
+
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.awt.image.RenderedImage;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 
 /**
  * Template based on <a
@@ -59,8 +60,9 @@ import org.legend.utils.*;
  * applicable Rule for the actual scale factor, there will be generated a legend graphic of the
  * specified width, but with as many stacked graphics as applicable rules were found, providing by
  * this way a representative enough legend.
- *
+ * <p>
  * Comes from the package org.geoserver.wms.legendgraphic
+ *
  * @author Adrien Bessy (entirely based on what Gabriel Roldan and Simone Giannecchini did with GeoServer)
  */
 public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
@@ -81,13 +83,14 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
 
     /**
      * Takes a featureLayerList and legendOptions and produces a BufferedImage.
+     *
      * @param featureLayerList feature layer list
-     * @param legendOptions legend options map that can contain information like icon width, icon height, forceRuleLabelsOff, ...)
+     * @param legendOptions    legend options map that can contain information like icon width, icon height, forceRuleLabelsOff, ...)
      * @return the buffered image
      * @throws Exception if there are problems creating a "sample" feature instance for the FeatureType returns as the required layer (which should not occur).
      */
-    public BufferedImage buildLegendGraphic(List<FeatureLayer> featureLayerList, Map<String, Object> legendOptions) throws Exception {
-        setup(legendOptions);
+    public BufferedImage buildLegendGraphic(List<FeatureLayer> featureLayerList, Map<String, Object> legendOptions, LegendOptions legendOptionsNew) throws Exception {
+        setup(legendOptionsNew);
         // list of images to be rendered for the layers (more than one if a layer list is given)
         List<RenderedImage> layersImages = new ArrayList<>();
 
@@ -103,7 +106,7 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
             RenderedImage titleImage = null;
             // we put a title on top of each style legend
             if (!forceTitlesOff) {
-                titleImage = getLayerTitle(featureLayer, width, height, isTransparent, legendOptions);
+                titleImage = getLayerTitle(featureLayer, width, height, isTransparent, legendOptions, legendOptionsNew);
             }
 
             /*
@@ -117,7 +120,7 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
 
             FeatureType featureType = featureLayer.getFeatureSource().getSchema();
             Feature sampleFeature = createSampleFeature(featureType);
-            double[] minMax = calcSymbolSize(defaultSize,minimumSymbolSize, sampleFeature,rules);
+            double[] minMax = calcSymbolSize(defaultSize, minimumSymbolSize, sampleFeature, rules);
             boolean rescalingRequired = false;
             java.util.function.Function<Double, Double> rescaler = size -> (size / minMax[1]) * defaultSize;
 
@@ -141,19 +144,19 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
                     styleFactory,
                     minimumSymbolSize,
                     rescalingRequired,
-                    rescaler);
+                    rescaler, legendOptionsNew);
         }
         // all legend graphics are merged if we have a layer group
-        BufferedImage finalLegend = mergeGroups(layersImages, legendOptions, forceLabelsOn, forceLabelsOff);
+        BufferedImage finalLegend = mergeGroups(layersImages, legendOptions, forceLabelsOn, forceLabelsOff, legendOptionsNew);
         if (finalLegend == null) {
             throw new IllegalArgumentException("no legend passed");
         }
 
         // create marge
-        BufferedImage BufferedImageForMarge = new BufferedImage(finalLegend.getWidth() + marge*2, finalLegend.getHeight() + marge*2, BufferedImage.TYPE_INT_RGB);
+        BufferedImage BufferedImageForMarge = new BufferedImage(finalLegend.getWidth() + marge * 2, finalLegend.getHeight() + marge * 2, BufferedImage.TYPE_INT_RGB);
         Graphics g = BufferedImageForMarge.getGraphics();
-        g.setColor(LegendUtils.getBackgroundColor(legendOptions));
-        g.fillRect(0, 0, finalLegend.getWidth() + marge*2, finalLegend.getHeight() + marge*2);
+        g.setColor(LegendUtils.getBackgroundColor(legendOptionsNew));
+        g.fillRect(0, 0, finalLegend.getWidth() + marge * 2, finalLegend.getHeight() + marge * 2);
         g.drawImage(finalLegend, marge, marge, null);
 
         return BufferedImageForMarge;
@@ -162,47 +165,47 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
     /**
      * Renders a title for a layer (to be put on top of the layer legend).
      *
-     * @param featureLayer FeatureType representing the layer
-     * @param w width for the image (hint)
-     * @param h height for the image (hint)
-     * @param transparent (should the image be transparent)
+     * @param featureLayer  FeatureType representing the layer
+     * @param w             width for the image (hint)
+     * @param h             height for the image (hint)
+     * @param transparent   (should the image be transparent)
      * @param legendOptions legendOptions like horizontalMarginBetweenLayers, ruleLabelMargin, ...
      * @return the title image
      */
     private RenderedImage getLayerTitle(FeatureLayer featureLayer, int w, int h, boolean transparent,
-            Map<String, Object> legendOptions) {
+                                        Map<String, Object> legendOptions, LegendOptions legendOptionsNew) {
         String title;
         // checks layer title, otherwise style title
-        if(featureLayer.getTitle() != null){
+        if (featureLayer.getTitle() != null) {
             title = featureLayer.getTitle();
-        }else {
+        } else {
             title = featureLayer.getStyle().getName();
-            if(title.equals("Default Styler")){
+            if (title.equals("Default Styler")) {
                 title = "Legend";
             }
         }
         final BufferedImage image = ImageUtils.createImage(w, h, null, transparent);
-        return LegendMerger.getRenderedLabel(image, title,  legendOptions );
+        return LegendMerger.getRenderedLabel(image, title, legendOptionsNew);
     }
 
     /**
      * Create images and add them in the layersImages.
      *
-     * @param legendOptions legendOptions like horizontalMarginBetweenLayers, ruleLabelMargin, ...
-     * @param layersImages layersImages
-     * @param forceLabelsOn forceLabelsOn
-     * @param forceLabelsOff forceLabelsOff
-     * @param transparent transparent
-     * @param titleImage titleImage
-     * @param sampleFeature sampleFeature
-     * @param applicableRules applicableRules
-     * @param scaleRange scaleRange
-     * @param ruleCount ruleCount
-     * @param legendsStack legendsStack
-     * @param styleFactory styleFactory
+     * @param legendOptions     legendOptions like horizontalMarginBetweenLayers, ruleLabelMargin, ...
+     * @param layersImages      layersImages
+     * @param forceLabelsOn     forceLabelsOn
+     * @param forceLabelsOff    forceLabelsOff
+     * @param transparent       transparent
+     * @param titleImage        titleImage
+     * @param sampleFeature     sampleFeature
+     * @param applicableRules   applicableRules
+     * @param scaleRange        scaleRange
+     * @param ruleCount         ruleCount
+     * @param legendsStack      legendsStack
+     * @param styleFactory      styleFactory
      * @param minimumSymbolSize minimumSymbolSize
      * @param rescalingRequired rescalingRequired
-     * @param rescaler rescaler
+     * @param rescaler          rescaler
      */
     private void renderRules(
             Map<String, Object> legendOptions,
@@ -219,15 +222,15 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
             final SLDStyleFactory styleFactory,
             double minimumSymbolSize,
             boolean rescalingRequired,
-            Function<Double, Double> rescaler) throws Exception {
+            Function<Double, Double> rescaler, LegendOptions legendOptionsNew) throws Exception {
         MetaBufferEstimator estimator = new MetaBufferEstimator(sampleFeature);
         for (int i = 0; i < ruleCount; i++) {
             final RenderedImage image = ImageUtils.createImage(width, height, null, transparent);
             final Map<RenderingHints.Key, Object> hintsMap = new HashMap<>();
-            final Graphics2D graphics = ImageUtils.prepareTransparency(transparent, LegendUtils.getBackgroundColor(legendOptions), image, hintsMap);
+            final Graphics2D graphics = ImageUtils.prepareTransparency(transparent, LegendUtils.getBackgroundColor(legendOptionsNew), image, hintsMap);
             graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             final List<Symbolizer> symbolizers = applicableRules[i].symbolizers();
-            
+
             for (Symbolizer symbolizer : symbolizers) {
                 // skip raster symbolizers
                 if (!(symbolizer instanceof RasterSymbolizer)) {
@@ -246,25 +249,25 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
                         symbolizer = rescaleSymbolizer(symbolizer, width, rescaledWidth);
                     }
 
-                        Style2D style2d = styleFactory.createStyle(sampleFeature, symbolizer, scaleRange);
-                        if (style2d != null) {
-                            shapePainter.paint(graphics, shape, style2d, -1.0);
-                        }
-                        if (titleImage != null) {
-                            layersImages.add(titleImage);
-                            titleImage = null;
-                        }
-                        legendsStack.add(image);
-                        graphics.dispose();
+                    Style2D style2d = styleFactory.createStyle(sampleFeature, symbolizer, scaleRange);
+                    if (style2d != null) {
+                        shapePainter.paint(graphics, shape, style2d, -1.0);
+                    }
+                    if (titleImage != null) {
+                        layersImages.add(titleImage);
+                        titleImage = null;
+                    }
+                    legendsStack.add(image);
+                    graphics.dispose();
                 }
             }
         }
 
         LegendMerger.MergeOptions options = LegendMerger.MergeOptions.createFromOptions(legendsStack,
                 horizontalRuleMargin, verticalRuleMargin, 0, labelMargin, legendOptions, forceLabelsOn,
-                forceLabelsOff);
+                forceLabelsOff, legendOptionsNew);
         if (ruleCount > 0) {
-            BufferedImage image = LegendMerger.mergeLegends(applicableRules, legendOptions, options);
+            BufferedImage image = LegendMerger.mergeLegends(applicableRules, legendOptions, options, legendOptionsNew);
             if (image != null) {
                 layersImages.add(image);
             }
@@ -273,21 +276,23 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
 
     /**
      * Rescales the size
+     *
      * @param minimumSymbolSize the minimum symbolizer size
-     * @param size the size
+     * @param size              the size
      * @return the rescaled size.
-     * */
+     */
     private int rescaleSize(double minimumSymbolSize, double size) {
         return (int) Math.ceil(Math.max(minimumSymbolSize, size));
     }
 
     /**
      * Rescales the size of a symbolizer
+     *
      * @param symbolizer the symbolizer
-     * @param size the size
-     * @param newSize the newSize
+     * @param size       the size
+     * @param newSize    the newSize
      * @return the rescaled symbolizer.
-     * */
+     */
     @Override
     public Symbolizer rescaleSymbolizer(Symbolizer symbolizer, double size, double newSize) {
         // perform a unit-less rescale
@@ -315,19 +320,19 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
      * Receives a list of <code>BufferedImages</code> and produces a new one which holds all the
      * images in <code>imageStack</code> one above the other, handling labels.
      *
-     * @param imageStack the list of BufferedImages, one for each applicable Rule
-     * @param legendOptions The legend options.
-     * @param forceLabelsOn true for force labels on also with a single image.
+     * @param imageStack     the list of BufferedImages, one for each applicable Rule
+     * @param legendOptions  The legend options.
+     * @param forceLabelsOn  true for force labels on also with a single image.
      * @param forceLabelsOff true for force labels off also with more than one rule.
      * @return the stack image with all the images on the argument list.
      * @throws IllegalArgumentException if the list is empty
      */
     private BufferedImage mergeGroups(List<RenderedImage> imageStack, Map<String, Object> legendOptions,
-                                      boolean forceLabelsOn, boolean forceLabelsOff) throws Exception {
+                                      boolean forceLabelsOn, boolean forceLabelsOff, LegendOptions legendOptionsNew) throws Exception {
         LegendMerger.MergeOptions options = LegendMerger.MergeOptions.createFromOptions(imageStack,
                 horizontalMarginBetweenLayers, verticalMarginBetweenLayers, 0, 0, legendOptions,
-                forceLabelsOn, forceLabelsOff);
-        return LegendMerger.mergeGroups(null, options);
+                forceLabelsOn, forceLabelsOff, legendOptionsNew);
+        return LegendMerger.mergeGroups(null, options, legendOptionsNew);
     }
 
 }
