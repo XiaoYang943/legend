@@ -32,8 +32,10 @@ import java.awt.Font;
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.*;
+import java.util.StringTokenizer;
 import java.util.logging.Logger;
 
 /**
@@ -115,18 +117,6 @@ public class LegendUtils {
      * top & bottom padding percentage factor for the legend
      */
     public static final float vpaddingFactor = 0.15f;
-
-    /**
-     * padding percentage factor at both sides of the legend.
-     */
-    public static final float marginFactor = 0.015f;
-    //public final double vMarginPercentage = LegendUtils.marginFactor;
-    //public final double hMarginPercentage = LegendUtils.marginFactor;
-
-    /**
-     * default legend graphic layout is vertical
-     */
-    public static final LegendLayout DEFAULT_LAYOUT = LegendLayout.VERTICAL;
 
     /**
      * default column height is not limited
@@ -325,87 +315,6 @@ public class LegendUtils {
         }
     }
 
-    /**
-     * Retrieves row width of legend from the provided legendOptionsParam.
-     *
-     * @param legendOptionsParam a legendOptionsParam from which we should extract row width
-     *                           information.
-     * @return the row width specified in the provided legendOptionsParam or a default
-     * DEFAULT_ROW_WIDTH.
-     */
-    public static int getRowWidth(final Map<String, Object> legendOptionsParam) {
-        ensureNotNull(legendOptionsParam, "legendOptionsParam is null");
-        int rowWidth = DEFAULT_ROW_WIDTH;
-        if (legendOptionsParam.get("rowWidth") != null) {
-            rowWidth = Integer.parseInt((String) legendOptionsParam.get("rowWidth"));
-        }
-        return rowWidth;
-    }
-
-    /**
-     * Retrieves column height of legend from the provided legendOptionsParam.
-     *
-     * @param legendOptionsParam a legendOptionsParam from which we should extract column height
-     *                           information.
-     * @return the column height specified in the provided legendOptionsParam or a default DEFAULT_COLUMN_HEIGHT.
-     */
-    public static int getColumnHeight(final Map<String, Object> legendOptionsParam) {
-        ensureNotNull(legendOptionsParam, "legendOptionsParam is null");
-        int columnHeight = DEFAULT_COLUMN_HEIGHT;
-        if (legendOptionsParam.get("columnHeight") != null) {
-            columnHeight = Integer.parseInt((String) legendOptionsParam.get("columnHeight"));
-        }
-        return columnHeight;
-    }
-
-    /**
-     * Retrieves columns of legend from the provided legendOptionsParam.
-     *
-     * @param legendOptionsParam a legendOptionsParam from which we should extract columns
-     *                           information.
-     * @return the columns specified in the provided legendOptionsParam or a default
-     * DEFAULT_COLUMNS.
-     */
-    public static int getColumns(final Map<String, Object> legendOptionsParam) {
-        ensureNotNull(legendOptionsParam, "legendOptionsParam is null");
-        int columns = DEFAULT_COLUMNS;
-        if (legendOptionsParam.get("columns") != null) {
-            columns = Integer.parseInt((String) legendOptionsParam.get("columns"));
-        }
-        return columns;
-    }
-
-    /**
-     * Retrieves rows of legend from the provided legendOptionsParam.
-     *
-     * @param legendOptionsParam a legendOptionsParam from which we should extract rows information.
-     * @return the rows specified in the provided legendOptionsParam or a default
-     * DEFAULT_ROWS.
-     */
-    public static int getRows(final Map<String, Object> legendOptionsParam) {
-        ensureNotNull(legendOptionsParam, "legendOptionsParam is null");
-        int rows = DEFAULT_ROWS;
-        if (legendOptionsParam.get("rows") != null) {
-            rows = Integer.parseInt((String) legendOptionsParam.get("rows"));
-        }
-        return rows;
-    }
-
-    /**
-     * Retrieves the legend layout from the provided legendOptionsParam.
-     *
-     * @param legendOptionsParam a legendOptionsParam from which we should extract the {@link
-     *                           LegendLayout} information.
-     * @return the {@link LegendLayout} specified in the provided legendOptionsParam or
-     * a default DEFAULT_LAYOUT.
-     */
-    public static LegendLayout getLayout(final Map<String, Object> legendOptionsParam) {
-        LegendLayout layout = DEFAULT_LAYOUT;
-        if (legendOptionsParam.get("layout") != null) {
-            layout = LegendLayout.valueOf(((String) legendOptionsParam.get("layout")).toUpperCase());
-        }
-        return layout;
-    }
 
     /**
      * Return a {@link BufferedImage} representing this label. The characters '\n' '\r' and '\f' are

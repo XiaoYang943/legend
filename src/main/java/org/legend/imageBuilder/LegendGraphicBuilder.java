@@ -87,52 +87,6 @@ public abstract class LegendGraphicBuilder {
         horizontalRuleMargin = legendOptionsNew.getHorizontalRuleMargin();
         verticalMarginBetweenLayers = legendOptionsNew.getVerticalMarginBetweenLayers();
         horizontalMarginBetweenLayers = legendOptionsNew.getHorizontalMarginBetweenLayers();
-
-//        // TODO-hyy
-//        if (legendOptions.containsKey("width")) {
-//            width = (int) legendOptions.get("width");
-//        }
-//        if (legendOptions.containsKey("height")) {
-//            height = (int) legendOptions.get("height");
-//        }
-//
-//        if (legendOptions.get("forceRuleLabelsOff") instanceof String) {
-//            String forceLabelsOpt = (String) legendOptions.get("forceRuleLabelsOff");
-//            if (forceLabelsOpt.equalsIgnoreCase("on")) {
-//                forceLabelsOn = false;
-//                forceLabelsOff = true;
-//            }
-//        }
-//
-//        // specifies if the background of the legend graphic to return shall be transparent or not.
-//        if (legendOptions.get("transparent") instanceof String) {
-//            String transparent = (String) legendOptions.get("transparent");
-//            if (transparent.equalsIgnoreCase("on")) {
-//                isTransparent = true;
-//            } else if (transparent.equalsIgnoreCase("off")) {
-//                isTransparent = false;
-//            }
-//        }
-//
-//        // specifies the horizontal space between the image and the rule label
-//        if (legendOptions.containsKey("ruleLabelMargin")) {
-//            labelMargin = (int) legendOptions.get("ruleLabelMargin");
-//        }
-//
-//        // specifies the vertical space between the legend items (different rules) of the same style
-//        if (legendOptions.containsKey("verticalRuleMargin")) {
-//            verticalRuleMargin = (int) legendOptions.get("verticalRuleMargin");
-//        }
-//        if (legendOptions.containsKey("horizontalRuleMargin")) {
-//            horizontalRuleMargin = (int) legendOptions.get("horizontalRuleMargin");
-//        }
-//
-//        if (legendOptions.containsKey("verticalMarginBetweenLayers")) {
-//            verticalMarginBetweenLayers = (int) legendOptions.get("verticalMarginBetweenLayers");
-//        }
-//        if (legendOptions.containsKey("horizontalMarginBetweenLayers")) {
-//            horizontalMarginBetweenLayers = (int) legendOptions.get("horizontalMarginBetweenLayers");
-//        }
     }
 
     /**

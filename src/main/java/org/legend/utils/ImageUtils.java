@@ -39,25 +39,17 @@ public class ImageUtils {
     private static final Logger LOGGER = org.geotools.util.logging.Logging.getLogger("org.legend.utils");
 
     /**
-     * Forces the use of the class as a pure utility methods one by declaring a private default
-     * constructor.
-     */
-    private ImageUtils() {
-        // do nothing
-    }
-
-    /**
      * Sets up a {@link BufferedImage#TYPE_4BYTE_ABGR} if the paletteInverter is not provided, or an
      * indexed image otherwise. Subclasses may override this method should they need a special kind
      * of image
      *
-     * @param width the width of the image to create.
-     * @param height the height of the image to create.
+     * @param width   the width of the image to create.
+     * @param height  the height of the image to create.
      * @param palette A {@link IndexColorModel} if the image is to be indexed, or <code>
-     *     null</code> otherwise.
+     *                null</code> otherwise.
      * @return an image of size <code>width x height</code> appropriate for the given color model,
-     *     if any, and to be used as a transparent image or not depending on the <code>transparent
-     *     </code> parameter.
+     * if any, and to be used as a transparent image or not depending on the <code>transparent
+     * </code> parameter.
      */
     public static BufferedImage createImage(int width, int height, final IndexColorModel palette,
                                             final boolean transparent) {
@@ -91,14 +83,14 @@ public class ImageUtils {
      * Sets up and returns a {@link Graphics2D} for the given <code>preparedImage</code>, which is
      * already prepared with a transparent background or the given background color.
      *
-     * @param transparent whether the graphics is transparent or not.
-     * @param bgColor the background color to fill the graphics with if it's not transparent.
+     * @param transparent   whether the graphics is transparent or not.
+     * @param bgColor       the background color to fill the graphics with if it's not transparent.
      * @param preparedImage the image for which to create the graphics.
-     * @param extraHints an optional map of extra rendering hints to apply to the {@link
-     *     Graphics2D}, other than {@link RenderingHints#KEY_ANTIALIASING}.
+     * @param extraHints    an optional map of extra rendering hints to apply to the {@link
+     *                      Graphics2D}, other than {@link RenderingHints#KEY_ANTIALIASING}.
      * @return a {@link Graphics2D} for <code>preparedImage</code> with transparent background if
-     *     <code>transparent == true</code> or with the background painted with <code>bgColor</code>
-     *     otherwise.
+     * <code>transparent == true</code> or with the background painted with <code>bgColor</code>
+     * otherwise.
      */
     public static Graphics2D prepareTransparency(final boolean transparent, final Color bgColor,
                                                  final RenderedImage preparedImage,
