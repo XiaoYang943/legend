@@ -92,43 +92,22 @@ public class BufferedImageLegendGraphicBuilderTest extends TestCase {
                 .height(35)
                 .transparent(false)
                 .bgColor("bgColor")
-                .ruleLabelMargin(0)
-                .verticalRuleMargin(0)
-                .horizontalRuleMargin(20)
-                .layout(LegendUtils.LegendLayout.VERTICAL)
-                .verticalMarginBetweenLayers(0)
-                .horizontalMarginBetweenLayers(0)
+                .ruleLabelMargin(0)    // 没用
+                .verticalRuleMargin(0) // rule垂直margin
+                .horizontalRuleMargin(20)// rule水平margin
+                .layout(LegendUtils.LegendLayout.VERTICAL)  // 布局方向
+                .verticalMarginBetweenLayers(0)   // 没用
+                .horizontalMarginBetweenLayers(0)   // 没用
                 .fontName("TimesRoman")
                 .fontStyle("bold")
                 .fontColor("fontColor")
                 .fontSize(14)
-                .labelXposition(0)
-                .labelXOffset(-50)
+                .labelXposition(0)  // 标题-margin-left
+                .labelXOffset(-50)  // rule文字-margin-left
                 .build();
 
-        Map legendOptions = new HashMap<>();
-        legendOptions.put("width", 35); // default is 50
-        legendOptions.put("height", 35); // default is 50
-        //legendOptions.put("forceRuleLabelsOff","on");
-        legendOptions.put("transparent", "off"); // default is off
-        legendOptions.put("bgColor", Color.WHITE); // default is Color.WHITE;    // 背景色
-        // Set the space between the image and the rule label
-        legendOptions.put("ruleLabelMargin", 0); //default is 3;    // 没用
-        legendOptions.put("verticalRuleMargin", 0); //default is 0; // rule垂直margin
-        legendOptions.put("horizontalRuleMargin", 20); //default is 0;// rule水平margin
-        legendOptions.put("layout", "VERTICAL"); //default is VERTICAL;(HORIZONTAL\VERTICAL)  // 布局方向
-        legendOptions.put("verticalMarginBetweenLayers", 0); //default is 0;    // 没用
-        legendOptions.put("horizontalMarginBetweenLayers", 0); //default is 0;  // 没用
-        legendOptions.put("fontName", "TimesRoman"); //default is "Sans-Serif"
-        legendOptions.put("fontStyle", "bold");
-        legendOptions.put("fontColor", Color.BLACK); // default is Color.BLACK;  // 字体颜色
-        legendOptions.put("fontSize", ""); // default is 12;   // 字体大小
-        legendOptions.put("labelXposition", 0);  // 标题-margin-left
-        legendOptions.put("labelXOffset", -50);  // rule文字-margin-left
-
-        legendOptions.put("test", 50);  // rule文字-margin-left
         BufferedImageLegendGraphicBuilder builder = new BufferedImageLegendGraphicBuilder();
-        BufferedImage bufferedImage = builder.buildLegendGraphic(produceLayerList(), legendOptions, legendOptionsNew);
+        BufferedImage bufferedImage = builder.buildLegendGraphic(produceLayerList(), legendOptionsNew);
 
         int padding = 100;
         BufferedImage newImage = new BufferedImage(bufferedImage.getWidth()
@@ -136,6 +115,6 @@ public class BufferedImageLegendGraphicBuilderTest extends TestCase {
         Graphics2D g = (Graphics2D) newImage.getGraphics();
         g.drawImage(bufferedImage, padding, padding, null);
         g.dispose();
-        ImageIO.write(bufferedImage, "png", new FileOutputStream("data/legend/output/legend8.png"));
+        ImageIO.write(bufferedImage, "png", new FileOutputStream("data/legend/output/legend11.png"));
     }
 }

@@ -140,7 +140,6 @@ public class LegendMerger {
                 int dy,
                 int margin,
                 int labelMargin,
-                Map<String, Object> legendOptions,
                 boolean forceLabelsOn,
                 boolean forceLabelsOff,
                 LegendOptions legendOptionsNew) {
@@ -237,7 +236,6 @@ public class LegendMerger {
                 int dy,
                 int margin,
                 int labelMargin,
-                Map<String, Object> legendOptions,
                 boolean forceLabelsOn,
                 boolean forceLabelsOff, LegendOptions legendOptionsNew) {
             return new LegendMerger.MergeOptions(
@@ -246,7 +244,6 @@ public class LegendMerger {
                     dy,
                     margin,
                     labelMargin,
-                    legendOptions,
                     forceLabelsOn,
                     forceLabelsOff, legendOptionsNew);
         }
@@ -263,7 +260,7 @@ public class LegendMerger {
      * @return the image with all the images on the argument list.
      */
     public static BufferedImage mergeLegends(
-            Rule[] rules, Map<String, Object> legendOptionsParam, MergeOptions mergeOptions, LegendOptions legendOptionsNew) throws Exception {
+            Rule[] rules, MergeOptions mergeOptions, LegendOptions legendOptionsNew) throws Exception {
         List<RenderedImage> imageStack = mergeOptions.getImageStack();
 
         // Builds legend nodes (graphics + label)
@@ -308,7 +305,6 @@ public class LegendMerger {
                             nodes,
                             mergeOptions.getColumnHeight(),
                             mergeOptions.getColumns(),
-                            legendOptionsParam,
                             true, legendOptionsNew);
             finalLegend = buildFinalVLegend(columns, mergeOptions);
         }
@@ -365,7 +361,7 @@ public class LegendMerger {
         }
 
         if (layout == LegendUtils.LegendLayout.VERTICAL) {
-            Column[] columns = createColumns(nodes, 0, 0, null, false, legendOptionsNew);
+            Column[] columns = createColumns(nodes, 0, 0, false, legendOptionsNew);
             finalLegend = buildFinalVLegend(columns, mergeOptions);
         }
 
@@ -442,7 +438,7 @@ public class LegendMerger {
      * @return column list
      */
     private static Column[] createColumns(List<BufferedImage> nodes, int maxHeight, int maxColumns,
-                                          Map<String, Object> legendOptionsParam, boolean checkColor, LegendOptions legendOptionsNew) {
+                                          boolean checkColor, LegendOptions legendOptionsNew) {
 
         Column[] legendMatrix;
         /*
@@ -492,7 +488,7 @@ public class LegendMerger {
                 if (rc < rowNumber) {
                     if (checkColor) {
                         // check for presence of colour (ie. non-empty legend row)
-                        colourPresent = checkColor(nodes.get(i), legendOptionsParam, legendOptionsNew);
+                        colourPresent = checkColor(nodes.get(i), legendOptionsNew);
                         if (colourPresent) {
                             legendMatrix[cn].addNode(nodes.get(i));
                             rc++;
@@ -520,7 +516,7 @@ public class LegendMerger {
      * @param legendOptionsParam general mechanism for acquiring legend symbols
      * @return false if no colours are detected
      */
-    public static boolean checkColor(BufferedImage img, Map<String, Object> legendOptionsParam, LegendOptions legendOptionsNew) {
+    public static boolean checkColor(BufferedImage img, LegendOptions legendOptionsNew) {
         int w = img.getWidth();
         int h = img.getHeight();
         boolean colourPresent = false;

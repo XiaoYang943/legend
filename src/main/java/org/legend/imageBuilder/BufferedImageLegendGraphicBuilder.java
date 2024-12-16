@@ -89,7 +89,7 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
      * @return the buffered image
      * @throws Exception if there are problems creating a "sample" feature instance for the FeatureType returns as the required layer (which should not occur).
      */
-    public BufferedImage buildLegendGraphic(List<FeatureLayer> featureLayerList, Map<String, Object> legendOptions, LegendOptions legendOptionsNew) throws Exception {
+    public BufferedImage buildLegendGraphic(List<FeatureLayer> featureLayerList, LegendOptions legendOptionsNew) throws Exception {
         setup(legendOptionsNew);
         // list of images to be rendered for the layers (more than one if a layer list is given)
         List<RenderedImage> layersImages = new ArrayList<>();
@@ -106,7 +106,7 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
             RenderedImage titleImage = null;
             // we put a title on top of each style legend
             if (!forceTitlesOff) {
-                titleImage = getLayerTitle(featureLayer, width, height, isTransparent, legendOptions, legendOptionsNew);
+                titleImage = getLayerTitle(featureLayer, width, height, isTransparent, legendOptionsNew);
             }
 
             /*
@@ -130,7 +130,6 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
             final int ruleCount = rules.length;
             final List<RenderedImage> legendsStack = new ArrayList<>(ruleCount);
             renderRules(
-                    legendOptions,
                     layersImages,
                     forceLabelsOn,
                     forceLabelsOff,
@@ -147,7 +146,7 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
                     rescaler, legendOptionsNew);
         }
         // all legend graphics are merged if we have a layer group
-        BufferedImage finalLegend = mergeGroups(layersImages, legendOptions, forceLabelsOn, forceLabelsOff, legendOptionsNew);
+        BufferedImage finalLegend = mergeGroups(layersImages, forceLabelsOn, forceLabelsOff, legendOptionsNew);
         if (finalLegend == null) {
             throw new IllegalArgumentException("no legend passed");
         }
@@ -173,7 +172,7 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
      * @return the title image
      */
     private RenderedImage getLayerTitle(FeatureLayer featureLayer, int w, int h, boolean transparent,
-                                        Map<String, Object> legendOptions, LegendOptions legendOptionsNew) {
+                                        LegendOptions legendOptionsNew) {
         String title;
         // checks layer title, otherwise style title
         if (featureLayer.getTitle() != null) {
@@ -208,7 +207,6 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
      * @param rescaler          rescaler
      */
     private void renderRules(
-            Map<String, Object> legendOptions,
             List<RenderedImage> layersImages,
             boolean forceLabelsOn,
             boolean forceLabelsOff,
@@ -264,10 +262,10 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
         }
 
         LegendMerger.MergeOptions options = LegendMerger.MergeOptions.createFromOptions(legendsStack,
-                horizontalRuleMargin, verticalRuleMargin, 0, labelMargin, legendOptions, forceLabelsOn,
+                horizontalRuleMargin, verticalRuleMargin, 0, labelMargin, forceLabelsOn,
                 forceLabelsOff, legendOptionsNew);
         if (ruleCount > 0) {
-            BufferedImage image = LegendMerger.mergeLegends(applicableRules, legendOptions, options, legendOptionsNew);
+            BufferedImage image = LegendMerger.mergeLegends(applicableRules, options, legendOptionsNew);
             if (image != null) {
                 layersImages.add(image);
             }
@@ -327,10 +325,10 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
      * @return the stack image with all the images on the argument list.
      * @throws IllegalArgumentException if the list is empty
      */
-    private BufferedImage mergeGroups(List<RenderedImage> imageStack, Map<String, Object> legendOptions,
+    private BufferedImage mergeGroups(List<RenderedImage> imageStack,
                                       boolean forceLabelsOn, boolean forceLabelsOff, LegendOptions legendOptionsNew) throws Exception {
         LegendMerger.MergeOptions options = LegendMerger.MergeOptions.createFromOptions(imageStack,
-                horizontalMarginBetweenLayers, verticalMarginBetweenLayers, 0, 0, legendOptions,
+                horizontalMarginBetweenLayers, verticalMarginBetweenLayers, 0, 0,
                 forceLabelsOn, forceLabelsOff, legendOptionsNew);
         return LegendMerger.mergeGroups(null, options, legendOptionsNew);
     }
