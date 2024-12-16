@@ -9,9 +9,9 @@ import org.geotools.map.FeatureLayer;
 import org.junit.Test;
 import org.legend.options.LegendOptions;
 import org.legend.utils.LegendUtils;
-import org.legend.utils.geotools.FeatureSourceType;
-import org.legend.utils.geotools.FeatureSourceUtils;
-import org.legend.utils.geotools.StyleConverterUtil;
+import org.legend.utils.vector.FeatureSourceType;
+import org.legend.utils.vector.FeatureSourceUtils;
+import org.legend.utils.vector.StyleConverterUtil;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;

@@ -1,4 +1,4 @@
-package org.legend.utils.geotools;
+package org.legend.utils.vector;
 
 import org.geotools.api.style.*;
 import org.geotools.factory.CommonFactoryFinder;

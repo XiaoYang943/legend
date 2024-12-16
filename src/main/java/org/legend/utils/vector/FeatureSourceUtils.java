@@ -1,4 +1,4 @@
-package org.legend.utils.geotools;
+package org.legend.utils.vector;
 
 import org.geotools.api.data.DataStore;
 import org.geotools.api.data.DataStoreFinder;

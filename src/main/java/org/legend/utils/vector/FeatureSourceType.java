@@ -1,4 +1,4 @@
-package org.legend.utils.geotools;
+package org.legend.utils.vector;
 
 public enum FeatureSourceType {
     SHP,
