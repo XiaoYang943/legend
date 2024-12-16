@@ -93,9 +93,7 @@ public class BufferedImageLegendGraphicBuilderTest extends TestCase {
                 .ruleLabelMargin(100)  // ?
                 .verticalRuleMargin(0) // rule垂直margin
                 .horizontalRuleMargin(20)// rule水平margin
-                .layout(LegendUtils.LegendLayout.VERTICAL)  // 布局方向
-                .verticalMarginBetweenLayers(0)   // ？
-                .horizontalMarginBetweenLayers(0)   // ？
+                .layout(LegendUtils.LegendLayout.HORIZONTAL)  // 布局方向
                 .fontName("TimesRoman")
                 .fontStyle("bold")
                 .fontColor("fontColor")

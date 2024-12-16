@@ -67,8 +67,6 @@ public abstract class LegendGraphicBuilder {
     int labelMargin = -50; //the space between the image and the rule label
     int verticalRuleMargin = 0; //the space between the legend item of different rules of the same style/layer
     int horizontalRuleMargin = 0;
-    int verticalMarginBetweenLayers = 0;
-    int horizontalMarginBetweenLayers = 0;
     int marge = 10;
 
     /**
@@ -85,8 +83,6 @@ public abstract class LegendGraphicBuilder {
         labelMargin = legendOptionsNew.getRuleLabelMargin();
         verticalRuleMargin = legendOptionsNew.getVerticalRuleMargin();
         horizontalRuleMargin = legendOptionsNew.getHorizontalRuleMargin();
-        verticalMarginBetweenLayers = legendOptionsNew.getVerticalMarginBetweenLayers();
-        horizontalMarginBetweenLayers = legendOptionsNew.getHorizontalMarginBetweenLayers();
     }
 
     /**

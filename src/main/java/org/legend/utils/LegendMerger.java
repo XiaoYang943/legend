@@ -50,8 +50,6 @@ public class LegendMerger {
      */
     public static class MergeOptions {
         List<RenderedImage> imageStack;
-        int dx;
-        int dy;
         int margin;
         int labelMargin;
         Color backgroundColor;
@@ -88,8 +86,6 @@ public class LegendMerger {
          */
         public MergeOptions(
                 List<RenderedImage> imageStack,
-                int dx,
-                int dy,
                 int margin,
                 int labelMargin,
                 Color backgroundColor,
@@ -104,8 +100,6 @@ public class LegendMerger {
                 boolean forceLabelsOff, LegendOptions legendOptionsNew) {
             super();
             this.imageStack = imageStack;
-            this.dx = dx;
-            this.dy = dy;
             this.margin = margin;
             this.labelMargin = labelMargin;
             this.backgroundColor = backgroundColor;
@@ -133,8 +127,6 @@ public class LegendMerger {
          */
         public MergeOptions(
                 List<RenderedImage> imageStack,
-                int dx,
-                int dy,
                 int margin,
                 int labelMargin,
                 boolean forceLabelsOn,
@@ -142,8 +134,6 @@ public class LegendMerger {
                 LegendOptions legendOptionsNew) {
             this(
                     imageStack,
-                    dx,
-                    dy,
                     margin,
                     labelMargin,
                     LegendUtils.getBackgroundColor(legendOptionsNew),
@@ -162,13 +152,6 @@ public class LegendMerger {
             return imageStack;
         }
 
-        public int getDx() {
-            return dx;
-        }
-
-        public int getDy() {
-            return dy;
-        }
 
         public int getMargin() {
             return margin;
@@ -224,16 +207,12 @@ public class LegendMerger {
 
         public static MergeOptions createFromOptions(
                 List<RenderedImage> imageStack,
-                int dx,
-                int dy,
                 int margin,
                 int labelMargin,
                 boolean forceLabelsOn,
                 boolean forceLabelsOff, LegendOptions legendOptionsNew) {
             return new LegendMerger.MergeOptions(
                     imageStack,
-                    dx,
-                    dy,
                     margin,
                     labelMargin,
                     forceLabelsOn,
@@ -603,11 +582,8 @@ public class LegendMerger {
 
         for (Column c : columns) {
             if (c != null) {
-                if (totalWidth > 0) {
-                    totalWidth = totalWidth + options.getDx();
-                }
                 totalWidth = totalWidth + c.getWidth();
-                int h = c.getHeight() + (c.nodes.size() - 1) * options.getDy();
+                int h = c.getHeight();
                 totalHeight = Math.max(totalHeight, h);
             }
         }
@@ -637,9 +613,9 @@ public class LegendMerger {
             if (c != null) {
                 for (BufferedImage n : c.getNodes()) {
                     finalGraphics.drawImage(n, hOffset, vOffset, null);
-                    vOffset = vOffset + n.getHeight() + options.getDy();
+                    vOffset = vOffset + n.getHeight();
                 }
-                hOffset = hOffset + c.getWidth() + options.getDx();
+                hOffset = hOffset + c.getWidth();
                 vOffset = options.getMargin();
             }
         }
@@ -663,10 +639,10 @@ public class LegendMerger {
         for (Row r : rows) {
             if (r != null) {
                 if (totalHeight > 0) {
-                    totalHeight = totalHeight + options.getDy();
+                    totalHeight = totalHeight;
                 }
                 totalHeight = totalHeight + r.getHeight();
-                int w = r.getWidth() + (r.nodes.size() - 1) * options.getDx();
+                int w = r.getWidth();
                 totalWidth = Math.max(totalWidth, w);
             }
         }
@@ -697,9 +673,9 @@ public class LegendMerger {
             if (r != null) {
                 for (BufferedImage n : r.getNodes()) {
                     finalGraphics.drawImage(n, hOffset, vOffset, null);
-                    hOffset = hOffset + n.getWidth() + options.getDx();
+                    hOffset = hOffset + n.getWidth();
                 }
-                vOffset = vOffset + r.getHeight() + options.getDy();
+                vOffset = vOffset + r.getHeight();
                 hOffset = options.getMargin();
             }
         }

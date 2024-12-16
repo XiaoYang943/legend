@@ -16,8 +16,6 @@ public class LegendOptions {
     private Integer horizontalRuleMargin;
     @Builder.Default
     private LegendUtils.LegendLayout layout = LegendUtils.LegendLayout.VERTICAL;
-    private Integer verticalMarginBetweenLayers;
-    private Integer horizontalMarginBetweenLayers;
 
     @Builder.Default
     private String fontName = "Sans-Serif";
