@@ -285,6 +285,8 @@ public class LegendUtils {
         } else if (rule.getName() != null) {
             label = rule.getName();
         }
+        // 删除多余空格
+        label = label.trim();
         return label;
     }
 
