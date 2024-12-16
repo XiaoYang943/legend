@@ -89,8 +89,8 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
      * @return the buffered image
      * @throws Exception if there are problems creating a "sample" feature instance for the FeatureType returns as the required layer (which should not occur).
      */
-    public BufferedImage buildLegendGraphic(List<FeatureLayer> featureLayerList, LegendOptions legendOptionsNew) throws Exception {
-        setup(legendOptionsNew);
+    public BufferedImage buildLegendGraphic(List<FeatureLayer> featureLayerList, LegendOptions legendOptions) throws Exception {
+        setup(legendOptions);
         // list of images to be rendered for the layers (more than one if a layer list is given)
         List<RenderedImage> layersImages = new ArrayList<>();
 
@@ -106,7 +106,7 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
             RenderedImage titleImage = null;
             // we put a title on top of each style legend
             if (!forceTitlesOff) {
-                titleImage = getLayerTitle(featureLayer, width, height, isTransparent, legendOptionsNew);
+                titleImage = getLayerTitle(featureLayer, width, height, isTransparent, legendOptions);
             }
 
             /*
@@ -143,10 +143,10 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
                     styleFactory,
                     minimumSymbolSize,
                     rescalingRequired,
-                    rescaler, legendOptionsNew);
+                    rescaler, legendOptions);
         }
         // all legend graphics are merged if we have a layer group
-        BufferedImage finalLegend = mergeGroups(layersImages, forceLabelsOn, forceLabelsOff, legendOptionsNew);
+        BufferedImage finalLegend = mergeGroups(layersImages, forceLabelsOn, forceLabelsOff, legendOptions);
         if (finalLegend == null) {
             throw new IllegalArgumentException("no legend passed");
         }
@@ -154,7 +154,7 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
         // create marge
         BufferedImage BufferedImageForMarge = new BufferedImage(finalLegend.getWidth() + marge * 2, finalLegend.getHeight() + marge * 2, BufferedImage.TYPE_INT_RGB);
         Graphics g = BufferedImageForMarge.getGraphics();
-        g.setColor(LegendUtils.getBackgroundColor(legendOptionsNew));
+        g.setColor(LegendUtils.getBackgroundColor(legendOptions));
         g.fillRect(0, 0, finalLegend.getWidth() + marge * 2, finalLegend.getHeight() + marge * 2);
         g.drawImage(finalLegend, marge, marge, null);
 
@@ -172,10 +172,10 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
      * @return the title image
      */
     private RenderedImage getLayerTitle(FeatureLayer featureLayer, int w, int h, boolean transparent,
-                                        LegendOptions legendOptionsNew) {
+                                        LegendOptions legendOptions) {
         String title;
         // checks layer title, otherwise style title
-        String inputTitle = legendOptionsNew.getTitle();
+        String inputTitle = legendOptions.getTitle();
         if (inputTitle != null && !inputTitle.isEmpty()) {
             title = inputTitle;
         } else if (featureLayer.getTitle() != null) {
@@ -184,7 +184,7 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
             title = "图例";
         }
         final BufferedImage image = ImageUtils.createImage(w, h, null, transparent);
-        return LegendMerger.getRenderedLabel(image, title, legendOptionsNew);
+        return LegendMerger.getRenderedLabel(image, title, legendOptions);
     }
 
     /**
@@ -220,12 +220,12 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
             final SLDStyleFactory styleFactory,
             double minimumSymbolSize,
             boolean rescalingRequired,
-            Function<Double, Double> rescaler, LegendOptions legendOptionsNew) throws Exception {
+            Function<Double, Double> rescaler, LegendOptions legendOptions) throws Exception {
         MetaBufferEstimator estimator = new MetaBufferEstimator(sampleFeature);
         for (int i = 0; i < ruleCount; i++) {
             final RenderedImage image = ImageUtils.createImage(width, height, null, transparent);
             final Map<RenderingHints.Key, Object> hintsMap = new HashMap<>();
-            final Graphics2D graphics = ImageUtils.prepareTransparency(transparent, LegendUtils.getBackgroundColor(legendOptionsNew), image, hintsMap);
+            final Graphics2D graphics = ImageUtils.prepareTransparency(transparent, LegendUtils.getBackgroundColor(legendOptions), image, hintsMap);
             graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             final List<Symbolizer> symbolizers = applicableRules[i].symbolizers();
 
@@ -262,9 +262,9 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
         }
 
         LegendMerger.MergeOptions options = LegendMerger.MergeOptions.createFromOptions(legendsStack, 0, forceLabelsOn,
-                forceLabelsOff, legendOptionsNew);
+                forceLabelsOff, legendOptions);
         if (ruleCount > 0) {
-            BufferedImage image = LegendMerger.mergeLegends(applicableRules, options, legendOptionsNew);
+            BufferedImage image = LegendMerger.mergeLegends(applicableRules, options, legendOptions);
             if (image != null) {
                 layersImages.add(image);
             }
@@ -325,10 +325,10 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
      * @throws IllegalArgumentException if the list is empty
      */
     private BufferedImage mergeGroups(List<RenderedImage> imageStack,
-                                      boolean forceLabelsOn, boolean forceLabelsOff, LegendOptions legendOptionsNew) throws Exception {
+                                      boolean forceLabelsOn, boolean forceLabelsOff, LegendOptions legendOptions) throws Exception {
         LegendMerger.MergeOptions options = LegendMerger.MergeOptions.createFromOptions(imageStack, 0,
-                forceLabelsOn, forceLabelsOff, legendOptionsNew);
-        return LegendMerger.mergeGroups(null, options, legendOptionsNew);
+                forceLabelsOn, forceLabelsOff, legendOptions);
+        return LegendMerger.mergeGroups(null, options, legendOptions);
     }
 
 }

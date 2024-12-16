@@ -73,10 +73,10 @@ public abstract class LegendGraphicBuilder {
         super();
     }
 
-    public void setup(LegendOptions legendOptionsNew) {
-        width = legendOptionsNew.getWidth();
-        height = legendOptionsNew.getHeight();
-        isTransparent = legendOptionsNew.isTransparent();
+    public void setup(LegendOptions legendOptions) {
+        width = legendOptions.getWidth();
+        height = legendOptions.getHeight();
+        isTransparent = legendOptions.isTransparent();
     }
 
     /**

@@ -171,8 +171,8 @@ public class LegendUtils {
      * @param legendOptionsParam from which we should extract the background color.
      * @return the Color for the hexadecimal value passed by legendOptionsParam, or the default background color if no bgcolor were passed.
      */
-    public static Color getBackgroundColor(LegendOptions legendOptionsNew) {
-        Object clr = legendOptionsNew.getBgColor();
+    public static Color getBackgroundColor(LegendOptions legendOptions) {
+        Object clr = legendOptions.getBgColor();
         if (clr instanceof Color) {
             return (Color) clr;
         } else if (clr == null) {
@@ -218,8 +218,8 @@ public class LegendUtils {
      * @param legendOptionsParam the legendOptionsParam from which to extract label color information.
      * @return the Label font color extracted from the provided legendOptionsParam or a default font color.
      */
-    public static Color getLabelFontColor(LegendOptions legendOptionsNew) {
-        Object clr = legendOptionsNew.getFontColor();
+    public static Color getLabelFontColor(LegendOptions legendOptions) {
+        Object clr = legendOptions.getFontColor();
         if (clr instanceof Color) {
             return (Color) clr;
         } else if (clr == null) {
@@ -249,13 +249,13 @@ public class LegendUtils {
      * @param legendOptionsParam - the legend option param
      * @return a {@link BufferedImage} of the properly rendered label.
      */
-    public static BufferedImage renderLabel(String label, final Graphics2D g, LegendOptions legendOptionsNew) {
+    public static BufferedImage renderLabel(String label, final Graphics2D g, LegendOptions legendOptions) {
         ensureNotNull(label);
         ensureNotNull(g);
         // We'll accept '/n' as a text string
         // to indicate a line break, as well as a traditional 'real' line-break in the XML.
         BufferedImage renderedLabel;
-        Color labelColor = getLabelFontColor(legendOptionsNew);
+        Color labelColor = getLabelFontColor(legendOptions);
         if ((label.contains("\n")) || (label.contains("\\n"))) {
             // this is a label WITH line-breaks...we need to figure out it's height *and*
             // width, and then adjust the legend size accordingly
@@ -309,7 +309,7 @@ public class LegendUtils {
             // size and act accordingly.
             int height = (int) Math.ceil(g.getFontMetrics().getStringBounds(label, g).getHeight());
             int width = (int) Math.ceil(g.getFontMetrics().getStringBounds(label, g).getWidth());
-            renderedLabel = new BufferedImage(width + legendOptionsNew.getLabelXposition(), height, BufferedImage.TYPE_INT_ARGB);
+            renderedLabel = new BufferedImage(width + legendOptions.getLabelXposition(), height, BufferedImage.TYPE_INT_ARGB);
             Graphics2D rlg = renderedLabel.createGraphics();
             rlg.setColor(labelColor);
             rlg.setFont(g.getFont());
@@ -321,7 +321,7 @@ public class LegendUtils {
                         RenderingHints.KEY_FRACTIONALMETRICS,
                         g.getRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS));
             }
-            rlg.drawString(label, legendOptionsNew.getLabelXposition(), height - rlg.getFontMetrics().getDescent());
+            rlg.drawString(label, legendOptions.getLabelXposition(), height - rlg.getFontMetrics().getDescent());
             rlg.dispose();
         }
 
@@ -336,19 +336,19 @@ public class LegendUtils {
      * @return the {@link Font} specified in the provided legendOptionsParam or a
      * default {@link Font}.
      */
-    public static Font getLabelFont(LegendOptions legendOptionsNew) {
+    public static Font getLabelFont(LegendOptions legendOptions) {
 
-        String legendFontName = legendOptionsNew.getFontName();
+        String legendFontName = legendOptions.getFontName();
 
         int legendFontFamily = LegendUtils.DEFAULT_FONT_TYPE;
-        String legendFontFamily_ = legendOptionsNew.getFontStyle();
+        String legendFontFamily_ = legendOptions.getFontStyle();
         if (legendFontFamily_.equalsIgnoreCase("italic")) {
             legendFontFamily = Font.ITALIC;
         } else if (legendFontFamily_.equalsIgnoreCase("bold")) {
             legendFontFamily = Font.BOLD;
         }
 
-        int legendFontSize = legendOptionsNew.getFontSize();
+        int legendFontSize = legendOptions.getFontSize();
 
         if (legendFontFamily == LegendUtils.DEFAULT_FONT_TYPE
                 && legendFontName.equalsIgnoreCase(LegendUtils.DEFAULT_FONT_NAME)

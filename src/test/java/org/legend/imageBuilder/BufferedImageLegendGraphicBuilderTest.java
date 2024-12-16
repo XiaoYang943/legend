@@ -25,7 +25,7 @@ public class BufferedImageLegendGraphicBuilderTest extends TestCase {
 
     @Test
     public void testBuildLegendGraphic() throws Exception {
-        LegendOptions legendOptionsNew = LegendOptions.builder()
+        LegendOptions legendOptions = LegendOptions.builder()
                 .width(35) // rule-image宽度
                 .height(35) // rule-image高度
                 .transparent(true) // ？
@@ -55,7 +55,7 @@ public class BufferedImageLegendGraphicBuilderTest extends TestCase {
         List<FeatureLayer> layerList = new ArrayList<>();
         layerList.add(layer4);
 
-        BufferedImage bufferedImage = builder.buildLegendGraphic(layerList, legendOptionsNew);
+        BufferedImage bufferedImage = builder.buildLegendGraphic(layerList, legendOptions);
         ImageIO.write(bufferedImage, "png", new FileOutputStream("data/legend/output/legend.png"));
     }
 }
