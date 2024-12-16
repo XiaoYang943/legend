@@ -1,8 +1,6 @@
 package org.legend.imageBuilder;
 
 import junit.framework.TestCase;
-import org.geotools.api.data.DataStore;
-import org.geotools.api.data.DataStoreFinder;
 import org.geotools.api.data.FeatureSource;
 import org.geotools.api.feature.simple.SimpleFeature;
 import org.geotools.api.feature.simple.SimpleFeatureType;
@@ -14,6 +12,8 @@ import org.geotools.map.FeatureLayer;
 import org.geotools.xml.styling.SLDParser;
 import org.legend.options.LegendOptions;
 import org.legend.utils.LegendUtils;
+import org.legend.utils.geotools.FeatureSourceType;
+import org.legend.utils.geotools.FeatureSourceUtils;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -27,23 +27,19 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class BufferedImageLegendGraphicBuilderTest extends TestCase {
 
 
     public List<FeatureLayer> produceLayerList() throws Exception {
-        File file2 = new File("D:\\data\\vector\\shp\\国土资源shp\\地类图斑_安康市.shp");
-        Map<String, String> connect2 = new HashMap<>();
-        connect2.put("url", file2.toURI().toString());
-        DataStore dataStore2 = DataStoreFinder.getDataStore(connect2);
-        String[] typeNames2 = dataStore2.getTypeNames();
-        String typeName2 = typeNames2[0];
-        FeatureSource<SimpleFeatureType, SimpleFeature> featureSource2 = dataStore2.getFeatureSource(typeName2);
+//        File file2 = new File("D:\\data\\vector\\shp\\国土资源shp\\地类图斑_安康市.shp");
+        File file2 = new File("D:\\data\\vector\\mbtiles\\linespaceOutPut\\planetiler\\dltb\\shanxi_dizhi\\dltb.mbtiles");
+
+        FeatureSource<SimpleFeatureType, SimpleFeature> featureSourceFromShp = FeatureSourceUtils.getFeatureSource(file2, FeatureSourceType.MBTILES);
+
         Style sld4 = getSldStyle("C:\\Users\\admin\\Desktop\\安康1.sld");
-        FeatureLayer layer4 = new FeatureLayer(featureSource2, sld4);
+        FeatureLayer layer4 = new FeatureLayer(featureSourceFromShp, sld4);
 
         List<FeatureLayer> layerList = new ArrayList<>();
         layerList.add(layer4);
@@ -102,6 +98,6 @@ public class BufferedImageLegendGraphicBuilderTest extends TestCase {
 
         BufferedImageLegendGraphicBuilder builder = new BufferedImageLegendGraphicBuilder();
         BufferedImage bufferedImage = builder.buildLegendGraphic(produceLayerList(), legendOptionsNew);
-        ImageIO.write(bufferedImage, "png", new FileOutputStream("data/legend/output/legend11.png"));
+        ImageIO.write(bufferedImage, "png", new FileOutputStream("data/legend/output/legend.png"));
     }
 }
