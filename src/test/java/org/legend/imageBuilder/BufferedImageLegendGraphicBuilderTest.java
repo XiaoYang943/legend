@@ -103,6 +103,7 @@ public class BufferedImageLegendGraphicBuilderTest extends TestCase {
                 .labelXposition(0)  // 标题-margin-left
                 .labelXOffset(0)  // rule-label-margin-left
                 .maxHeight(0) // rules最大高度(而不是整个图例的高度，整个图例的宽度高度是自适应生成的。具体由image宽度高度、rules的margin、布局方向等参数决定)
+                .title("图例")
                 .build();
 
         BufferedImageLegendGraphicBuilder builder = new BufferedImageLegendGraphicBuilder();

@@ -175,13 +175,13 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
                                         LegendOptions legendOptionsNew) {
         String title;
         // checks layer title, otherwise style title
-        if (featureLayer.getTitle() != null) {
+        String inputTitle = legendOptionsNew.getTitle();
+        if (inputTitle != null && !inputTitle.isEmpty()) {
+            title = inputTitle;
+        } else if (featureLayer.getTitle() != null) {
             title = featureLayer.getTitle();
         } else {
-            title = featureLayer.getStyle().getName();
-            if (title.equals("Default Styler")) {
-                title = "Legend";
-            }
+            title = "图例";
         }
         final BufferedImage image = ImageUtils.createImage(w, h, null, transparent);
         return LegendMerger.getRenderedLabel(image, title, legendOptionsNew);

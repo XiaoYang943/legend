@@ -33,4 +33,6 @@ public class LegendOptions {
 
     @Builder.Default
     private Integer maxHeight = 0;
+
+    private String title;
 }
