@@ -1,0 +1,802 @@
+{
+    "version": 8,
+    "metadata": {
+        "maputnik:renderer": "mlgljs"
+    },
+    "center": [
+        109.10687,
+        32.77478,
+        8
+    ],
+    "zoom": 8,
+    "light": {
+        "anchor": "viewport"
+    },
+    "sources": {
+        "ankang-dizhi": {
+            "type": "vector",
+            "url": "http://localhost:13002/LineSpaceServer/martin/MVT/ankang-dltb"
+        }
+    },
+    "sprite": "http://localhost:13002/scenemap/services/vector/mbtiles/ankang-dltb/style/sprite",
+    "layers": [
+        {
+            "filter": [
+                "==",
+                "DLBM",
+                "0101"
+            ],
+            "type": "fill",
+            "source-layer": "linespace_layer",
+            "source": "ankang-dizhi",
+            "paint": {
+                "fill-color": "#f8d072"
+            },
+            "id": "r0_sy0_st0"
+        },
+        {
+            "filter": [
+                "==",
+                "DLBM",
+                "0102"
+            ],
+            "type": "fill",
+            "source-layer": "linespace_layer",
+            "source": "ankang-dizhi",
+            "paint": {
+                "fill-color": "#fcea9e"
+            },
+            "id": "r1_sy0_st0"
+        },
+        {
+            "filter": [
+                "==",
+                "DLBM",
+                "0103"
+            ],
+            "type": "fill",
+            "source-layer": "linespace_layer",
+            "source": "ankang-dizhi",
+            "paint": {
+                "fill-color": "#fffbb1"
+            },
+            "id": "r2_sy0_st0"
+        },
+        {
+            "filter": [
+                "any",
+                [
+                    "==",
+                    "DLBM",
+                    "0201"
+                ],
+                [
+                    "==",
+                    "DLBM",
+                    "0201K"
+                ]
+            ],
+            "type": "fill",
+            "source-layer": "linespace_layer",
+            "source": "ankang-dizhi",
+            "paint": {
+                "fill-color": "#d6a7c9"
+            },
+            "id": "r3_sy0_st0"
+        },
+        {
+            "filter": [
+                "==",
+                "DLBM",
+                "0202"
+            ],
+            "type": "fill",
+            "source-layer": "linespace_layer",
+            "source": "ankang-dizhi",
+            "paint": {
+                "fill-color": "#d5a7b0"
+            },
+            "id": "r4_sy0_st0"
+        },
+        {
+            "filter": [
+                "==",
+                "DLBM",
+                "0203"
+            ],
+            "type": "fill",
+            "source-layer": "linespace_layer",
+            "source": "ankang-dizhi",
+            "paint": {
+                "fill-color": "#e7cce2"
+            },
+            "id": "r5_sy0_st0"
+        },
+        {
+            "filter": [
+                "any",
+                [
+                    "==",
+                    "DLBM",
+                    "0204"
+                ],
+                [
+                    "==",
+                    "DLBM",
+                    "0204K"
+                ]
+            ],
+            "type": "fill",
+            "source-layer": "linespace_layer",
+            "source": "ankang-dizhi",
+            "paint": {
+                "fill-color": "#e7cce2"
+            },
+            "id": "r6_sy0_st0"
+        },
+        {
+            "filter": [
+                "any",
+                [
+                    "==",
+                    "DLBM",
+                    "0301"
+                ],
+                [
+                    "==",
+                    "DLBM",
+                    "0301K"
+                ]
+            ],
+            "type": "fill",
+            "source-layer": "linespace_layer",
+            "source": "ankang-dizhi",
+            "paint": {
+                "fill-color": "#31ad69"
+            },
+            "id": "r7_sy0_st0"
+        },
+        {
+            "filter": [
+                "any",
+                [
+                    "==",
+                    "DLBM",
+                    "0302"
+                ],
+                [
+                    "==",
+                    "DLBM",
+                    "0302K"
+                ]
+            ],
+            "type": "fill",
+            "source-layer": "linespace_layer",
+            "source": "ankang-dizhi",
+            "paint": {
+                "fill-color": "#31ad69"
+            },
+            "id": "r8_sy0_st0"
+        },
+        {
+            "filter": [
+                "==",
+                "DLBM",
+                "0303"
+            ],
+            "type": "fill",
+            "source-layer": "linespace_layer",
+            "source": "ankang-dizhi",
+            "paint": {
+                "fill-color": "#31ad69"
+            },
+            "id": "r9_sy0_st0"
+        },
+        {
+            "filter": [
+                "==",
+                "DLBM",
+                "0305"
+            ],
+            "type": "fill",
+            "source-layer": "linespace_layer",
+            "source": "ankang-dizhi",
+            "paint": {
+                "fill-color": "#64b968"
+            },
+            "id": "r10_sy0_st0"
+        },
+        {
+            "filter": [
+                "any",
+                [
+                    "==",
+                    "DLBM",
+                    "0307"
+                ],
+                [
+                    "==",
+                    "DLBM",
+                    "0307K"
+                ]
+            ],
+            "type": "fill",
+            "source-layer": "linespace_layer",
+            "source": "ankang-dizhi",
+            "paint": {
+                "fill-color": "#97cfb2"
+            },
+            "id": "r11_sy0_st0"
+        },
+        {
+            "filter": [
+                "==",
+                "DLBM",
+                "0403"
+            ],
+            "type": "fill",
+            "source-layer": "linespace_layer",
+            "source": "ankang-dizhi",
+            "paint": {
+                "fill-color": "#9ace7f"
+            },
+            "id": "r12_sy0_st0"
+        },
+        {
+            "filter": [
+                "==",
+                "DLBM",
+                "0404"
+            ],
+            "type": "fill",
+            "source-layer": "linespace_layer",
+            "source": "ankang-dizhi",
+            "paint": {
+                "fill-color": "#c8e3a0"
+            },
+            "id": "r13_sy0_st0"
+        },
+        {
+            "filter": [
+                "==",
+                "DLBM",
+                "05H1"
+            ],
+            "type": "fill",
+            "source-layer": "linespace_layer",
+            "source": "ankang-dizhi",
+            "paint": {
+                "fill-color": "#e2a195"
+            },
+            "id": "r14_sy0_st0"
+        },
+        {
+            "filter": [
+                "==",
+                "DLBM",
+                "0508"
+            ],
+            "type": "fill",
+            "source-layer": "linespace_layer",
+            "source": "ankang-dizhi",
+            "paint": {
+                "fill-color": "#c59a8c"
+            },
+            "id": "r15_sy0_st0"
+        },
+        {
+            "filter": [
+                "==",
+                "DLBM",
+                "0601"
+            ],
+            "type": "fill",
+            "source-layer": "linespace_layer",
+            "source": "ankang-dizhi",
+            "paint": {
+                "fill-color": "#c59a8c"
+            },
+            "id": "r16_sy0_st0"
+        },
+        {
+            "filter": [
+                "==",
+                "DLBM",
+                "0602"
+            ],
+            "type": "fill",
+            "source-layer": "linespace_layer",
+            "source": "ankang-dizhi",
+            "paint": {
+                "fill-color": "#c59a8c"
+            },
+            "id": "r17_sy0_st0"
+        },
+        {
+            "filter": [
+                "==",
+                "DLBM",
+                "0701"
+            ],
+            "type": "fill",
+            "source-layer": "linespace_layer",
+            "source": "ankang-dizhi",
+            "paint": {
+                "fill-color": "#e56766"
+            },
+            "id": "r18_sy0_st0"
+        },
+        {
+            "filter": [
+                "==",
+                "DLBM",
+                "0702"
+            ],
+            "type": "fill",
+            "source-layer": "linespace_layer",
+            "source": "ankang-dizhi",
+            "paint": {
+                "fill-color": "#ec898a"
+            },
+            "id": "r19_sy0_st0"
+        },
+        {
+            "filter": [
+                "==",
+                "DLBM",
+                "08H1"
+            ],
+            "type": "fill",
+            "source-layer": "linespace_layer",
+            "source": "ankang-dizhi",
+            "paint": {
+                "fill-color": "#f1a5b4"
+            },
+            "id": "r20_sy0_st0"
+        },
+        {
+            "filter": [
+                "any",
+                [
+                    "==",
+                    "DLBM",
+                    "08H2"
+                ],
+                [
+                    "==",
+                    "DLBM",
+                    "08H2A"
+                ]
+            ],
+            "type": "fill",
+            "source-layer": "linespace_layer",
+            "source": "ankang-dizhi",
+            "paint": {
+                "fill-color": "#f1a5b4"
+            },
+            "id": "r21_sy0_st0"
+        },
+        {
+            "filter": [
+                "==",
+                "DLBM",
+                "0809"
+            ],
+            "type": "fill",
+            "source-layer": "linespace_layer",
+            "source": "ankang-dizhi",
+            "paint": {
+                "fill-color": "#f1a5b4"
+            },
+            "id": "r22_sy0_st0"
+        },
+        {
+            "filter": [
+                "any",
+                [
+                    "==",
+                    "DLBM",
+                    "0810"
+                ],
+                [
+                    "==",
+                    "DLBM",
+                    "0810A"
+                ]
+            ],
+            "type": "fill",
+            "source-layer": "linespace_layer",
+            "source": "ankang-dizhi",
+            "paint": {
+                "fill-color": "#81c35d"
+            },
+            "id": "r23_sy0_st0"
+        },
+        {
+            "filter": [
+                "==",
+                "DLBM",
+                "09"
+            ],
+            "type": "fill",
+            "source-layer": "linespace_layer",
+            "source": "ankang-dizhi",
+            "paint": {
+                "fill-color": "#c17261"
+            },
+            "id": "r24_sy0_st0"
+        },
+        {
+            "filter": [
+                "==",
+                "DLBM",
+                "1001"
+            ],
+            "type": "fill",
+            "source-layer": "linespace_layer",
+            "source": "ankang-dizhi",
+            "paint": {
+                "fill-color": "#d1c9d3"
+            },
+            "id": "r25_sy0_st0"
+        },
+        {
+            "filter": [
+                "==",
+                "DLBM",
+                "1002"
+            ],
+            "type": "fill",
+            "source-layer": "linespace_layer",
+            "source": "ankang-dizhi",
+            "paint": {
+                "fill-color": "#d1c9d3"
+            },
+            "id": "r26_sy0_st0"
+        },
+        {
+            "filter": [
+                "==",
+                "DLBM",
+                "1003"
+            ],
+            "type": "fill",
+            "source-layer": "linespace_layer",
+            "source": "ankang-dizhi",
+            "paint": {
+                "fill-color": "#d2d8c9"
+            },
+            "id": "r27_sy0_st0"
+        },
+        {
+            "filter": [
+                "==",
+                "DLBM",
+                "1004"
+            ],
+            "type": "fill",
+            "source-layer": "linespace_layer",
+            "source": "ankang-dizhi",
+            "paint": {
+                "fill-color": "#dededd"
+            },
+            "id": "r28_sy0_st0"
+        },
+        {
+            "filter": [
+                "==",
+                "DLBM",
+                "1005"
+            ],
+            "type": "fill",
+            "source-layer": "linespace_layer",
+            "source": "ankang-dizhi",
+            "paint": {
+                "fill-color": "#aaa9a9"
+            },
+            "id": "r29_sy0_st0"
+        },
+        {
+            "filter": [
+                "==",
+                "DLBM",
+                "1006"
+            ],
+            "type": "fill",
+            "source-layer": "linespace_layer",
+            "source": "ankang-dizhi",
+            "paint": {
+                "fill-color": "#c2c1c1"
+            },
+            "id": "r30_sy0_st0"
+        },
+        {
+            "filter": [
+                "==",
+                "DLBM",
+                "1007"
+            ],
+            "type": "fill",
+            "source-layer": "linespace_layer",
+            "source": "ankang-dizhi",
+            "paint": {
+                "fill-color": "#eb897e"
+            },
+            "id": "r31_sy0_st0"
+        },
+        {
+            "filter": [
+                "==",
+                "DLBM",
+                "1008"
+            ],
+            "type": "fill",
+            "source-layer": "linespace_layer",
+            "source": "ankang-dizhi",
+            "paint": {
+                "fill-color": "#eb897e"
+            },
+            "id": "r32_sy0_st0"
+        },
+        {
+            "filter": [
+                "==",
+                "DLBM",
+                "1009"
+            ],
+            "type": "fill",
+            "source-layer": "linespace_layer",
+            "source": "ankang-dizhi",
+            "paint": {
+                "fill-color": "#eb897e"
+            },
+            "id": "r33_sy0_st0"
+        },
+        {
+            "filter": [
+                "==",
+                "DLBM",
+                "1101"
+            ],
+            "type": "fill",
+            "source-layer": "linespace_layer",
+            "source": "ankang-dizhi",
+            "paint": {
+                "fill-color": "#a3d6f5"
+            },
+            "id": "r34_sy0_st0"
+        },
+        {
+            "filter": [
+                "==",
+                "DLBM",
+                "1102"
+            ],
+            "type": "fill",
+            "source-layer": "linespace_layer",
+            "source": "ankang-dizhi",
+            "paint": {
+                "fill-color": "#a3d6f5"
+            },
+            "id": "r35_sy0_st0"
+        },
+        {
+            "filter": [
+                "==",
+                "DLBM",
+                "1103"
+            ],
+            "type": "fill",
+            "source-layer": "linespace_layer",
+            "source": "ankang-dizhi",
+            "paint": {
+                "fill-color": "#a3d6f5"
+            },
+            "id": "r36_sy0_st0"
+        },
+        {
+            "filter": [
+                "any",
+                [
+                    "==",
+                    "DLBM",
+                    "1104"
+                ],
+                [
+                    "==",
+                    "DLBM",
+                    "1104A"
+                ],
+                [
+                    "==",
+                    "DLBM",
+                    "1104K"
+                ]
+            ],
+            "type": "fill",
+            "source-layer": "linespace_layer",
+            "source": "ankang-dizhi",
+            "paint": {
+                "fill-color": "#90aacf"
+            },
+            "id": "r37_sy0_st0"
+        },
+        {
+            "filter": [
+                "==",
+                "DLBM",
+                "1105"
+            ],
+            "type": "fill",
+            "source-layer": "linespace_layer",
+            "source": "ankang-dizhi",
+            "paint": {
+                "fill-color": "#b3def8"
+            },
+            "id": "r38_sy0_st0"
+        },
+        {
+            "filter": [
+                "==",
+                "DLBM",
+                "1106"
+            ],
+            "type": "fill",
+            "source-layer": "linespace_layer",
+            "source": "ankang-dizhi",
+            "paint": {
+                "fill-color": "#b3def8"
+            },
+            "id": "r39_sy0_st0"
+        },
+        {
+            "filter": [
+                "any",
+                [
+                    "==",
+                    "DLBM",
+                    "1107"
+                ],
+                [
+                    "==",
+                    "DLBM",
+                    "1107A"
+                ]
+            ],
+            "type": "fill",
+            "source-layer": "linespace_layer",
+            "source": "ankang-dizhi",
+            "paint": {
+                "fill-color": "#a0cdf0"
+            },
+            "id": "r40_sy0_st0"
+        },
+        {
+            "filter": [
+                "==",
+                "DLBM",
+                "1108"
+            ],
+            "type": "fill",
+            "source-layer": "linespace_layer",
+            "source": "ankang-dizhi",
+            "paint": {
+                "fill-color": "#afc8dc"
+            },
+            "id": "r41_sy0_st0"
+        },
+        {
+            "filter": [
+                "==",
+                "DLBM",
+                "1109"
+            ],
+            "type": "fill",
+            "source-layer": "linespace_layer",
+            "source": "ankang-dizhi",
+            "paint": {
+                "fill-color": "#e68264"
+            },
+            "id": "r42_sy0_st0"
+        },
+        {
+            "filter": [
+                "==",
+                "DLBM",
+                "1201"
+            ],
+            "type": "fill",
+            "source-layer": "linespace_layer",
+            "source": "ankang-dizhi",
+            "paint": {
+                "fill-color": "#e1dce1"
+            },
+            "id": "r43_sy0_st0"
+        },
+        {
+            "filter": [
+                "==",
+                "DLBM",
+                "1202"
+            ],
+            "type": "fill",
+            "source-layer": "linespace_layer",
+            "source": "ankang-dizhi",
+            "paint": {
+                "fill-color": "#dcb482"
+            },
+            "id": "r44_sy0_st0"
+        },
+        {
+            "filter": [
+                "==",
+                "DLBM",
+                "1203"
+            ],
+            "type": "fill",
+            "source-layer": "linespace_layer",
+            "source": "ankang-dizhi",
+            "paint": {
+                "fill-color": "#c8b6b2"
+            },
+            "id": "r45_sy0_st0"
+        },
+        {
+            "filter": [
+                "==",
+                "DLBM",
+                "1204"
+            ],
+            "type": "fill",
+            "source-layer": "linespace_layer",
+            "source": "ankang-dizhi",
+            "paint": {
+                "fill-color": "#c8ccd2"
+            },
+            "id": "r46_sy0_st0"
+        },
+        {
+            "filter": [
+                "==",
+                "DLBM",
+                "1205"
+            ],
+            "type": "fill",
+            "source-layer": "linespace_layer",
+            "source": "ankang-dizhi",
+            "paint": {
+                "fill-color": "#c8beaa"
+            },
+            "id": "r47_sy0_st0"
+        },
+        {
+            "filter": [
+                "==",
+                "DLBM",
+                "1206"
+            ],
+            "type": "fill",
+            "source-layer": "linespace_layer",
+            "source": "ankang-dizhi",
+            "paint": {
+                "fill-color": "#d7c8b9"
+            },
+            "id": "r48_sy0_st0"
+        },
+        {
+            "filter": [
+                "==",
+                "DLBM",
+                "1207"
+            ],
+            "type": "fill",
+            "source-layer": "linespace_layer",
+            "source": "ankang-dizhi",
+            "paint": {
+                "fill-color": "#deddd6"
+            },
+            "id": "r49_sy0_st0"
+        }
+    ],
+    "id": "6cgsxat"
+}

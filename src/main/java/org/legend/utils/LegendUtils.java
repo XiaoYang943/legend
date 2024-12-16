@@ -241,6 +241,15 @@ public class LegendUtils {
         return ruleList.toArray(new Rule[0]);
     }
 
+    public static Rule[] getRules1(final FeatureTypeStyle[] ftStyles) {
+        ArrayList<Rule> res = new ArrayList<>();
+        for (FeatureTypeStyle ftStyle : ftStyles) {
+            List<Rule> rules = ftStyle.rules();
+            res.addAll(rules);
+        }
+        return res.toArray(new Rule[0]);
+    }
+
     /**
      * Returns the image background color for the given option.
      *

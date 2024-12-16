@@ -101,7 +101,7 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
                 throw new NullPointerException("There is no style in featureLayer");
             }
             final FeatureTypeStyle[] ftStyles = gt2Style.featureTypeStyles().toArray(new FeatureTypeStyle[0]);
-            Rule[] rules = LegendUtils.getRules(ftStyles);
+            Rule[] rules = LegendUtils.getRules1(ftStyles);
 
             RenderedImage titleImage = null;
             // we put a title on top of each style legend
