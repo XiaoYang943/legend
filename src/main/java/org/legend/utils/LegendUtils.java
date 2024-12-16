@@ -20,20 +20,16 @@
 
 package org.legend.utils;
 
-import org.apache.commons.lang3.StringUtils;
-import org.geotools.api.filter.FilterFactory;
-import org.geotools.api.filter.expression.Expression;
-import org.geotools.api.style.*;
+import org.geotools.api.style.Description;
+import org.geotools.api.style.FeatureTypeStyle;
+import org.geotools.api.style.Rule;
 import org.geotools.api.util.InternationalString;
-import org.geotools.factory.CommonFactoryFinder;
 import org.legend.options.LegendOptions;
 
-import java.awt.Font;
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.StringTokenizer;
 import java.util.logging.Logger;
@@ -158,87 +154,6 @@ public class LegendUtils {
             hex = "#" + hex;
         }
         return Color.decode(hex);
-    }
-
-    /**
-     * Finds the applicable Rules for the given scale denominator.
-     *
-     * @param ftStyles a featureTypeStyle list.
-     * @return an array of {@link Rule}s.
-     */
-    public static Rule[] getRules(final FeatureTypeStyle[] ftStyles) {
-        ensureNotNull(ftStyles, "FeatureTypeStyle array is null");
-        final List<Rule> ruleList = new ArrayList<>();
-        for (int j = 0; j < ftStyles[0].rules().size(); j++) {
-            if (ftStyles[0].rules().get(j).toString().contains("if_then_else")) {
-                StyleFactory styleFactory = CommonFactoryFinder.getStyleFactory();
-                if (ftStyles[0].rules().get(0).symbolizers().get(0) instanceof LineSymbolizer) {
-                    System.out.println("ftStyles[0].rules().get(0).symbolizers().get(0) : " + ftStyles[0].rules().get(0).symbolizers().get(0));
-                    Expression getWidth = ((LineSymbolizer) ftStyles[0].rules().get(0).symbolizers().get(0)).getStroke().getWidth();
-                    String getColor = String.valueOf(((LineSymbolizer) ftStyles[0].rules().get(0).symbolizers().get(0)).getStroke().getColor());
-                    String operator = null;
-                    String variable2 = null;
-                    String value = null;
-                    List<String> widthList = null;
-                    if (getWidth.toString().contains("if_then_else")) {
-                        String width1 = StringUtils.substringBetween(String.valueOf(getWidth), ")], [", "], [");
-                        String width2 = StringUtils.substringsBetween(String.valueOf(getWidth), "], [", "])")[1];
-                        width2 = width2.replace(width1, "").replace("], [", "");
-                        widthList = new ArrayList<>();
-                        widthList.add(width1);
-                        widthList.add(width2);
-                        String variable = Arrays.toString(StringUtils.substringsBetween(String.valueOf(getWidth), "([", "],"));
-                        operator = StringUtils.substringBetween(String.valueOf(getWidth), "[", "(");
-                        variable2 = variable.replace(operator, "").replace("[([", "").replace("]", "");
-                        value = StringUtils.substringBetween(String.valueOf(getWidth), ", [", "])],");
-                    }
-                    String[] colors = null;
-                    if (getColor.contains("if_then_else")) {
-                        colors = StringUtils.substringsBetween(getColor, "#", "]");
-                        String variable = Arrays.toString(StringUtils.substringsBetween(getColor, "([", "],"));
-                        operator = StringUtils.substringBetween(getColor, "[", "(");
-                        variable2 = variable.replace(operator, "").replace("[([", "").replace("]", "");
-                        value = StringUtils.substringBetween(getColor, ", [", "])],");
-                    }
-                    FilterFactory filterFactory2 = CommonFactoryFinder.getFilterFactory();
-                    float LINE_WIDTH = 1.0f;
-                    List<String> operatorList = new ArrayList<>();
-                    assert operator != null;
-                    if (operator.equals("greaterThan")) {
-                        operatorList.add(">");
-                        operatorList.add("<");
-                    }
-                    if (operator.equals("lowerThan")) {
-                        operatorList.add("<");
-                        operatorList.add(">");
-                    }
-                    for (int i = 0; i < 2; i++) {
-                        Rule rule = styleFactory.createRule();
-//                        Stroke stroke;
-//                        if(getColor.contains("if_then_else")) {
-//                            assert colors != null;
-//                            stroke = styleFactory.createStroke(filterFactory2.literal("#" + colors[i]), filterFactory2.literal(LINE_WIDTH));
-//                        }
-//                        else{
-//                            if(getWidth.toString().contains("if_then_else")){
-//                                assert widthList != null;
-//                                stroke = styleFactory.createStroke(filterFactory2.literal(getColor), filterFactory2.literal(widthList.get(i)));
-//                            }
-//                            else {
-//                                stroke = styleFactory.createStroke(filterFactory2.literal(getColor), filterFactory2.literal(LINE_WIDTH));
-//                            }
-//                        }
-//                        Symbolizer symbolizer = styleFactory.createLineSymbolizer(stroke, null);
-//                        rule.symbolizers().add(symbolizer);
-//                        rule.setName(variable2 + " " + operatorList.get(i) + " " + value);
-                        ruleList.add(rule);
-                    }
-                }
-            } else {
-                ruleList.add(ftStyles[0].rules().get(j));
-            }
-        }
-        return ruleList.toArray(new Rule[0]);
     }
 
     public static Rule[] getRules1(final FeatureTypeStyle[] ftStyles) {
