@@ -16,7 +16,6 @@ import org.legend.options.LegendOptions;
 import org.legend.utils.LegendUtils;
 
 import javax.imageio.ImageIO;
-import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -91,7 +90,7 @@ public class BufferedImageLegendGraphicBuilderTest extends TestCase {
                 .transparent(true) // ？
                 .bgColor("bgColor")
                 .verticalRuleMargin(0) // rule垂直margin
-                .horizontalRuleMargin(20)// rule水平margin
+                .horizontalRuleMargin(0)// rule水平margin
                 .layout(LegendUtils.LegendLayout.VERTICAL)  // 布局方向
                 .fontName("TimesRoman")
                 .fontStyle("bold")
@@ -105,11 +104,6 @@ public class BufferedImageLegendGraphicBuilderTest extends TestCase {
 
         BufferedImageLegendGraphicBuilder builder = new BufferedImageLegendGraphicBuilder();
         BufferedImage bufferedImage = builder.buildLegendGraphic(produceLayerList(), legendOptionsNew);
-
-        BufferedImage newImage = new BufferedImage(bufferedImage.getWidth(), bufferedImage.getHeight(), BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g = (Graphics2D) newImage.getGraphics();
-        g.drawImage(bufferedImage, 0, 0, null);
-        g.dispose();
         ImageIO.write(bufferedImage, "png", new FileOutputStream("data/legend/output/legend11.png"));
     }
 }
