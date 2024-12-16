@@ -51,7 +51,6 @@ public class LegendMerger {
     public static class MergeOptions {
         List<RenderedImage> imageStack;
         int margin;
-        int labelMargin;
         Color backgroundColor;
         boolean transparent;
         boolean antialias;
@@ -71,7 +70,6 @@ public class LegendMerger {
          * @param dx              horizontal dimension for raster icons
          * @param dy              vertical dimension for raster icons
          * @param margin          margin between icons
-         * @param labelMargin     margin between icon and label
          * @param backgroundColor background color for the merged image
          * @param transparent     using a transparent background
          * @param antialias       enable antialiasing of fonts in labels
@@ -87,7 +85,6 @@ public class LegendMerger {
         public MergeOptions(
                 List<RenderedImage> imageStack,
                 int margin,
-                int labelMargin,
                 Color backgroundColor,
                 boolean transparent,
                 boolean antialias,
@@ -101,7 +98,6 @@ public class LegendMerger {
             super();
             this.imageStack = imageStack;
             this.margin = margin;
-            this.labelMargin = labelMargin;
             this.backgroundColor = backgroundColor;
             this.transparent = transparent;
             this.antialias = antialias;
@@ -128,14 +124,12 @@ public class LegendMerger {
         public MergeOptions(
                 List<RenderedImage> imageStack,
                 int margin,
-                int labelMargin,
                 boolean forceLabelsOn,
                 boolean forceLabelsOff,
                 LegendOptions legendOptionsNew) {
             this(
                     imageStack,
                     margin,
-                    labelMargin,
                     LegendUtils.getBackgroundColor(legendOptionsNew),
                     false,
                     true,
@@ -201,20 +195,14 @@ public class LegendMerger {
             return forceTitlesOff;
         }
 
-        public int getLabelMargin() {
-            return labelMargin;
-        }
-
         public static MergeOptions createFromOptions(
                 List<RenderedImage> imageStack,
                 int margin,
-                int labelMargin,
                 boolean forceLabelsOn,
                 boolean forceLabelsOff, LegendOptions legendOptionsNew) {
             return new LegendMerger.MergeOptions(
                     imageStack,
                     margin,
-                    labelMargin,
                     forceLabelsOn,
                     forceLabelsOff, legendOptionsNew);
         }

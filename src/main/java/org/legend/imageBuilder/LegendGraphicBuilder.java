@@ -64,7 +64,6 @@ public abstract class LegendGraphicBuilder {
     boolean forceLabelsOff = false;
     boolean forceTitlesOff = false; // layer title otherwise style title
     boolean isTransparent = false;
-    int labelMargin = -50; //the space between the image and the rule label
     int verticalRuleMargin = 0; //the space between the legend item of different rules of the same style/layer
     int horizontalRuleMargin = 0;
     int marge = 10;
@@ -80,7 +79,6 @@ public abstract class LegendGraphicBuilder {
         width = legendOptionsNew.getWidth();
         height = legendOptionsNew.getHeight();
         isTransparent = legendOptionsNew.isTransparent();
-        labelMargin = legendOptionsNew.getRuleLabelMargin();
         verticalRuleMargin = legendOptionsNew.getVerticalRuleMargin();
         horizontalRuleMargin = legendOptionsNew.getHorizontalRuleMargin();
     }

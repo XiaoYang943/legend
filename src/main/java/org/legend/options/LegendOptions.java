@@ -11,7 +11,6 @@ public class LegendOptions {
     private Integer height;
     private boolean transparent;
     private String bgColor;
-    private Integer ruleLabelMargin;
     private Integer verticalRuleMargin;
     private Integer horizontalRuleMargin;
     @Builder.Default

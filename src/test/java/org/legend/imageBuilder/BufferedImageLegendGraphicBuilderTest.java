@@ -88,12 +88,11 @@ public class BufferedImageLegendGraphicBuilderTest extends TestCase {
         LegendOptions legendOptionsNew = LegendOptions.builder()
                 .width(35) // rule-image宽度
                 .height(35) // rule-image高度
-                .transparent(false) // ？
+                .transparent(true) // ？
                 .bgColor("bgColor")
-                .ruleLabelMargin(100)  // ?
                 .verticalRuleMargin(0) // rule垂直margin
                 .horizontalRuleMargin(20)// rule水平margin
-                .layout(LegendUtils.LegendLayout.HORIZONTAL)  // 布局方向
+                .layout(LegendUtils.LegendLayout.VERTICAL)  // 布局方向
                 .fontName("TimesRoman")
                 .fontStyle("bold")
                 .fontColor("fontColor")
