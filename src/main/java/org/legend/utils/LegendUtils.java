@@ -118,10 +118,6 @@ public class LegendUtils {
      */
     public static final float vpaddingFactor = 0.15f;
 
-    /**
-     * default column height is not limited
-     */
-    public static final int DEFAULT_COLUMN_HEIGHT = 0;
 
     /**
      * default row width is not limited

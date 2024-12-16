@@ -4,7 +4,6 @@ import lombok.Builder;
 import lombok.Data;
 import org.legend.utils.LegendUtils;
 
-// TODO-hyy
 @Data
 @Builder
 public class LegendOptions {
@@ -31,4 +30,7 @@ public class LegendOptions {
     private Integer fontSize = 12;
     private Integer labelXposition;
     private Integer labelXOffset;
+
+    @Builder.Default
+    private Integer maxHeight = 0;
 }

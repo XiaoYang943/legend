@@ -60,7 +60,6 @@ public class LegendMerger {
         LegendUtils.LegendLayout layout;
         int rowWidth;
         int rows;
-        int columnHeight;
         int columns;
         Font labelFont;
         boolean forceLabelsOn;
@@ -99,7 +98,6 @@ public class LegendMerger {
                 LegendUtils.LegendLayout layout,
                 int rowWidth,
                 int rows,
-                int columnHeight,
                 int columns,
                 Font labelFont,
                 boolean forceLabelsOn,
@@ -116,7 +114,6 @@ public class LegendMerger {
             this.layout = layout;
             this.rowWidth = rowWidth;
             this.rows = rows;
-            this.columnHeight = columnHeight;
             this.columns = columns;
             this.labelFont = labelFont;
             this.forceLabelsOn = forceLabelsOn;
@@ -155,7 +152,6 @@ public class LegendMerger {
                     legendOptionsNew.getLayout(),
                     DEFAULT_ROW_WIDTH,
                     DEFAULT_ROWS,
-                    DEFAULT_COLUMN_HEIGHT,
                     DEFAULT_COLUMNS,
                     LegendUtils.getLabelFont(legendOptionsNew),
                     forceLabelsOn,
@@ -200,10 +196,6 @@ public class LegendMerger {
 
         public int getRows() {
             return rows;
-        }
-
-        public int getColumnHeight() {
-            return columnHeight;
         }
 
         public int getColumns() {
@@ -303,7 +295,6 @@ public class LegendMerger {
             Column[] columns =
                     createColumns(
                             nodes,
-                            mergeOptions.getColumnHeight(),
                             mergeOptions.getColumns(),
                             true, legendOptionsNew);
             finalLegend = buildFinalVLegend(columns, mergeOptions);
@@ -361,7 +352,7 @@ public class LegendMerger {
         }
 
         if (layout == LegendUtils.LegendLayout.VERTICAL) {
-            Column[] columns = createColumns(nodes, 0, 0, false, legendOptionsNew);
+            Column[] columns = createColumns(nodes, 0, false, legendOptionsNew);
             finalLegend = buildFinalVLegend(columns, mergeOptions);
         }
 
@@ -437,9 +428,9 @@ public class LegendMerger {
      * @param checkColor         check for presence of color in legend
      * @return column list
      */
-    private static Column[] createColumns(List<BufferedImage> nodes, int maxHeight, int maxColumns,
+    private static Column[] createColumns(List<BufferedImage> nodes, int maxColumns,
                                           boolean checkColor, LegendOptions legendOptionsNew) {
-
+        Integer maxHeight = legendOptionsNew.getMaxHeight();
         Column[] legendMatrix;
         /*
          * Limit max height

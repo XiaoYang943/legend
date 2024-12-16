@@ -85,35 +85,32 @@ public class BufferedImageLegendGraphicBuilderTest extends TestCase {
      *
      */
     public void testBuildLegendGraphic() throws Exception {
-
-        // TODO-hyy
         LegendOptions legendOptionsNew = LegendOptions.builder()
-                .width(35)
-                .height(35)
-                .transparent(false)
+                .width(35) // rule-image宽度
+                .height(35) // rule-image高度
+                .transparent(false) // ？
                 .bgColor("bgColor")
-                .ruleLabelMargin(0)    // 没用
+                .ruleLabelMargin(100)  // ?
                 .verticalRuleMargin(0) // rule垂直margin
                 .horizontalRuleMargin(20)// rule水平margin
                 .layout(LegendUtils.LegendLayout.VERTICAL)  // 布局方向
-                .verticalMarginBetweenLayers(0)   // 没用
-                .horizontalMarginBetweenLayers(0)   // 没用
+                .verticalMarginBetweenLayers(0)   // ？
+                .horizontalMarginBetweenLayers(0)   // ？
                 .fontName("TimesRoman")
                 .fontStyle("bold")
                 .fontColor("fontColor")
-                .fontSize(14)
+                .fontSize(15)
                 .labelXposition(0)  // 标题-margin-left
-                .labelXOffset(-50)  // rule文字-margin-left
+                .labelXOffset(0)  // rule-label-margin-left
+                .maxHeight(0) // rules最大高度(而不是整个图例的高度，整个图例的宽度高度是自适应生成的。具体由image宽度高度、rules的margin、布局方向等参数决定)
                 .build();
 
         BufferedImageLegendGraphicBuilder builder = new BufferedImageLegendGraphicBuilder();
         BufferedImage bufferedImage = builder.buildLegendGraphic(produceLayerList(), legendOptionsNew);
 
-        int padding = 100;
-        BufferedImage newImage = new BufferedImage(bufferedImage.getWidth()
-                + padding * 2, bufferedImage.getHeight() + padding * 2, BufferedImage.TYPE_INT_ARGB);
+        BufferedImage newImage = new BufferedImage(bufferedImage.getWidth(), bufferedImage.getHeight(), BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = (Graphics2D) newImage.getGraphics();
-        g.drawImage(bufferedImage, padding, padding, null);
+        g.drawImage(bufferedImage, 0, 0, null);
         g.dispose();
         ImageIO.write(bufferedImage, "png", new FileOutputStream("data/legend/output/legend11.png"));
     }
