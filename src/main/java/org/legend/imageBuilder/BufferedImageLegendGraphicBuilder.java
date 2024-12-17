@@ -20,6 +20,7 @@
 
 package org.legend.imageBuilder;
 
+import cn.hutool.json.JSONObject;
 import org.geotools.api.feature.Feature;
 import org.geotools.api.feature.type.FeatureType;
 import org.geotools.api.filter.expression.Expression;
@@ -27,6 +28,7 @@ import org.geotools.api.filter.expression.Literal;
 import org.geotools.api.style.*;
 import org.geotools.geometry.jts.LiteShape2;
 import org.geotools.map.FeatureLayer;
+import org.geotools.mbstyle.MBStyle;
 import org.geotools.renderer.lite.MetaBufferEstimator;
 import org.geotools.renderer.lite.StyledShapePainter;
 import org.geotools.renderer.style.SLDStyleFactory;
@@ -41,10 +43,8 @@ import org.legend.utils.LegendUtils;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 
 /**
@@ -89,7 +89,7 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
      * @return the buffered image
      * @throws Exception if there are problems creating a "sample" feature instance for the FeatureType returns as the required layer (which should not occur).
      */
-    public BufferedImage buildLegendGraphic(List<FeatureLayer> featureLayerList, LegendOptions legendOptions) throws Exception {
+    public BufferedImage buildLegendGraphic(List<FeatureLayer> featureLayerList, LegendOptions legendOptions, MBStyle mbStyle, cn.hutool.json.JSONObject spriteJsonObject) throws Exception {
         setup(legendOptions);
         // list of images to be rendered for the layers (more than one if a layer list is given)
         List<RenderedImage> layersImages = new ArrayList<>();
@@ -100,8 +100,31 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
             if (gt2Style == null) {
                 throw new NullPointerException("There is no style in featureLayer");
             }
+
+            // TODO-hyy 读取到所有的fill-pattern,装配到rules中
+
+
             final FeatureTypeStyle[] ftStyles = gt2Style.featureTypeStyles().toArray(new FeatureTypeStyle[0]);
             Rule[] rules = LegendUtils.getRules1(ftStyles);
+
+            // 将 rules 转换为 List 以便动态添加元素
+            List<Rule> ruleListNew = new ArrayList<>(Arrays.asList(rules));
+
+//            List<MBLayer> layers = mbStyle.layers();
+//            for (MBLayer layer : layers) {
+//                if (layer instanceof FillMBLayer) {
+//                    FillMBLayer mbFill = (FillMBLayer) layer;
+//                    List<FeatureTypeStyle> fts = mbFill.transform(mbStyle);
+//                    FeatureTypeStyle featureTypeStyle = fts.get(0);
+//                    List<Rule> ruleList = featureTypeStyle.rules();    // TODO-hyy rules
+//                    PolygonSymbolizer psym = SLD.polySymbolizer(featureTypeStyle);
+//                    Graphic g = psym.getFill().getGraphicFill();
+//
+//                    ruleListNew.addAll(ruleList);
+//                }
+//            }
+
+            rules = ruleListNew.toArray(new Rule[0]);
 
             RenderedImage titleImage = null;
             // we put a title on top of each style legend
@@ -143,7 +166,7 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
                     styleFactory,
                     minimumSymbolSize,
                     rescalingRequired,
-                    rescaler, legendOptions);
+                    rescaler, legendOptions, mbStyle, spriteJsonObject);
         }
         // all legend graphics are merged if we have a layer group
         BufferedImage finalLegend = mergeGroups(layersImages, forceLabelsOn, forceLabelsOff, legendOptions);
@@ -220,7 +243,7 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
             final SLDStyleFactory styleFactory,
             double minimumSymbolSize,
             boolean rescalingRequired,
-            Function<Double, Double> rescaler, LegendOptions legendOptions) throws Exception {
+            Function<Double, Double> rescaler, LegendOptions legendOptions, MBStyle mbStyle, cn.hutool.json.JSONObject spriteJsonObject) throws Exception {
         MetaBufferEstimator estimator = new MetaBufferEstimator(sampleFeature);
         for (int i = 0; i < ruleCount; i++) {
             final RenderedImage image = ImageUtils.createImage(width, height, null, transparent);
@@ -239,6 +262,16 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
                         double newSize = rescaler.apply(size);
                         symbolizer = rescaleSymbolizer(symbolizer, size, newSize);
                     } else if (symbolizer instanceof PolygonSymbolizer) {
+                        String key = mbStyle.layers().get(i).getPaint().get("fill-pattern").toString(); // TODO 硬编码
+                        System.out.println(key);
+                        // TODO- 替换为java bean
+                        JSONObject spriteJsonItem = (JSONObject) spriteJsonObject.get(key);
+                        Integer spriteWidth = spriteJsonItem.getInt("width");
+                        Integer spriteHeight = spriteJsonItem.getInt("height");
+                        System.out.println(spriteWidth + " " + spriteHeight);
+                        if (spriteHeight > height || spriteWidth > width) {
+                            // TODO 缩小 geotools 的Symbolizer ，使用一定的比例，使得原始图像大小适配 width和height
+                        }
                         // need to make room for the stroke in the symbol, thus, a smaller rectangle
                         double symbolizerSize = getSymbolizerSize(estimator, symbolizer, 0);
                         int rescaledWidth = rescaleSize(minimumSymbolSize, width - symbolizerSize);

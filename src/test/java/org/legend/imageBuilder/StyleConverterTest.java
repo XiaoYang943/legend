@@ -21,12 +21,12 @@ public class StyleConverterTest {
 
     @Test
     public void test() {
-        File file = new File("data/mbstyle/ankang-style.json");
+        File file = new File("D:\\data\\project\\ankang\\安康地质图数据\\result\\T2侵入岩\\mapbox-style.json");
         JSONObject jsonObject = JSONUtil.readJSONObject(file, StandardCharsets.UTF_8);
         String string = jsonObject.toString();
         String string1 = StyleConverter.convertMapboxStyle2SLD(string, StandardCharsets.UTF_8);
         System.out.println(string1);
-        File file1 = new File("data/mbstyle/test.sld");
+        File file1 = new File("D:\\data\\project\\ankang\\安康地质图数据\\result\\T2侵入岩\\mapbox-style.sld");
 
         try {
             Files.write(Paths.get(file1.toURI()), string1.getBytes());  // 将字符串写入文件
