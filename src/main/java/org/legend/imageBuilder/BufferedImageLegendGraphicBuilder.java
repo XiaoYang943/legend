@@ -109,22 +109,32 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
             final FeatureTypeStyle[] ftStyles = gt2Style.featureTypeStyles().toArray(new FeatureTypeStyle[0]);
             Rule[] rules = LegendUtils.getRules1(ftStyles);
 
-            // 将 rules 转换为 List 以便动态添加元素
             List<Rule> ruleListNew = new ArrayList<>(Arrays.asList(rules));
 
-//            List<MBLayer> layers = mbStyle.layers();
-//            for (MBLayer layer : layers) {
-//                if (layer instanceof FillMBLayer) {
-//                    FillMBLayer mbFill = (FillMBLayer) layer;
-//                    List<FeatureTypeStyle> fts = mbFill.transform(mbStyle);
-//                    FeatureTypeStyle featureTypeStyle = fts.get(0);
-//                    List<Rule> ruleList = featureTypeStyle.rules();    // TODO-hyy rules
-//                    PolygonSymbolizer psym = SLD.polySymbolizer(featureTypeStyle);
-//                    Graphic g = psym.getFill().getGraphicFill();
+//            if (!legendOptions.isShowAllRules()) {
+//                FeatureSource<?, ?> featureSource = featureLayer.getFeatureSource();
 //
-//                    ruleListNew.addAll(ruleList);
+//                FeatureCollection<SimpleFeatureType, SimpleFeature> features = (FeatureCollection<SimpleFeatureType, SimpleFeature>) featureSource.getFeatures();
+//                FeatureIterator<SimpleFeature> featureIterator = features.features();
+//                Set<Object> uniqueTypes = new HashSet<>();
+//                while (featureIterator.hasNext()) {
+//                    SimpleFeature feature = featureIterator.next();
+//                    Object typeValue = feature.getAttribute("Geobody_Name");    // TODO 硬编码，这块太灵活了，不好解决
+//                    if (typeValue != null) {
+//                        uniqueTypes.add(typeValue);
+//                    }
+//                }
+//                featureIterator.close();
+//
+//                Iterator<Rule> iterator = ruleListNew.iterator();
+//                while (iterator.hasNext()) {
+//                    Rule rule = iterator.next();
+//                    if (!uniqueTypes.contains(rule.getName())) {
+//                        iterator.remove();
+//                    }
 //                }
 //            }
+
 
             rules = ruleListNew.toArray(new Rule[0]);
 

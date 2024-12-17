@@ -77,7 +77,7 @@ public class BufferedImageLegendGraphicBuilderTest extends TestCase {
 
     @Test
     public void testBuildLegendGraphic() throws Exception {
-//        TODO-hyy 加个参数 ，因为多数样式都可以复用，所以当复用样式时，图例项过多，加个参数：是否使用矢量数据过滤图例项
+
         // TODO-hyy 加个参数，将sprite的图片大小缩放映射到width和height的
         LegendOptions legendOptions = LegendOptions.builder()
                 .width(64) // rule-image宽度
@@ -93,6 +93,7 @@ public class BufferedImageLegendGraphicBuilderTest extends TestCase {
                 .labelXOffset(0)  // rule-label-margin-left
                 .maxHeight(200) // rules最大高度(而不是整个图例的高度，整个图例的宽度高度是自适应生成的。具体由image宽度高度、rules的margin、布局方向等参数决定)
                 .title("图例")
+                .isShowAllRules(false)
                 .build();
         BufferedImageLegendGraphicBuilder builder = new BufferedImageLegendGraphicBuilder();
 

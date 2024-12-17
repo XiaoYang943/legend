@@ -30,4 +30,7 @@ public class LegendOptions {
     private Integer maxHeight = 0;
 
     private String title;
+
+    @Builder.Default
+    private boolean isShowAllRules = false; // 不显示全量图例，只保留属性表中有的图例(多数情况下，样式可以复用，当样式时，图例项过多，导致图例太长)
 }
