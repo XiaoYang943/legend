@@ -23,9 +23,11 @@ package org.legend.imageBuilder;
 import cn.hutool.json.JSONObject;
 import org.geotools.api.feature.Feature;
 import org.geotools.api.feature.type.FeatureType;
+import org.geotools.api.filter.FilterFactory;
 import org.geotools.api.filter.expression.Expression;
 import org.geotools.api.filter.expression.Literal;
 import org.geotools.api.style.*;
+import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.geometry.jts.LiteShape2;
 import org.geotools.map.FeatureLayer;
 import org.geotools.mbstyle.MBStyle;
@@ -271,13 +273,20 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
                         System.out.println(spriteWidth + " " + spriteHeight);
                         if (spriteHeight > height || spriteWidth > width) {
                             // TODO 缩小 geotools 的Symbolizer ，使用一定的比例，使得原始图像大小适配 width和height
+
+                            // 计算缩放比例
+                            double scaleX = (double) width / spriteWidth;
+                            double scaleY = (double) height / spriteHeight;
+                            double scale = Math.min(scaleX, scaleY);
+                            double size = spriteWidth * scale;
+                            symbolizer = rescalePolygonSymbolizer((PolygonSymbolizer) symbolizer, size);
                         }
-                        // need to make room for the stroke in the symbol, thus, a smaller rectangle
-                        double symbolizerSize = getSymbolizerSize(estimator, symbolizer, 0);
-                        int rescaledWidth = rescaleSize(minimumSymbolSize, width - symbolizerSize);
-                        int rescaledHeight = rescaleSize(minimumSymbolSize, height - symbolizerSize);
-                        shape = getSampleShape(symbolizer, rescaledWidth, rescaledHeight, width, height);
-                        symbolizer = rescaleSymbolizer(symbolizer, width, rescaledWidth);
+//                        // need to make room for the stroke in the symbol, thus, a smaller rectangle
+//                        double symbolizerSize = getSymbolizerSize(estimator, symbolizer, 0);
+//                        int rescaledWidth = rescaleSize(minimumSymbolSize, width - symbolizerSize);
+//                        int rescaledHeight = rescaleSize(minimumSymbolSize, height - symbolizerSize);
+//                        shape = getSampleShape(symbolizer, rescaledWidth, rescaledHeight, width, height);
+//                        symbolizer = rescaleSymbolizer(symbolizer, width, rescaledWidth);
                     }
 
                     Style2D style2d = styleFactory.createStyle(sampleFeature, symbolizer, scaleRange);
@@ -302,6 +311,23 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
                 layersImages.add(image);
             }
         }
+    }
+
+    FilterFactory ff = CommonFactoryFinder.getFilterFactory(null);
+
+    private Symbolizer rescalePolygonSymbolizer(PolygonSymbolizer symbolizer, double size) {
+        // 获取原始的填充图像或样式设置
+        Fill fill = symbolizer.getFill();
+        if (fill != null && fill.getGraphicFill() != null) {
+            Graphic graphic = fill.getGraphicFill();
+            // 调整图像的大小
+            Expression newSize = ff.literal(size);
+            System.out.println("newSize_" + newSize);
+            graphic.setSize(newSize);   // 这是直接设置大小了，没有进行缩放
+        }
+
+        // 返回修改后的Symbolizer
+        return symbolizer;
     }
 
     /**

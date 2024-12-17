@@ -80,8 +80,8 @@ public class BufferedImageLegendGraphicBuilderTest extends TestCase {
 //        TODO-hyy 加个参数 ，因为多数样式都可以复用，所以当复用样式时，图例项过多，加个参数：是否使用矢量数据过滤图例项
         // TODO-hyy 加个参数，将sprite的图片大小缩放映射到width和height的
         LegendOptions legendOptions = LegendOptions.builder()
-                .width(35) // rule-image宽度
-                .height(35) // rule-image高度
+                .width(64) // rule-image宽度
+                .height(64) // rule-image高度
                 .transparent(true) // ？
                 .bgColor("bgColor")
                 .layout(LegendUtils.LegendLayout.VERTICAL)  // 布局方向
