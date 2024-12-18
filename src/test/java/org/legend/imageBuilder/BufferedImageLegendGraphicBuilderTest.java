@@ -54,7 +54,8 @@ public class BufferedImageLegendGraphicBuilderTest extends TestCase {
                 .fontColor("fontColor")
                 .fontSize(12)
                 .labelXposition(0)  // 标题-margin-left
-                .labelXOffset(0)  // rule-label-margin-left
+                .labelXOffset(20)  // rule-label-margin-left
+                .rowOffsetY(5)
                 .title("图例")
                 .build();
         BufferedImageLegendGraphicBuilder builder = new BufferedImageLegendGraphicBuilder();

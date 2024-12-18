@@ -24,10 +24,13 @@ public class LegendOptions {
     @Builder.Default
     private Integer fontSize = 12;
     private Integer labelXposition;
-    private Integer labelXOffset;
+    private Integer labelXOffset;   // label相对于image的x-offset
 
     @Builder.Default
     private Integer maxHeight = 0;
+
+    @Builder.Default
+    private Integer rowOffsetY = 0;   // 每一行垂直方向上的y-offset
 
     private String title;
 

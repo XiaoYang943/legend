@@ -234,6 +234,10 @@ public class LegendMerger {
                 if (rules != null && rules[i] != null) {
                     BufferedImage label = renderLabel(img, rules[i], mergeOptions, legendOptions);
                     if (label != null) {
+                        int rowOffsetY = legendOptions.getRowOffsetY();
+                        if (i == 0) {
+                            rowOffsetY = 0;
+                        }
                         img = joinBufferedImageHorizontally(
                                 img,
                                 label,
@@ -241,7 +245,8 @@ public class LegendMerger {
                                 mergeOptions.isAntialias(),
                                 mergeOptions.isTransparent(),
                                 mergeOptions.getBackgroundColor(),
-                                legendOptions.getLabelXOffset());
+                                legendOptions.getLabelXOffset(),
+                                rowOffsetY);
                     }
                     nodes.add(img);
                 } else {
@@ -690,10 +695,10 @@ public class LegendMerger {
             boolean useAA,
             boolean transparent,
             Color backgroundColor,
-            int labelXOffset) throws Exception {
+            int labelXOffset, int rowOffsetY) throws Exception {
         // do some calculate first
         int wid = img.getWidth() + label.getWidth() + labelXOffset;
-        int height = Math.max(img.getHeight(), label.getHeight());
+        int height = Math.max(img.getHeight(), label.getHeight()) + rowOffsetY;
         // create a new buffer and draw two image into the new image
         BufferedImage newImage = ImageUtils.createImage(wid, height, null, transparent);
         final Map<RenderingHints.Key, Object> hintsMap = new HashMap<>();
