@@ -113,12 +113,13 @@ public abstract class LegendGraphicBuilder {
             sampleShape = this.sampleLine;
 
         } else if ((symbolizer instanceof PolygonSymbolizer) || (symbolizer instanceof RasterSymbolizer)) {
+            Double offset = 0.0;
             Coordinate[] coords = {
-                    new Coordinate(hpad, vpad + 2.5),
-                    new Coordinate(hpad, vpad + legendHeight + 2.5),
-                    new Coordinate(hpad + legendWidth, vpad + legendHeight + 2.5),
-                    new Coordinate(hpad + legendWidth, vpad + 2.5),
-                    new Coordinate(hpad, vpad + 2.5)
+                    new Coordinate(hpad, vpad + offset),
+                    new Coordinate(hpad, vpad + legendHeight + offset),
+                    new Coordinate(hpad + legendWidth, vpad + legendHeight + offset),
+                    new Coordinate(hpad + legendWidth, vpad + offset),
+                    new Coordinate(hpad, vpad + offset)
             };
             LinearRing shell = geomFac.createLinearRing(coords);
             Polygon geom = geomFac.createPolygon(shell, null);
