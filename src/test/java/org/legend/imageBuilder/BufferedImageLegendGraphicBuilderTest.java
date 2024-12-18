@@ -77,8 +77,6 @@ public class BufferedImageLegendGraphicBuilderTest extends TestCase {
 
     @Test
     public void testBuildLegendGraphic() throws Exception {
-
-        // TODO-hyy 加个参数，将sprite的图片大小缩放映射到width和height的
         LegendOptions legendOptions = LegendOptions.builder()
                 .width(64)
                 .height(64)
@@ -142,7 +140,7 @@ public class BufferedImageLegendGraphicBuilderTest extends TestCase {
                     FillMBLayer mbFill = (FillMBLayer) layer;
                     List<FeatureTypeStyle> fts = mbFill.transform(mbStyle);
                     FeatureTypeStyle featureTypeStyle = fts.get(0);
-                    List<Rule> rules = featureTypeStyle.rules();    // TODO-hyy rules
+                    List<Rule> rules = featureTypeStyle.rules();
                     PolygonSymbolizer psym = SLD.polySymbolizer(featureTypeStyle);
                     Graphic g = psym.getFill().getGraphicFill();
                 }
@@ -241,7 +239,7 @@ public class BufferedImageLegendGraphicBuilderTest extends TestCase {
         SpriteGraphicFactory factory = new SpriteGraphicFactory();
         try {
 
-            Icon icon = factory.getIcon(null, spriteExpression, "mbsprite", 128);   // TODO 128
+            Icon icon = factory.getIcon(null, spriteExpression, "mbsprite", 128);
 
             // 创建一个 BufferedImage 用来绘制图标
             int width = icon.getIconWidth();

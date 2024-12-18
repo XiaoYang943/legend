@@ -22,11 +22,9 @@ package org.legend.imageBuilder;
 
 import org.geotools.api.feature.Feature;
 import org.geotools.api.feature.type.FeatureType;
-import org.geotools.api.filter.FilterFactory;
 import org.geotools.api.filter.expression.Expression;
 import org.geotools.api.filter.expression.Literal;
 import org.geotools.api.style.*;
-import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.geometry.jts.LiteShape2;
 import org.geotools.map.FeatureLayer;
 import org.geotools.renderer.lite.MetaBufferEstimator;
@@ -100,9 +98,6 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
             if (gt2Style == null) {
                 throw new NullPointerException("There is no style in featureLayer");
             }
-
-            // TODO-hyy 读取到所有的fill-pattern,装配到rules中
-
 
             final FeatureTypeStyle[] ftStyles = gt2Style.featureTypeStyles().toArray(new FeatureTypeStyle[0]);
             Rule[] rules = LegendUtils.getRules1(ftStyles);
@@ -302,23 +297,6 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
                 layersImages.add(image);
             }
         }
-    }
-
-    FilterFactory ff = CommonFactoryFinder.getFilterFactory(null);
-
-    private Symbolizer rescalePolygonSymbolizer(PolygonSymbolizer symbolizer, double size) {
-        // 获取原始的填充图像或样式设置
-        Fill fill = symbolizer.getFill();
-        if (fill != null && fill.getGraphicFill() != null) {
-            Graphic graphic = fill.getGraphicFill();
-            // 调整图像的大小
-            Expression newSize = ff.literal(size);
-            System.out.println("newSize_" + newSize + "_" + graphic.getSize());
-            graphic.setSize(newSize);   // 这是直接设置大小了，没有进行缩放
-        }
-
-        // 返回修改后的Symbolizer
-        return symbolizer;
     }
 
     /**
