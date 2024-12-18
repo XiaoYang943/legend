@@ -41,39 +41,38 @@ import java.util.List;
 
 public class BufferedImageLegendGraphicBuilderTest extends TestCase {
 
-//    @Test
-//    public void testBuildLegendGraphicByFillColor() throws Exception {
-//        LegendOptions legendOptions = LegendOptions.builder()
-//                .width(35) // rule-image宽度
-//                .height(35) // rule-image高度
-//                .transparent(true) // ？
-//                .bgColor("bgColor")
-//                .layout(LegendUtils.LegendLayout.VERTICAL)  // 布局方向
-//                .fontName("TimesRoman")
-//                .fontStyle("bold")
-//                .fontColor("fontColor")
-//                .fontSize(15)
-//                .labelXposition(0)  // 标题-margin-left
-//                .labelXOffset(0)  // rule-label-margin-left
-//                .maxHeight(200) // rules最大高度(而不是整个图例的高度，整个图例的宽度高度是自适应生成的。具体由image宽度高度、rules的margin、布局方向等参数决定)
-//                .title("图例")
-//                .build();
-//        BufferedImageLegendGraphicBuilder builder = new BufferedImageLegendGraphicBuilder();
-//
-//        File file2 = new File("D:\\data\\vector\\mbtiles\\linespaceOutPut\\planetiler\\dltb\\shanxi_dizhi\\dltb.mbtiles");
-//        FeatureSource<SimpleFeatureType, SimpleFeature> featureSourceFromShp = FeatureSourceUtils.getFeatureSource(file2, FeatureSourceType.MBTILES);
-//
-//
-//        Style sld4 = StyleConverterUtil.getSldStyle("C:\\Users\\admin\\Desktop\\安康1.sld");
-//
-//        FeatureLayer layer4 = new FeatureLayer(featureSourceFromShp, sld4);
-//
-//        List<FeatureLayer> layerList = new ArrayList<>();
-//        layerList.add(layer4);
-//
-//        BufferedImage bufferedImage = builder.buildLegendGraphic(layerList, legendOptions);
-//        ImageIO.write(bufferedImage, "png", new FileOutputStream("data/legend/output/legend.png"));
-//    }
+    @Test
+    public void testBuildLegendGraphicByFillColor() throws Exception {
+        LegendOptions legendOptions = LegendOptions.builder()
+                .width(32) // rule-image宽度
+                .height(32) // rule-image高度
+                .transparent(true) // ？
+                .bgColor("bgColor")
+                .layout(LegendUtils.LegendLayout.VERTICAL)  // 布局方向
+                .fontName("TimesRoman")
+                .fontStyle("bold")
+                .fontColor("fontColor")
+                .fontSize(12)
+                .labelXposition(0)  // 标题-margin-left
+                .labelXOffset(0)  // rule-label-margin-left
+                .title("图例")
+                .build();
+        BufferedImageLegendGraphicBuilder builder = new BufferedImageLegendGraphicBuilder();
+
+        File file2 = new File("D:\\data\\vector\\mbtiles\\linespaceOutPut\\planetiler\\dltb\\shanxi_dizhi\\dltb.mbtiles");
+        FeatureSource<SimpleFeatureType, SimpleFeature> featureSourceFromShp = FeatureSourceUtils.getFeatureSource(file2, FeatureSourceType.MBTILES);
+
+
+        Style sld4 = StyleConverterUtil.getSldStyle("C:\\Users\\admin\\Desktop\\安康1.sld");
+
+        FeatureLayer layer4 = new FeatureLayer(featureSourceFromShp, sld4);
+
+        List<FeatureLayer> layerList = new ArrayList<>();
+        layerList.add(layer4);
+
+        BufferedImage bufferedImage = builder.buildLegendGraphic(layerList, legendOptions);
+        ImageIO.write(bufferedImage, "png", new FileOutputStream("data/legend/output/legend.png"));
+    }
 
     @Test
     public void testBuildLegendGraphic() throws Exception {
