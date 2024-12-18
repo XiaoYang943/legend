@@ -122,7 +122,7 @@ public class BufferedImageLegendGraphicBuilderTest extends TestCase {
         cn.hutool.json.JSONObject spriteJsonObject = JSONUtil.readJSONObject(new File("D:\\data\\project\\ankang\\安康地质图数据\\result\\T2侵入岩\\sprite.json"), StandardCharsets.UTF_8);
 
 
-        BufferedImage bufferedImage = builder.buildLegendGraphic(layerList, legendOptions, mbStyle, spriteJsonObject);
+        BufferedImage bufferedImage = builder.buildLegendGraphic(layerList, legendOptions);
         ImageIO.write(bufferedImage, "png", new FileOutputStream("data/legend/output/legend.png"));
     }
 

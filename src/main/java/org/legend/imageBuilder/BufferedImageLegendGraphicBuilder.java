@@ -20,7 +20,6 @@
 
 package org.legend.imageBuilder;
 
-import cn.hutool.json.JSONObject;
 import org.geotools.api.feature.Feature;
 import org.geotools.api.feature.type.FeatureType;
 import org.geotools.api.filter.FilterFactory;
@@ -30,7 +29,6 @@ import org.geotools.api.style.*;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.geometry.jts.LiteShape2;
 import org.geotools.map.FeatureLayer;
-import org.geotools.mbstyle.MBStyle;
 import org.geotools.renderer.lite.MetaBufferEstimator;
 import org.geotools.renderer.lite.StyledShapePainter;
 import org.geotools.renderer.style.SLDStyleFactory;
@@ -91,7 +89,7 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
      * @return the buffered image
      * @throws Exception if there are problems creating a "sample" feature instance for the FeatureType returns as the required layer (which should not occur).
      */
-    public BufferedImage buildLegendGraphic(List<FeatureLayer> featureLayerList, LegendOptions legendOptions, MBStyle mbStyle, cn.hutool.json.JSONObject spriteJsonObject) throws Exception {
+    public BufferedImage buildLegendGraphic(List<FeatureLayer> featureLayerList, LegendOptions legendOptions) throws Exception {
         setup(legendOptions);
         // list of images to be rendered for the layers (more than one if a layer list is given)
         List<RenderedImage> layersImages = new ArrayList<>();
@@ -178,7 +176,7 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
                     styleFactory,
                     minimumSymbolSize,
                     rescalingRequired,
-                    rescaler, legendOptions, mbStyle, spriteJsonObject);
+                    rescaler, legendOptions);
         }
         // all legend graphics are merged if we have a layer group
         BufferedImage finalLegend = mergeGroups(layersImages, forceLabelsOn, forceLabelsOff, legendOptions);
@@ -255,7 +253,7 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
             final SLDStyleFactory styleFactory,
             double minimumSymbolSize,
             boolean rescalingRequired,
-            Function<Double, Double> rescaler, LegendOptions legendOptions, MBStyle mbStyle, cn.hutool.json.JSONObject spriteJsonObject) throws Exception {
+            Function<Double, Double> rescaler, LegendOptions legendOptions) throws Exception {
         MetaBufferEstimator estimator = new MetaBufferEstimator(sampleFeature);
         for (int i = 0; i < ruleCount; i++) {
             final RenderedImage image = ImageUtils.createImage(legendOptions.getWidth(), legendOptions.getHeight(), null, transparent);
@@ -274,29 +272,12 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
                         double newSize = rescaler.apply(size);
                         symbolizer = rescaleSymbolizer(symbolizer, size, newSize);
                     } else if (symbolizer instanceof PolygonSymbolizer) {
-                        String key = mbStyle.layers().get(i).getPaint().get("fill-pattern").toString(); // TODO 硬编码
-                        System.out.println(key);
-                        // TODO- 替换为java bean
-                        JSONObject spriteJsonItem = (JSONObject) spriteJsonObject.get(key);
-                        Integer spriteWidth = spriteJsonItem.getInt("width");
-                        Integer spriteHeight = spriteJsonItem.getInt("height");
-                        System.out.println(spriteWidth + " " + spriteHeight);
-                        if (spriteHeight > height || spriteWidth > width) {
-                            // TODO 缩小 geotools 的Symbolizer ，使用一定的比例，使得原始图像大小适配 width和height
-
-                            // 计算缩放比例
-                            double scaleX = (double) width / spriteWidth;
-                            double scaleY = (double) height / spriteHeight;
-                            double scale = Math.min(scaleX, scaleY);
-                            double size = spriteWidth * scale;
-//                            symbolizer = rescalePolygonSymbolizer((PolygonSymbolizer) symbolizer, size);
-                        }
-//                        // need to make room for the stroke in the symbol, thus, a smaller rectangle
-//                        double symbolizerSize = getSymbolizerSize(estimator, symbolizer, 0);
-//                        int rescaledWidth = rescaleSize(minimumSymbolSize, width - symbolizerSize);
-//                        int rescaledHeight = rescaleSize(minimumSymbolSize, height - symbolizerSize);
-//                        shape = getSampleShape(symbolizer, rescaledWidth, rescaledHeight, width, height);
-//                        symbolizer = rescaleSymbolizer(symbolizer, width, rescaledWidth);
+                        // need to make room for the stroke in the symbol, thus, a smaller rectangle
+                        double symbolizerSize = getSymbolizerSize(estimator, symbolizer, 0);
+                        int rescaledWidth = rescaleSize(minimumSymbolSize, width - symbolizerSize);
+                        int rescaledHeight = rescaleSize(minimumSymbolSize, height - symbolizerSize);
+                        shape = getSampleShape(symbolizer, rescaledWidth, rescaledHeight, width, height);
+                        symbolizer = rescaleSymbolizer(symbolizer, width, rescaledWidth);
                     }
 
                     Style2D style2d = styleFactory.createStyle(sampleFeature, symbolizer, scaleRange);
