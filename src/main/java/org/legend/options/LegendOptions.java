@@ -61,12 +61,12 @@ public class LegendOptions {
     /**
      * 图例标题的水平偏移量
      */
-    private Integer labelXposition;
+    private Integer titleOffsetX;
 
     /**
-     * 图例项相对于符号的水平偏移量
+     * 图例标签相对于符号的水平偏移量
      */
-    private Integer labelXOffset;
+    private Integer labelOffsetX;
 
     /**
      * 整个图例项的最大高度
@@ -78,7 +78,7 @@ public class LegendOptions {
      * 图例项垂直方向上的偏移量
      */
     @Builder.Default
-    private Integer rowOffsetY = 0;
+    private Integer ruleOffsetY = 0;
 
     /**
      * 图例标题内容

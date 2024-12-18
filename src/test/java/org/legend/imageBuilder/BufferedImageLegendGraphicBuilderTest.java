@@ -53,9 +53,9 @@ public class BufferedImageLegendGraphicBuilderTest extends TestCase {
                 .fontStyle("bold")
                 .fontColor("fontColor")
                 .fontSize(12)
-                .labelXposition(0)
-                .labelXOffset(20)
-                .rowOffsetY(5)
+                .titleOffsetX(0)
+                .labelOffsetX(20)
+                .ruleOffsetY(5)
                 .title("图例")
                 .build();
         BufferedImageLegendGraphicBuilder builder = new BufferedImageLegendGraphicBuilder();
@@ -89,8 +89,8 @@ public class BufferedImageLegendGraphicBuilderTest extends TestCase {
                 .fontStyle("bold")
                 .fontColor("fontColor")
                 .fontSize(15)
-                .labelXposition(0)
-                .labelXOffset(0)
+                .titleOffsetX(0)
+                .labelOffsetX(0)
                 .maxHeight(200)
                 .title("图例")
                 .isShowAllRules(false)

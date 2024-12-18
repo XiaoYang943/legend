@@ -309,7 +309,7 @@ public class LegendUtils {
             // size and act accordingly.
             int height = (int) Math.ceil(g.getFontMetrics().getStringBounds(label, g).getHeight());
             int width = (int) Math.ceil(g.getFontMetrics().getStringBounds(label, g).getWidth());
-            renderedLabel = new BufferedImage(width + legendOptions.getLabelXposition(), height, BufferedImage.TYPE_INT_ARGB);
+            renderedLabel = new BufferedImage(width + legendOptions.getTitleOffsetX(), height, BufferedImage.TYPE_INT_ARGB);
             Graphics2D rlg = renderedLabel.createGraphics();
             rlg.setColor(labelColor);
             rlg.setFont(g.getFont());
@@ -321,7 +321,7 @@ public class LegendUtils {
                         RenderingHints.KEY_FRACTIONALMETRICS,
                         g.getRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS));
             }
-            rlg.drawString(label, legendOptions.getLabelXposition(), height - rlg.getFontMetrics().getDescent());
+            rlg.drawString(label, legendOptions.getTitleOffsetX(), height - rlg.getFontMetrics().getDescent());
             rlg.dispose();
         }
 
