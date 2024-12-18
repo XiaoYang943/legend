@@ -44,17 +44,17 @@ public class BufferedImageLegendGraphicBuilderTest extends TestCase {
     @Test
     public void testBuildLegendGraphicByFillColor() throws Exception {
         LegendOptions legendOptions = LegendOptions.builder()
-                .width(32) // rule-image宽度
-                .height(32) // rule-image高度
+                .width(32)
+                .height(32)
                 .transparent(true) // ？
                 .bgColor("bgColor")
-                .layout(LegendUtils.LegendLayout.VERTICAL)  // 布局方向
+                .layout(LegendUtils.LegendLayout.VERTICAL)
                 .fontName("TimesRoman")
                 .fontStyle("bold")
                 .fontColor("fontColor")
                 .fontSize(12)
-                .labelXposition(0)  // 标题-margin-left
-                .labelXOffset(20)  // rule-label-margin-left
+                .labelXposition(0)
+                .labelXOffset(20)
                 .rowOffsetY(5)
                 .title("图例")
                 .build();
@@ -80,18 +80,18 @@ public class BufferedImageLegendGraphicBuilderTest extends TestCase {
 
         // TODO-hyy 加个参数，将sprite的图片大小缩放映射到width和height的
         LegendOptions legendOptions = LegendOptions.builder()
-                .width(64) // rule：image+padding宽度
-                .height(64) // rule：image+padding高度
+                .width(64)
+                .height(64)
                 .transparent(true) // ？
                 .bgColor("bgColor")
-                .layout(LegendUtils.LegendLayout.VERTICAL)  // 布局方向
+                .layout(LegendUtils.LegendLayout.VERTICAL)
                 .fontName("TimesRoman")
                 .fontStyle("bold")
                 .fontColor("fontColor")
                 .fontSize(15)
-                .labelXposition(0)  // 标题-margin-left
-                .labelXOffset(0)  // rule-label-margin-left
-                .maxHeight(200) // rules最大高度(而不是整个图例的高度，整个图例的宽度高度是自适应生成的。具体由image宽度高度、rules的margin、布局方向等参数决定)
+                .labelXposition(0)
+                .labelXOffset(0)
+                .maxHeight(200)
                 .title("图例")
                 .isShowAllRules(false)
                 .build();

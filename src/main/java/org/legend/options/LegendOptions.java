@@ -7,33 +7,87 @@ import org.legend.utils.LegendUtils;
 @Data
 @Builder
 public class LegendOptions {
-    private Integer width;
-    private Integer height;
+    /**
+     * 图例项的宽度(image+padding)
+     */
+    @Builder.Default
+    private Integer width = 32;
+
+    /**
+     * 图例项的高度(image+padding)
+     */
+    @Builder.Default
+    private Integer height = 32;
+
+    /**
+     *
+     */
     private boolean transparent;
+
+    /**
+     * 背景色
+     */
     private String bgColor;
+
+    /**
+     * 图例的布局方式
+     */
     @Builder.Default
     private LegendUtils.LegendLayout layout = LegendUtils.LegendLayout.VERTICAL;
 
+    /**
+     * 字体名称
+     */
     @Builder.Default
     private String fontName = "Sans-Serif";
 
+    /**
+     * 字体风格
+     */
     @Builder.Default
     private String fontStyle = "bold";
+
+    /**
+     * 字体颜色
+     */
     private String fontColor;
 
+    /**
+     * 字体大小
+     */
     @Builder.Default
     private Integer fontSize = 12;
-    private Integer labelXposition;
-    private Integer labelXOffset;   // label相对于image的x-offset
 
+    /**
+     * 图例标题的水平偏移量
+     */
+    private Integer labelXposition;
+
+    /**
+     * 图例项相对于符号的水平偏移量
+     */
+    private Integer labelXOffset;
+
+    /**
+     * 整个图例项的最大高度
+     */
     @Builder.Default
     private Integer maxHeight = 0;
 
+    /**
+     * 图例项垂直方向上的偏移量
+     */
     @Builder.Default
-    private Integer rowOffsetY = 0;   // 每一行垂直方向上的y-offset
+    private Integer rowOffsetY = 0;
 
+    /**
+     * 图例标题内容
+     */
     private String title;
 
+    /**
+     * 不显示全量图例，只保留属性表中有的图例
+     */
     @Builder.Default
-    private boolean isShowAllRules = false; // 不显示全量图例，只保留属性表中有的图例(多数情况下，样式可以复用，当样式时，图例项过多，导致图例太长)
+    private boolean isShowAllRules = false;
 }
