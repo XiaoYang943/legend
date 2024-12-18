@@ -18,7 +18,7 @@
  *
  */
 
-package org.legend.utils;
+package org.legend.utils.legend;
 
 import org.geotools.api.data.DataStore;
 import org.geotools.api.data.DataStoreFinder;
@@ -54,8 +54,9 @@ public class LayerUtils {
 
     /**
      * Takes a featureLayerList and legendOptions and produces a BufferedImage.
+     *
      * @param geoJsonFilePath the file path of a geoJson file
-     * @param sldFilePath the file path of a sld file
+     * @param sldFilePath     the file path of a sld file
      * @return the featureLayer
      */
     public static FeatureLayer buildLayer(String geoJsonFilePath, String sldFilePath) throws IOException {

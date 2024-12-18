@@ -18,7 +18,7 @@
  *
  */
 
-package org.legend.utils;
+package org.legend.utils.legend;
 
 import javax.media.jai.TiledImage;
 import java.awt.*;

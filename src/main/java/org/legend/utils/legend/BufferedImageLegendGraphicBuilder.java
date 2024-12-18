@@ -18,7 +18,7 @@
  *
  */
 
-package org.legend.imageBuilder;
+package org.legend.utils.legend;
 
 import org.geotools.api.feature.Feature;
 import org.geotools.api.feature.type.FeatureType;
@@ -34,9 +34,6 @@ import org.geotools.renderer.style.Style2D;
 import org.geotools.styling.visitor.RescaleStyleVisitor;
 import org.geotools.util.NumberRange;
 import org.legend.options.LegendOptions;
-import org.legend.utils.ImageUtils;
-import org.legend.utils.LegendMerger;
-import org.legend.utils.LegendUtils;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;

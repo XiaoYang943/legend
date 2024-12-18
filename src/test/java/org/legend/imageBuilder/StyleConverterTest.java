@@ -8,7 +8,7 @@ import org.geotools.api.style.StyleFactory;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.xml.styling.SLDParser;
 import org.junit.Test;
-import org.legend.utils.StyleConverter;
+import org.legend.utils.style.StyleConverter;
 
 import java.io.File;
 import java.io.FileNotFoundException;

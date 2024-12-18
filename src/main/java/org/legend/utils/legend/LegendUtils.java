@@ -18,7 +18,7 @@
  *
  */
 
-package org.legend.utils;
+package org.legend.utils.legend;
 
 import org.geotools.api.style.Description;
 import org.geotools.api.style.FeatureTypeStyle;

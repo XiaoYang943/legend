@@ -1,4 +1,4 @@
-package org.legend.utils;
+package org.legend.utils.style;
 
 import org.geotools.api.style.StyledLayerDescriptor;
 import org.geotools.mbstyle.MBStyle;

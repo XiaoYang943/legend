@@ -2,7 +2,7 @@ package org.legend.options;
 
 import lombok.Builder;
 import lombok.Data;
-import org.legend.utils.LegendUtils;
+import org.legend.utils.legend.LegendUtils;
 
 @Data
 @Builder

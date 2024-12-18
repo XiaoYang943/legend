@@ -18,7 +18,7 @@
  *
  */
 
-package org.legend.utils;
+package org.legend.utils.legend;
 
 
 import org.geotools.api.style.Rule;
@@ -32,7 +32,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.legend.utils.LegendUtils.*;
+import static org.legend.utils.legend.LegendUtils.*;
 
 /**
  * Utility class containing static methods for merging single legend elements into a final output,

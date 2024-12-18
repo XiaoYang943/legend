@@ -18,7 +18,7 @@
  *
  */
 
-package org.legend.imageBuilder;
+package org.legend.utils.legend;
 
 import org.geotools.api.feature.Feature;
 import org.geotools.api.feature.IllegalAttributeException;
@@ -35,7 +35,6 @@ import org.geotools.geometry.jts.LiteShape2;
 import org.geotools.renderer.lite.MetaBufferEstimator;
 import org.geotools.styling.visitor.RescaleStyleVisitor;
 import org.legend.options.LegendOptions;
-import org.legend.utils.LegendUtils;
 import org.locationtech.jts.geom.*;
 
 /**

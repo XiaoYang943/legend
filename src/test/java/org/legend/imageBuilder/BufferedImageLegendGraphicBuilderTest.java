@@ -21,7 +21,8 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.junit.Test;
 import org.legend.options.LegendOptions;
-import org.legend.utils.LegendUtils;
+import org.legend.utils.legend.BufferedImageLegendGraphicBuilder;
+import org.legend.utils.legend.LegendUtils;
 import org.legend.utils.vector.FeatureSourceType;
 import org.legend.utils.vector.FeatureSourceUtils;
 import org.legend.utils.vector.StyleConverterUtil;
@@ -46,8 +47,8 @@ public class BufferedImageLegendGraphicBuilderTest extends TestCase {
         LegendOptions legendOptions = LegendOptions.builder()
                 .width(32)
                 .height(32)
-                .transparent(true) // ？
-                .bgColor("bgColor")
+                .transparent(true)
+                .bgColor("#FFFFFF")
                 .layout(LegendUtils.LegendLayout.VERTICAL)
                 .fontName("TimesRoman")
                 .fontStyle("bold")
