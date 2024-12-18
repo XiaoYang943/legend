@@ -113,13 +113,11 @@ public abstract class LegendGraphicBuilder {
             sampleShape = this.sampleLine;
 
         } else if ((symbolizer instanceof PolygonSymbolizer) || (symbolizer instanceof RasterSymbolizer)) {
-            final float w = legendWidth - (2 * hpad) - 8;
-            final float h = legendHeight - (2 * vpad) - 8;
             Coordinate[] coords = {
                     new Coordinate(hpad, vpad + 2.5),
-                    new Coordinate(hpad, vpad + h + 2.5),
-                    new Coordinate(hpad + w, vpad + h + 2.5),
-                    new Coordinate(hpad + w, vpad + 2.5),
+                    new Coordinate(hpad, vpad + legendHeight + 2.5),
+                    new Coordinate(hpad + legendWidth, vpad + legendHeight + 2.5),
+                    new Coordinate(hpad + legendWidth, vpad + 2.5),
                     new Coordinate(hpad, vpad + 2.5)
             };
             LinearRing shell = geomFac.createLinearRing(coords);

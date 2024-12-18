@@ -258,7 +258,7 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
             Function<Double, Double> rescaler, LegendOptions legendOptions, MBStyle mbStyle, cn.hutool.json.JSONObject spriteJsonObject) throws Exception {
         MetaBufferEstimator estimator = new MetaBufferEstimator(sampleFeature);
         for (int i = 0; i < ruleCount; i++) {
-            final RenderedImage image = ImageUtils.createImage(width, height, null, transparent);
+            final RenderedImage image = ImageUtils.createImage(legendOptions.getWidth(), legendOptions.getHeight(), null, transparent);
             final Map<RenderingHints.Key, Object> hintsMap = new HashMap<>();
             final Graphics2D graphics = ImageUtils.prepareTransparency(transparent, LegendUtils.getBackgroundColor(legendOptions), image, hintsMap);
             graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -268,7 +268,7 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
                 // skip raster symbolizers
                 if (!(symbolizer instanceof RasterSymbolizer)) {
                     // rescale symbols if needed
-                    LiteShape2 shape = getSampleShape(symbolizer, width, height, width, height);
+                    LiteShape2 shape = getSampleShape(symbolizer, legendOptions.getWidth(), legendOptions.getHeight(), legendOptions.getWidth(), legendOptions.getHeight());
                     if (rescalingRequired && (symbolizer instanceof PointSymbolizer || symbolizer instanceof LineSymbolizer)) {
                         double size = getSymbolizerSize(estimator, symbolizer, Math.min(width, height) - 4);
                         double newSize = rescaler.apply(size);
@@ -289,7 +289,7 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
                             double scaleY = (double) height / spriteHeight;
                             double scale = Math.min(scaleX, scaleY);
                             double size = spriteWidth * scale;
-                            symbolizer = rescalePolygonSymbolizer((PolygonSymbolizer) symbolizer, size);
+//                            symbolizer = rescalePolygonSymbolizer((PolygonSymbolizer) symbolizer, size);
                         }
 //                        // need to make room for the stroke in the symbol, thus, a smaller rectangle
 //                        double symbolizerSize = getSymbolizerSize(estimator, symbolizer, 0);
@@ -332,7 +332,7 @@ public class BufferedImageLegendGraphicBuilder extends LegendGraphicBuilder {
             Graphic graphic = fill.getGraphicFill();
             // 调整图像的大小
             Expression newSize = ff.literal(size);
-            System.out.println("newSize_" + newSize);
+            System.out.println("newSize_" + newSize + "_" + graphic.getSize());
             graphic.setSize(newSize);   // 这是直接设置大小了，没有进行缩放
         }
 

@@ -80,8 +80,8 @@ public class BufferedImageLegendGraphicBuilderTest extends TestCase {
 
         // TODO-hyy 加个参数，将sprite的图片大小缩放映射到width和height的
         LegendOptions legendOptions = LegendOptions.builder()
-                .width(64) // rule-image宽度
-                .height(64) // rule-image高度
+                .width(64) // rule：image+padding宽度
+                .height(64) // rule：image+padding高度
                 .transparent(true) // ？
                 .bgColor("bgColor")
                 .layout(LegendUtils.LegendLayout.VERTICAL)  // 布局方向
