@@ -213,9 +213,9 @@ public class LegendMerger {
      * produces a new one which holds all the images in <code>imageStack</code> one above the other,
      * handling labels.
      *
-     * @param rules              The applicable rules, one for each image in the stack (if not null it's used to compute labels)
-     * @param legendOptionsParam The legend options.
-     * @param mergeOptions       options to be used for merging
+     * @param rules         The applicable rules, one for each image in the stack (if not null it's used to compute labels)
+     * @param legendOptions The legend options.
+     * @param mergeOptions  options to be used for merging
      * @return the image with all the images on the argument list.
      */
     public static BufferedImage mergeLegends(
@@ -393,11 +393,11 @@ public class LegendMerger {
      * Creates non-raster legend columns for vertical layout according to max height and max columns
      * limits
      *
-     * @param nodes              legend images
-     * @param maxHeight          maximum height of legend
-     * @param maxColumns         maximum number of columns
-     * @param legendOptionsParam general mechanism for acquiring legend symbols
-     * @param checkColor         check for presence of color in legend
+     * @param nodes         legend images
+     * @param maxHeight     maximum height of legend
+     * @param maxColumns    maximum number of columns
+     * @param legendOptions general mechanism for acquiring legend symbols
+     * @param checkColor    check for presence of color in legend
      * @return column list
      */
     private static Column[] createColumns(List<BufferedImage> nodes, int maxColumns,
@@ -475,8 +475,8 @@ public class LegendMerger {
     /**
      * Checks the pixels for presence of colour against legend background
      *
-     * @param img                given row of the legend
-     * @param legendOptionsParam general mechanism for acquiring legend symbols
+     * @param img           given row of the legend
+     * @param legendOptions general mechanism for acquiring legend symbols
      * @return false if no colours are detected
      */
     public static boolean checkColor(BufferedImage img, LegendOptions legendOptions) {
@@ -766,10 +766,10 @@ public class LegendMerger {
     /**
      * Renders the legend image label
      *
-     * @param img                the BufferedImage
-     * @param rule               the applicable rule for img, if rule is not null the label will be rendered
-     * @param legendOptionsParam the legend options
-     * @param options            options to be used for merging
+     * @param img           the BufferedImage
+     * @param rule          the applicable rule for img, if rule is not null the label will be rendered
+     * @param legendOptions the legend options
+     * @param options       options to be used for merging
      * @return the BufferedImage of label
      */
     private static BufferedImage renderLabel(
@@ -788,9 +788,9 @@ public class LegendMerger {
      * Renders a label on the given image, using parameters from the options for the rendering
      * style.
      *
-     * @param image              the BufferedImage
-     * @param label              the label
-     * @param legendOptionsParam the legend options
+     * @param image         the BufferedImage
+     * @param label         the label
+     * @param legendOptions the legend options
      * @return a customized label image
      */
     public static BufferedImage getRenderedLabel(BufferedImage image, String label, LegendOptions legendOptions) {

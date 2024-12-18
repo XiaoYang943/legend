@@ -168,8 +168,8 @@ public class LegendUtils {
     /**
      * Returns the image background color for the given option.
      *
-     * @param legendOptionsParam from which we should extract the background color.
-     * @return the Color for the hexadecimal value passed by legendOptionsParam, or the default background color if no bgcolor were passed.
+     * @param legendOptions from which we should extract the background color.
+     * @return the Color for the hexadecimal value passed by legendOptions, or the default background color if no bgcolor were passed.
      */
     public static Color getBackgroundColor(LegendOptions legendOptions) {
         Object clr = legendOptions.getBgColor();
@@ -211,12 +211,12 @@ public class LegendUtils {
     }
 
     /**
-     * Extracts the Label font color from legendOptionsParam.
+     * Extracts the Label font color from legendOptions.
      *
      * <p>If there is no label font specified a default font color will be provided.
      *
-     * @param legendOptionsParam the legendOptionsParam from which to extract label color information.
-     * @return the Label font color extracted from the provided legendOptionsParam or a default font color.
+     * @param legendOptions the legendOptions from which to extract label color information.
+     * @return the Label font color extracted from the provided legendOptions or a default font color.
      */
     public static Color getLabelFontColor(LegendOptions legendOptions) {
         Object clr = legendOptions.getFontColor();
@@ -244,9 +244,9 @@ public class LegendUtils {
      * '\n' character). This allows people to force line breaks in their labels by including the
      * character "\" followed by "n" in their label.
      *
-     * @param label              - the label to render
-     * @param g                  - the Graphics2D that will be used to render this label
-     * @param legendOptionsParam - the legend option param
+     * @param label         - the label to render
+     * @param g             - the Graphics2D that will be used to render this label
+     * @param legendOptions - the legend option param
      * @return a {@link BufferedImage} of the properly rendered label.
      */
     public static BufferedImage renderLabel(String label, final Graphics2D g, LegendOptions legendOptions) {
@@ -329,11 +329,11 @@ public class LegendUtils {
     }
 
     /**
-     * Retrieves the font from the provided legendOptionsParam.
+     * Retrieves the font from the provided legendOptions.
      *
-     * @param legendOptionsParam a legendOptionsParam from which we should extract the {@link Font}
-     *                           information.
-     * @return the {@link Font} specified in the provided legendOptionsParam or a
+     * @param legendOptions a legendOptions from which we should extract the {@link Font}
+     *                      information.
+     * @return the {@link Font} specified in the provided legendOptions or a
      * default {@link Font}.
      */
     public static Font getLabelFont(LegendOptions legendOptions) {
